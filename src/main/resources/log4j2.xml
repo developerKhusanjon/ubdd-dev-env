@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Properties>
+        <Property name="application.name">core-${env:LOG_HOST_NAME:-unknown}</Property>
+        <Property name="socket.host">${env:LOGSTASH_HOST}</Property>
+        <Property name="socket.port">${env:LOGSTASH_PORT}</Property>
+        <Property name="console.thresholdFilter">${env:LOG_LEVEL_CONSOLE:-ERROR}</Property>
+        <Property name="socket.thresholdFilter">${env:LOG_LEVEL_SOCKET:-INFO}</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="CONSOLE" target="SYSTEM_OUT">
+            <ThresholdFilter level="${console.thresholdFilter}"/>
+            <PatternLayout pattern="%d %-5level - [%mdc] - %msg%n "/>
+        </Console>
+        <Socket name="SOCKET" host="${socket.host}" port="${socket.port}" immediateFlush="true">
+            <ThresholdFilter level="${socket.thresholdFilter}"/>
+            <JsonTemplateLayout eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json">
+                <EventTemplateAdditionalField key="type" value="${application.name}"/>
+            </JsonTemplateLayout>
+        </Socket>
+        <Async name="ASYNC">
+            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="SOCKET"/>
+        </Async>
+    </Appenders>
+
+    <Loggers>
+        <Root>
+            <AppenderRef ref="ASYNC" />
+        </Root>
+    </Loggers>
+</Configuration>

@@ -1,0 +1,19 @@
+package uz.ciasev.ubdd_service.entity.dict.person;
+
+public enum PersonDocumentTypeAlias {
+    BIRTH_CERTIFICATE,
+    PASSPORT,
+    STATELESS_PASSPORT,
+    DIPLOMATIC_PASSPORT,
+    ID_CARD,
+    CHILDREN_ID_CARD,
+    DIPLOMATIC_ID_CARD,
+    STATELESS_ID_CARD,
+    MILITARY_ID,
+    RESIDENCE_PERMIT,
+    STATELESS_RESIDENCE_PERMIT,
+    DRIVER_LICENSE,
+    AUTOMOBILE_PASSPORT,
+    OTHER,
+    UNKNOWN,
+}

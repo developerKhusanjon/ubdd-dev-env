@@ -1,0 +1,27 @@
+version: "2.1"
+
+services:
+
+  node1:
+    image: openjdk:14-jdk
+    container_name: ubdd_service
+    mem_limit: 8G
+    restart: always
+    volumes:
+      - .:/mvd_api/
+    environment:
+      - TZ=Asia/Tashkent
+      - SPRING_PROFILES_ACTIVE=local,emi-api,citizen-api,core-api
+      - LOGGING_LEVEL_UZ_CIASEV_MVD=INFO
+      - HOST_NAME=LOCAL
+    working_dir: /mvd_api
+    env_file:
+      - .env
+    ports:
+      - "9090:9090"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/tools/health"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    command: java -jar build/libs/ubdd-service-0.0.1-SNAPSHOT.jar

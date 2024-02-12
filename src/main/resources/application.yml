@@ -1,0 +1,161 @@
+server:
+  port: 9090
+  error:
+    whitelabel:
+      enabled: false
+
+spring:
+  jpa:
+    properties.hibernate:
+      show_sql: ${SHOW_SQL:false}
+      format_sql: true
+      default_schema: ${MVD_CIASEV_DATASOURCE_SCHEMA:'core_v0'}
+      temp.use_jdbc_metadata_defaults: false
+      create_empty_composites.enabled: true
+      generate_statistics: false
+      cache:
+        use_second_level_cache: false
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      metadata_builder_contributor: uz.ciasev.ubdd_service.config.base.SqlFunctionsMetadataBuilderContributor
+      jdbc:
+        batch_size: 30
+      order_inserts: true
+      order_updates: true
+
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    generate-ddl: false
+    open-in-view: false
+
+  mvc:
+    async:
+      request-timeout: 60s
+
+  datasource:
+    platform: postgres
+    url: jdbc:postgresql://${MVD_CIASEV_DATASOURCE_HOST}:${MVD_CIASEV_DATASOURCE_PORT}/mvdciasev?serverTimezone\=UTC&cachePrepStmts=true&useServerPrepStmts=true&rewriteBatchedStatements=true
+    username: ${MVD_CIASEV_DATASOURCE_USERNAME}
+    password: ${MVD_CIASEV_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${MVD_CIASEV_DATASOURCE_POOL_SIZE:75}
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 51MB
+
+  http:
+    encoding:
+      charset: UTF-8
+
+springdoc:
+  api-docs:
+    path: ${SPRING_IO_DOC_URL:/v3/api-docs}
+    enabled: ${ENABLE_SWAGGER:false}
+  swagger-ui:
+    enabled: ${ENABLE_SWAGGER:false}
+
+logging:
+  file:
+    name: logs/application.log
+    max-size: 1MB
+    total-size-cap: 10MB
+    max-history: 30
+    clean-history-on-start: true
+  pattern:
+    rolling-file-name: main-%d{yyyy-MM-dd}.%i.log
+
+mvd-ciasev:
+  name: MVD CIASEV PROJECT
+  day-x: 2021-04-27
+  url-v0: '/v0/ubdd-api'
+  host: ${HOST}
+  encryption:
+    key: ${ENCRYPTION_SECRET_KEY}
+  webhooks:
+    base-url: '/v0/api/webhooks'
+    token: ${WEBHOOKS_TOKEN}
+  jwt:
+    token:
+      symmetric-key: ${JWT_TOKEN_SECRET_KEY}
+      expiration-period-hours: ${JWT_TOKEN_EXPIRATION_PERIOD_HOURS:24}
+  db:
+    default-transaction-timeout-seconds: ${DB_TRANSACTION_TIMEOUT_SECONDS}
+  autoload:
+    actions: ${SYNCHRONIZE_ACTIONS:false}
+    permissions: ${SYNCHRONIZE_PERMISSIONS:false}
+    errors: ${SYNCHRONIZE_ERRORS:false}
+    single-thread-operation-type: ${SYNCHRONIZE_SINGLE_THREAD_OPERATION_TYPE:false}
+    notification-type: ${SYNCHRONIZE_NOTIFICATION_TYPE:false}
+    violation-type-tag: ${SYNCHRONIZE_VIOLATION_TYPE_TAG:false}
+  public-api:
+    webhook:
+      worker-pool-size: 100
+
+  files:
+    base-dir: ./data/media/files/
+    s3:
+      access-key-id: accessKey
+      secret-key: verySecretKey
+      endpoint: ${FILES_S3_ENDPOINT}
+      bucket-name: ciasev
+
+cors:
+  max-age: 3600
+  allowed-methods: GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS
+  allowed-headers: Content-Type, Accept, X-Requested-With, remember-me, Authorization, Signature, Signed-Data
+  allowed-credentials: true
+  allowed-origins:
+    - '*'
+
+
+external-systems:
+  url-v0: '/v0/external/api'
+  external-logins:
+    - 'ubdd-service:eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1N'
+
+gcp-api:
+  host: ${GCP_HOST:''}
+  photo-url: ${HOST}/v0/api/f1/photo/
+
+manzil-api:
+  host: ${MANZIL_HOST:''}
+
+pdf-api:
+  host: ${PDF_HOST:''}
+
+court-api:
+  base-url: ${COURT_HOST:''}
+  username: ${COURT_USERNAME:''}
+  password: ${COURT_PASSWORD:''}
+
+  files:
+    username: ${COURT_FILE_USERNAME:interior}
+    password: ${COURT_FILE_PASSWORD:%W#`&IcTG(nV+`j}
+
+billing-api:
+  host: ${BILLING_HOST:''}
+  token: ${BILLING_TOKEN:''}
+
+mib-api:
+  base-url: ${MIB_HOST:''}
+  token: ${MIB_TOKEN:''}
+
+tax-api:
+  base-url: ${TAX_HOST:''}
+
+tex-pass-api:
+  person-url: ${TEX_PASS_PERSON_URL:''}
+
+signature-api:
+  base-url: ${SIGNATURE_API_HOST:''}
+  login: ${SIGNATURE_API_LOGIN:''}
+  password: ${SIGNATURE_API_PASSWORD:''}
+
+autocon-api:
+  host: ${AUTOCON_HOST:''}
+  login: ${AUTOCON_LOGIN:''}
+  password: ${AUTOCON_PASSWORD:''}
+
+internal-api:
+  host: ${INTERNAL_HOST:''}

@@ -1,0 +1,603 @@
+package uz.ciasev.ubdd_service.repository.protocol;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import uz.ciasev.ubdd_service.entity.admcase.AdmCase;
+import uz.ciasev.ubdd_service.entity.dict.VictimTypeAlias;
+import uz.ciasev.ubdd_service.entity.dict.article.ArticleViolationType;
+import uz.ciasev.ubdd_service.entity.protocol.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+public interface ProtocolRepository extends ProtocolCustomRepository, JpaRepository<Protocol, Long>, JpaSpecificationExecutor<Protocol> {
+    List<Protocol> findAllByArticlePartId(Long articlePartId);
+
+    List<Protocol> findTop3ByOrderByIdDesc();
+
+    Protocol findByViolatorDetailViolatorId(Long violatorId);
+
+    List<Protocol> findAllByViolatorDetailViolatorId(Long violatorId);
+
+    Protocol findByViolatorDetailViolatorAdmCaseId(Long admCaseId);
+
+    List<Protocol> findAllByViolatorDetailViolatorAdmCaseId(Long admCaseId);
+
+    @Modifying
+    @Query("UPDATE Protocol p " +
+            " SET p.isDeleted = :isDeleted " +
+            "WHERE p.violatorDetail.id IN (" +
+            "      SELECT vd.id " +
+            "        FROM ViolatorDetail vd " +
+            "       WHERE vd.violator.id IN (" +
+            "             SELECT v.id " +
+            "               FROM Violator v " +
+            "              WHERE v.admCaseId = :admCaseId" +
+            "           )" +
+            "   ) ")
+    void setDeletedForAllByAdmCaseId(Long admCaseId, Boolean isDeleted);
+
+    @Modifying
+    @Query("UPDATE Protocol p " +
+            " SET p.isMain = FALSE " +
+            "WHERE p.violatorDetail.id IN (" +
+            "      SELECT vd.id " +
+            "        FROM ViolatorDetail vd " +
+            "       WHERE vd.violator.id IN (" +
+            "             SELECT v.id " +
+            "               FROM Violator v " +
+            "              WHERE v.admCaseId = :admCaseId" +
+            "           )" +
+            "   ) ")
+    void setMainToFalseForAllByAdmCaseId(@Param("admCaseId") Long id);
+
+    @Modifying
+    @Query(value = "UPDATE {h-schema}protocol " +
+            "          SET is_main = TRUE " +
+            "WHERE id IN ( " +
+            "      SELECT sq.min_protocol_id " +
+            "        FROM ( " +
+            "              SELECT v.id as violator_id, count(p.id) cnt, min(p.id) min_protocol_id " +
+            "                FROM {h-schema}violator AS v " +
+            "                JOIN  {h-schema}violator_detail AS vd ON (v.id=vd.violator_id) " +
+            "                JOIN {h-schema}protocol AS p ON (vd.id=p.violator_detail_id) " +
+            "               WHERE v.adm_case_id = :admCaseId " +
+//            "                 AND p.is_archived = false " +
+//            "                 AND is_deleted = false " +
+            "               GROUP BY v.id " +
+            "              ) AS sq " +
+            ")", nativeQuery = true)
+    void recalculateMainByAdmCaseId(@Param("admCaseId") Long id);
+
+    @Modifying
+    @Query("UPDATE Protocol p " +
+            "  SET p.isMain = FALSE " +
+            "WHERE p.violatorDetail.id IN (" +
+            "      SELECT vd.id " +
+            "        FROM ViolatorDetail vd " +
+            "       WHERE vd.violator.id = :violatorId " +
+            "   ) ")
+    void setMainToFalseForAllByViolatorId(@Param("violatorId") Long id);
+
+    @Modifying
+    @Query("UPDATE Protocol p " +
+            "  SET p.isMain = TRUE " +
+            "WHERE p.id = :id")
+    void makeProtocolMain(Long id);
+
+    @Query("SELECT DISTINCT p " +
+            " FROM Protocol p " +
+            "WHERE p.violatorDetail.id IN (" +
+            "      SELECT vd.id " +
+            "        FROM ViolatorDetail vd " +
+            "       WHERE vd.violator.id IN (" +
+            "             SELECT v.id " +
+            "               FROM Violator v " +
+            "              WHERE v.admCaseId = :admCaseId" +
+            "           )" +
+            "   ) ")
+    List<Protocol> findAllByAdmCaseId(Long admCaseId);
+
+    @Query("SELECT p.id as id, " +
+            "   p.isMain as isMain, " +
+            "   p.violatorDetailId as violatorDetailId, " +
+            "   p.violatorDetail.violator.person.firstNameLat as violatorFirstNameLat, " +
+            "   p.violatorDetail.violator.person.secondNameLat as violatorSecondNameLat, " +
+            "   p.violatorDetail.violator.person.lastNameLat as violatorLastNameLat " +
+            "FROM Protocol p " +
+            "WHERE p.violatorDetail.violator.admCaseId = :admCaseId ")
+    List<ProtocolCourtAutogeneratedPdfProjection> findAllPdfFileProjectionByAdmCaseId(Long admCaseId);
+
+    @Query("SELECT p.id as protocolId " +
+            ", p.violatorDetail.violator.actualAddress.fullAddressText as actualAddressText " +
+            ", p.violatorDetail.violator.person as person " +
+            "FROM Protocol p " +
+            "WHERE " +
+//            "p.isDeleted = false " +
+            "  p.id IN :ids " +
+            "ORDER BY p.createdTime DESC ")
+    List<ProtocolGroupByPersonProjection> groupProtocolsByPerson(@Param("ids") List<Long> ids);
+
+    @Query("SELECT p.id as protocolId " +
+            ", p.violatorDetail.violator.actualAddress.fullAddressText as actualAddressText " +
+            ", p.violatorDetail.violator.person as person " +
+            "FROM Protocol p " +
+            "WHERE " +
+            "  p.violatorDetail.violator.personId IN :ids " +
+            "ORDER BY p.createdTime DESC ")
+    List<ProtocolGroupByPersonProjection> groupProtocolsByPersonIds(@Param("ids") List<Long> ids);
+
+
+    @Query(value =
+            "WITH PROTOCOLS AS ( " +
+                    "    WITH DECISIONS AS ( " +
+                    "        SELECT de.id              id " +
+                    "             , de.adm_status_id   status_id " +
+                    "             , de.violator_id     violator_id " +
+                    "             , de.is_article34    is_article34 " +
+                    "             , de.number          number " +
+                    "             , de.series          series " +
+                    "             , ac.id              adm_case_id " +
+                    "        FROM core_v0.decision de " +
+                    "                 INNER JOIN core_v0.resolution re " +
+                    "                 ON de.resolution_id = re.id " +
+                    "                 AND re.is_active " +
+                    "                 INNER JOIN core_v0.adm_case ac " +
+                    "                 ON re.adm_case_id = ac.id " +
+                    "    ) " +
+                    "    SELECT pr.id                pr_id " +
+                    "         , pr.number            pr_number " +
+                    "         , pr.series            pr_series " +
+                    "         , pr.organ_id          pr_organ_id " +
+                    "         , pr.district_id       pr_district_id " +
+                    "         , pr.region_id         pr_region_id " +
+                    "         , pr.registration_time pr_registration_time " +
+                    "         , vd.violator_id       violator_id " +
+                    "         , vi.person_id         person_id " +
+                    "         , d.id                 de_id " +
+                    "         , re.id                re_id " +
+                    "         , d.status_id          de_status_id " +
+                    "         , ac.id                ac_id " +
+                    "         , ac.adm_status_id     ac_status_id " +
+                    "         , re.resolution_time   re_resolution_time " +
+                    "         , ac.considered_time   ac_considered_time " +
+                    "         , d.is_article34       de_is_article34 " +
+                    "         , d.number             de_number " +
+                    "         , d.series             de_series " +
+                    "         , mp.type_id           mp_type_id " +
+                    "         , mp.amount_text       mp_amount_text " +
+                    "         , ap.type_id           ap_type_id " +
+                    "         , ap.amount_text       ap_amount_text " +
+                    "    FROM core_v0.protocol pr " +
+                    "             LEFT JOIN core_v0.violator_detail vd " +
+                    "                       ON pr.violator_detail_id = vd.id " +
+                    "             LEFT JOIN core_v0.violator vi " +
+                    "                       ON vi.id = vd.violator_id " +
+                    "             LEFT JOIN core_v0.adm_case ac " +
+                    "                       ON ac.id = vi.adm_case_id " +
+                    "             LEFT JOIN core_v0.resolution re " +
+                    "                       ON re.adm_case_id = vi.adm_case_id " +
+                    "                       AND re.is_active " +
+                    "             LEFT JOIN DECISIONS d " +
+                    "                       ON vd.violator_id = d.violator_id " +
+                    "                       AND ac.id = d.adm_case_id " +
+                    "             LEFT JOIN core_v0.punishment mp " +
+                    "                       ON mp.decision_id = d.id " +
+                    "                       AND mp.is_main " +
+                    "             LEFT JOIN core_v0.punishment ap " +
+                    "                       ON ap.decision_id = d.id " +
+                    "                       AND NOT ap.is_main " +
+                    ") " +
+                    "SELECT PM.pr_id                 protocolId " +
+                    "     , PM.pr_number             protocolNumber " +
+                    "     , PM.pr_series             protocolSeries " +
+                    "     , PM.pr_organ_id           protocolOrganId " +
+                    "     , organ.name->>'lat'       organName " +
+                    "     , organ.id                 organId " +
+                    "     , PM.pr_district_id        protocolDistrictId " +
+                    "     , district.name->>'lat'    districtName " +
+                    "     , PM.pr_region_id          protocolRegionId " +
+                    "     , region.name->>'lat'      regionName " +
+                    "     , PM.pr_registration_time  registrationTime " +
+                    "     , PM.violator_id           violatorId " +
+                    "     , person.first_name_lat    violatorFirstNameLat " +
+                    "     , person.second_name_lat   violatorSecondNameLat " +
+                    "     , person.last_name_lat     violatorLastNameLat " +
+                    "     , person.birth_date        violatorBirthDate " +
+                    "     , person.pinpp        violatorPinpp " +
+                    "     , PM.de_id                 decisionId " +
+                    "     , PM.re_id                 resolutionId " +
+                    "     , PM.de_status_id          decisionStatusId " +
+                    "     , st1.name->>'lat'         decisionStatus " +
+                    "     , PM.ac_id                 admCaseId " +
+                    "     , PM.ac_status_id          admCaseStatusId " +
+                    "     , st2.name->>'lat'         admCaseStatus " +
+                    "     , PM.re_resolution_time    resolutionTime " +
+                    "     , PM.ac_considered_time    admCaseConsideredTime " +
+                    "     , PM.de_is_article34       decisionIsArticle34 " +
+                    "     , PM.de_number             decisionNumber " +
+                    "     , PM.de_series             decisionSeries " +
+                    "     , PM.mp_type_id            mainPunishmentTypeId " +
+                    "     , pt1.name->>'lat'         mainPunishmentType " +
+                    "     , PM.mp_amount_text        mainPunishmentAmount " +
+                    "     , PM.ap_type_id            additionalPunishmentTypeId " +
+                    "     , pt2.name->>'lat'         additionalPunishmentType " +
+                    "     , PM.ap_amount_text        additionalPunishmentAmount " +
+                    "     , cm.amount                compensationAmount " +
+                    "     , cm.paid_amount           compensationPaidAmount " +
+                    "FROM PROTOCOLS PM  " +
+                    "    LEFT JOIN core_v0.person person " +
+                    "    ON PM.person_id = person.id " +
+                    "    LEFT JOIN core_v0.d_organ organ " +
+                    "    ON PM.pr_organ_id = organ.id " +
+                    "    LEFT JOIN core_v0.d_district district " +
+                    "    ON PM.pr_district_id = district.id " +
+                    "    LEFT JOIN core_v0.d_region region " +
+                    "    ON PM.pr_region_id = region.id " +
+                    "    LEFT JOIN core_v0.d_adm_status st1 " +
+                    "    ON PM.de_status_id = st1.id " +
+                    "    LEFT JOIN core_v0.d_adm_status st2 " +
+                    "    ON PM.ac_status_id = st2.id " +
+                    "    LEFT JOIN core_v0.d_punishment_type pt1 " +
+                    "    ON PM.mp_type_id = pt1.id " +
+                    "    LEFT JOIN core_v0.d_punishment_type pt2 " +
+                    "    ON PM.ap_type_id = pt2.id " +
+                    "    LEFT JOIN ( " +
+                    "        SELECT cm.decision_id " +
+                    "             , SUM(cm.amount) amount " +
+                    "             , SUM(cm.paid_amount) paid_amount " +
+                    "        FROM core_v0.compensation cm " +
+                    "        GROUP BY cm.decision_id " +
+                    "    ) cm " +
+                    "    ON PM.de_id = cm.decision_id " +
+                    "WHERE PM.pr_id IN :ids " +
+                    "ORDER BY admCaseId, violatorId, registrationTime " +
+                    ";"
+            , nativeQuery = true)
+    List<ProtocolRequirementProjection> findProtocolRequirementInfoByProtocolIds(@Param("ids") List<Long> ids);
+
+    @Query(value = "SELECT pa.protocol_id as protocolId " +
+            ", ap.short_name->>'lat' as articlePartShortName " +
+            ", av.short_name->>'lat' as articleViolationTypeShortName " +
+            ", pa.is_main as isMain " +
+            ", pa.article_id as articleId " +
+            ", av.id as articleViolationTypeId " +
+            ", ap.id as articlePartId " +
+            "FROM core_v0.protocol_article pa " +
+            "   LEFT JOIN core_v0.d_article_part ap " +
+            "   ON pa.article_part_id = ap.id " +
+            "   LEFT JOIN core_v0.d_article_violation_type av " +
+            "   ON pa.article_violation_type_id = av.id " +
+            "WHERE pa.protocol_id IN :ids " +
+            "ORDER BY isMain DESC"
+            , nativeQuery = true)
+    List<ProtocolArticlesProjection> getProtocolArticlesByProtocolIds(@Param("ids") List<Long> ids);
+
+    @Query("SELECT p.registrationTime FROM Protocol p " +
+            "WHERE p.userId = :userId " +
+            "AND p.articlePartId = :articlePartId " +
+            "AND p.violatorDetail.violator.personId = :personId " +
+            "AND p.articleViolationType = :articleViolationType")
+    List<LocalDateTime> findForUniquenessCheck(@Param("userId") Long userId,
+                                               @Param("personId") Long personId,
+                                               @Param("articlePartId") Long articlePartId,
+                                               @Param("articleViolationType") ArticleViolationType articleViolationType);
+
+    @Query("SELECT p.registrationTime FROM Protocol p " +
+            "WHERE p.userId = :userId " +
+            "AND p.articlePartId = :articlePartId " +
+            "AND p.violatorDetail.violator.personId = :personId " +
+            "AND p.articleViolationType IS NULL")
+    List<LocalDateTime> findForUniquenessCheck(@Param("userId") Long userId,
+                                               @Param("personId") Long personId,
+                                               @Param("articlePartId") Long articlePartId);
+
+    @Query("SELECT p.id as protocolId " +
+            "FROM Protocol p " +
+            "WHERE " +
+            "p.isDeleted = false " +
+            "and ('#absent' = :vehicle_number or p.vehicleNumber = :vehicle_number) " +
+            "and ('#absent' = :violator_pinpp or p.violatorDetail.violator.person.pinpp = :violator_pinpp ) " +
+            "and p.violatorDetail.violator.admCase.statusId in (15,11,2)")
+    List<Long> findAllByVehicleNumberAndViolatorPinpp(@Param("vehicle_number") String number, @Param("violator_pinpp") String pinpp);
+
+    @Query("SELECT p.id as id, " +
+            "   p.createdTime as createdTime, " +
+            "   p.editedTime as editedTime, " +
+            "   p.userId as registrationUserId, " +
+            "   p.series as series, " +
+            "   p.number as number, " +
+            "   p.oldSeries as oldSeries, " +
+            "   p.oldNumber as oldNumber, " +
+            "   p.registrationTime as registrationTime, " +
+            "   p.organId as registrationOrganId, " +
+            "   p.departmentId as registrationDepartmentId, " +
+            "   p.regionId as registrationRegionId, " +
+            "   p.districtId as registrationDistrictId, " +
+            "   p.mtpId as mtpId, " +
+            "   p.violationTime as violationTime, " +
+            "   p.articleId as articleId, " +
+            "   p.articlePartId as articlePartId, " +
+            "   p.articleViolationTypeId as articleViolationTypeId, " +
+            "   p.violatorDetailId as violatorDetailId, " +
+            "   p.isJuridic as isJuridic, " +
+            "   p.juridicId as juridicId, " +
+            "   p.isAgree as isAgree, " +
+            "   p.isFamiliarize as isFamiliarize, " +
+            "   p.isMain as isMain, " +
+            "   p.isDeleted as isDeleted, " +
+            "   v.isArchived as isArchived, " +
+            "   vd.personDocumentTypeId as violatorDocumentTypeId, " +
+            "   vd.documentSeries as violatorDocumentSeries, " +
+            "   vd.documentNumber as violatorDocumentNumber, " +
+            "   v.id as violatorId, " +
+            "   vp.pinpp as violatorPinpp, " +
+            "   vp.firstNameLat as violatorFirstNameLat, " +
+            "   vp.secondNameLat as violatorSecondNameLat, " +
+            "   vp.lastNameLat as violatorLastNameLat, " +
+            "   vp.birthDate as violatorBirthDate, " +
+            "   v.admCaseId as admCaseId " +
+            " FROM Protocol p " +
+            "   JOIN ViolatorDetail vd ON p.violatorDetailId = vd.id " +
+            "   JOIN Violator v ON vd.violatorId = v.id " +
+            "   JOIN Person vp ON v.personId = vp.id " +
+            "WHERE p.id IN :ids ")
+    List<ProtocolSimpleListProjection> findAllSimpleListProjectionById(@Param("ids") Iterable<Long> ids, Sort sort);
+
+    @Query("SELECT p.id as id, " +
+            "p.createdTime as createdTime, " +
+            "p.editedTime as editedTime, " +
+            "p.userId as userId, " +
+            "p.series as series, " +
+            "p.number as number, " +
+            "p.oldSeries as oldSeries, " +
+            "p.oldNumber as oldNumber, " +
+            "p.registrationTime as registrationTime, " +
+            "p.organId as organId, " +
+            "p.departmentId as departmentId, " +
+            "p.regionId as regionId, " +
+            "p.districtId as districtId, " +
+            "p.mtpId as mtpId, " +
+            "p.violationTime as violationTime, " +
+            "p.articleId as articleId, " +
+            "p.articlePartId as articlePartId, " +
+            "p.articleViolationTypeId as articleViolationTypeId, " +
+            "p.violatorDetailId as violatorDetailId, " +
+            "p.isJuridic as isJuridic, " +
+            "p.juridicId as juridicId, " +
+            "p.isAgree as isAgree, " +
+            "p.isFamiliarize as isFamiliarize, " +
+            "p.explanatory as explanatory, " +
+            "p.fabula as fabula, " +
+            "p.isMain as isMain, " +
+            "p.isDeleted as isDeleted " +
+            " FROM Protocol p " +
+            "WHERE p.id IN :ids ")
+    List<ProtocolSlimProjection> findAllSlimProjectionByAdmCaseId(@Param("ids") Iterable<Long> ids, Sort sort);
+
+    @Query("SELECT p.id as id, " +
+            "   p.createdTime as createdTime, " +
+            "   p.editedTime as editedTime, " +
+            "   p.userId as registrationUserId, " +
+            "   p.series as series, " +
+            "   p.number as number, " +
+            "   p.oldSeries as oldSeries, " +
+            "   p.oldNumber as oldNumber, " +
+            "   p.registrationTime as registrationTime, " +
+            "   p.inspectorFio as inspectorFio, " +
+            "   p.inspectorWorkCertificate as inspectorWorkCertificate, " +
+            "   p.inspectorInfo as inspectorInfo, " +
+            "   p.inspectorSignature as inspectorSignature, " +
+            "   p.organId as registrationOrganId, " +
+            "   p.departmentId as registrationDepartmentId, " +
+            "   p.regionId as registrationRegionId, " +
+            "   p.districtId as registrationDistrictId, " +
+            "   p.mtpId as mtpId, " +
+            "   p.violationTime as violationTime, " +
+            "   p.articleId as articleId, " +
+            "   p.articlePartId as articlePartId, " +
+            "   p.articleViolationTypeId as articleViolationTypeId, " +
+            "   p.violatorDetailId as violatorDetailId, " +
+            "   p.isJuridic as isJuridic, " +
+            "   p.juridicId as juridicId, " +
+            "   p.isAgree as isAgree, " +
+            "   p.isFamiliarize as isFamiliarize, " +
+            "   p.isMain as isMain, " +
+            "   p.isDeleted as isDeleted, " +
+            "   v.isArchived as isArchived, " +
+            "   p.latitude as latitude, " +
+            "   p.longitude as longitude, " +
+            "   p.audioUri as audioUri, " +
+            "   p.videoUri as videoUri, " +
+            "   p.inspectorRegionId as inspectorRegionId, " +
+            "   p.inspectorDistrictId as inspectorDistrictId, " +
+            "   p.inspectorPositionId as inspectorPositionId, " +
+            "   p.inspectorRankId as inspectorRankId, " +
+            "   vd.personDocumentTypeId as violatorDocumentTypeId, " +
+            "   vd.documentSeries as violatorDocumentSeries, " +
+            "   vd.documentNumber as violatorDocumentNumber, " +
+            "   v.id as violatorId, " +
+            "   vp.pinpp as violatorPinpp, " +
+            "   vp.firstNameLat as violatorFirstNameLat, " +
+            "   vp.secondNameLat as violatorSecondNameLat, " +
+            "   vp.lastNameLat as violatorLastNameLat, " +
+            "   vp.birthDate as violatorBirthDate, " +
+            "   vp.nationalityId as violatorNationalityId, " +
+            "   vp.genderId as violatorGenderId, " +
+            "   ac.id as admCaseId, " +
+            "   ac.statusId as admCaseStatusId, " +
+            "   ac.organId as consideringOrganId, " +
+            "   ac.departmentId as considerDepartmentId, " +
+            "   ac.regionId as considerRegionId, " +
+            "   ac.districtId as considerDistrictId, " +
+            "   ac.considerUserId as considerUserId, " +
+            "   d.id as decisionId, " +
+            "   d.series as decisionSeries, " +
+            "   d.number as decisionNumber, " +
+            "   r.resolutionTime as resolutionTime, " +
+            "   r.organId as resolutionOrganId, " +
+            "   d.decisionTypeId as decisionTypeId, " +
+            "   d.terminationReasonId as terminationReasonId, " +
+            "   d.statusId as decisionStatusId, " +
+            "   mp.punishmentTypeId as punishmentTypeId, " +
+            "   mp.amountText as punishmentAmount, " +
+            "   p.ubddTexPassData.vehicleBrand as vehicleBrand, " +
+            "   p.vehicleNumber as vehicleNumber, " +
+            "   c.amount as govCompensationAmount, " +
+            "   c.paidAmount as govCompensationPaidAmount " +
+            " FROM Protocol p " +
+            "   JOIN ViolatorDetail vd ON p.violatorDetailId = vd.id " +
+            "   JOIN Violator v ON vd.violatorId = v.id " +
+            "   JOIN Person vp ON v.personId = vp.id " +
+            "   JOIN AdmCase ac ON v.admCaseId = ac.id " +
+            "   LEFT JOIN Resolution r ON ac.id = r.admCaseId AND r.isActive = TRUE" + // джоинить так же как в поиске повторности
+            "   LEFT JOIN Decision d ON v.id = d.violatorId AND d.resolutionId = r.id " +
+            "   LEFT JOIN Punishment mp ON d.id = mp.decisionId AND mp.isMain = TRUE " +
+            "   LEFT JOIN Compensation c ON c.decisionId = d.id AND c.victimTypeId = " +
+            VictimTypeAlias.GOVERNMENT_ID +
+//            "   LEFT JOIN ProtocolUbddDataView pud ON pud.protocolId = p.id " +
+            "   LEFT JOIN p.ubddTexPassData " +
+            "WHERE p.id IN :ids ")
+    List<ProtocolFullListProjection> findAllFullListProjectionById(@Param("ids") Iterable<Long> ids, Sort sort);
+
+    @Query("SELECT p.id as id, p.latitude as latitude, p.longitude as longitude " +
+            "FROM Protocol p " +
+            "WHERE p.isDeleted = false " +
+//            "AND p.isArchived = false " +
+            "AND p.createdTime > :createdFrom " +
+            "AND p.latitude IS NOT NULL " +
+            "AND p.longitude IS NOT NULL " +
+            "AND p.latitude >= :minLat1 " +
+            "AND p.latitude < :maxLat2 " +
+            "AND p.longitude >= :minLon1 " +
+            "AND p.longitude < :maxLon2 " +
+            "AND (:regionId = 0L OR p.regionId = :regionId) " +
+            "ORDER BY p.createdTime DESC ")
+    Page<ProtocolLocationProjection> findProtocolLocations(@Param("regionId") long regionId,
+                                                           @Param("minLat1") double minLat1,
+                                                           @Param("minLon1") double minLon1,
+                                                           @Param("maxLat2") double maxLat2,
+                                                           @Param("maxLon2") double maxLon2,
+                                                           @Param("createdFrom") LocalDateTime createdFrom,
+                                                           Pageable pageable);
+
+    Optional<Protocol> findByExternalIdAndOrganId(String externalId, Long organId);
+
+    @Query("SELECT protocol.id as id, " +
+            "   protocol.createdTime as createdTime, " +
+            "   protocol.series as series, " +
+            "   protocol.number as number, " +
+            "   protocol.registrationTime as registrationTime, " +
+            "   jsonb_extract_path_text(protocol.organ.name, 'lat') as organNameLat, " +
+            "   jsonb_extract_path_text(department.name, 'lat') as departmentNameLat, " +
+            "   jsonb_extract_path_text(protocol.region.name, 'lat') as registrationRegionNameLat, " +
+            "   jsonb_extract_path_text(protocol.district.name, 'lat') as registrationDistrictNameLat, " +
+            "   jsonb_extract_path_text(mtp.name, 'lat') as mtpNameLat, " +
+            "   protocol.violationTime as violationTime, " +
+            "   jsonb_extract_path_text(protocol.articlePart.name, 'lat') as articlePartNameLat, " +
+            "   jsonb_extract_path_text(articleViolationType.name, 'lat') as articleViolationTypeNameLat, " +
+            "   protocol.violatorDetail.documentSeries as violatorDocumentSeries, " +
+            "   protocol.violatorDetail.documentNumber as violatorDocumentNumber, " +
+            "   protocol.violatorDetail.violator.person.firstNameLat as violatorFirstNameLat, " +
+            "   protocol.violatorDetail.violator.person.secondNameLat as violatorSecondNameLat, " +
+            "   protocol.violatorDetail.violator.person.lastNameLat as violatorLastNameLat, " +
+            "   protocol.violatorDetail.violator.person.birthDate as violatorBirthDate, " +
+            "   jsonb_extract_path_text(protocol.violatorDetail.violator.person.nationality.name, 'lat') as violatorNationalityNameLat, " +
+            "   jsonb_extract_path_text(protocol.violatorDetail.violator.person.gender.name, 'lat') as violatorGenderNameLat, " +
+            "   protocol.violatorDetail.violator.actualAddress.fullAddressText as actualAddressText, " +
+            "   jsonb_extract_path_text(protocol.violatorDetail.violator.admCase.status.name, 'lat') as admCaseStatusNameLat, " +
+            "   jsonb_extract_path_text(resolutionOrgan.name, 'lat') as resolutionOrganCodeLat, " +
+            "   jsonb_extract_path_text(terminationReason.name, 'lat') as terminationReasonNameLat, " +
+            "   jsonb_extract_path_text(decisionStatus.name, 'lat') as decisionStatusNameLat, " +
+            "   jsonb_extract_path_text(mainPunishmentType.name, 'lat') as punishmentTypeNameLat, " +
+            "   penalty.amount as penaltyAmount, " +
+            "   penalty.paidAmount as penaltyPaidAmount, " +
+            "   penalty.lastPayTime as penaltyLastPayTime, " +
+//            "   ubddData.vehicleNumber as vehicleNumber, " +
+//            "   ubddData.vehicleBrand as vehicleBrand, " +
+            "   protocol.vehicleNumber as vehicleNumber, " +
+            "   protocol.ubddTexPassData.vehicleBrand as vehicleBrand, " +
+            "   protocol.inspectorFio as userFio, " +
+            "   compensation.amount as govCompensationAmount, " +
+            "   compensation.paidAmount as govCompensationPaidAmount " +
+            " FROM Protocol protocol " +
+            "   LEFT JOIN Resolution resolution ON protocol.violatorDetail.violator.admCase.id = resolution.admCaseId AND resolution.isActive = TRUE " + // джоинить так же как в поиске повторности
+            "   LEFT JOIN Organ resolutionOrgan ON resolution.organId = resolutionOrgan.id " +
+            "   LEFT JOIN Decision decision ON protocol.violatorDetail.violator.id = decision.violatorId AND decision.resolutionId = resolution.id " +
+            "   LEFT JOIN Punishment mainPunishment ON decision.id = mainPunishment.decisionId AND mainPunishment.isMain = TRUE " +
+            "   LEFT JOIN PenaltyPunishment penalty ON mainPunishment.id = penalty.punishmentId " +
+            "   LEFT JOIN Department department ON protocol.departmentId = department.id " +
+            "   LEFT JOIN Mtp mtp ON protocol.mtpId = mtp.id " +
+            "   LEFT JOIN ArticleViolationType articleViolationType ON protocol.articleViolationTypeId = articleViolationType.id " +
+            "   LEFT JOIN TerminationReason terminationReason ON decision.terminationReasonId = terminationReason.id " +
+            "   LEFT JOIN PunishmentType mainPunishmentType ON mainPunishmentType.id = mainPunishment.punishmentTypeId " +
+            "   LEFT JOIN AdmStatus decisionStatus ON decision.statusId = decisionStatus.id " +
+            "   LEFT JOIN Compensation compensation ON compensation.decisionId = decision.id AND compensation.victimTypeId = " +
+            VictimTypeAlias.GOVERNMENT_ID +
+//            "   LEFT JOIN ProtocolUbddDataView ubddData ON protocol.id = ubddData.protocol.id " +
+            "   LEFT JOIN protocol.ubddTexPassData " +
+            "WHERE protocol.id IN :ids ")
+    List<ProtocolExcelProjection> findAllExcelProjectionById(List<Long> ids, Sort sort);
+
+    @Query("SELECT " +
+            " p.id as id, " +
+            " p.series as series, " +
+            " p.number as number, " +
+            " p.registrationTime as registrationTime, " +
+            " p.violationTime as violationTime, " +
+            " p.isMain as isMain, " +
+            " p.inspectorInfo as inspectorInfo, " +
+            " p.violatorDetail.violator.id as violatorId, " +
+            " p.violatorDetail.violator.person.pinpp as violatorPinpp, " +
+            " p.violatorDetail.documentSeries as violatorDocumentSeries, " +
+            " p.violatorDetail.documentNumber as violatorDocumentNumber, " +
+            " p.organ as organ, " +
+            " p.department as department, " +
+            " p.district as district, " +
+            " p.region as region, " +
+            " p.isJuridic as isJuridic, " +
+            " p.articlePart as articlePart, " +
+            " p.articleViolationType as articleViolationType, " +
+            " p.vehicleNumber as ubddVehicleNumber, " +
+//            " p.ubddData.vehicleColor as ubddVehicleColor, " +
+//            " p.ubddData.vehicleBrand as ubddVehicleBrand, " +
+            " p.ubddTexPassData.vehicleColor as ubddVehicleColor, " +
+            " p.ubddTexPassData.vehicleBrand as ubddVehicleBrand, " +
+            " p.ubddData.vehicleAdditional as ubddVehicleAdditional, " +
+            " EXISTS(SELECT 1 FROM VictimDetail vd WHERE vd.protocolId = p.id) as hasVictims, " +
+            " EXISTS(SELECT 1 FROM ParticipantDetail pd WHERE pd.protocolId = p.id) as hasParticipants " +
+            "FROM Protocol p " +
+            " LEFT JOIN p.articleViolationType " +
+            " LEFT JOIN p.district " +
+            " LEFT JOIN p.department " +
+            " LEFT JOIN p.ubddData " +
+            " LEFT JOIN p.ubddTexPassData " +
+            "WHERE p.violatorDetail.violator.id = :violatorId")
+    List<ProtocolCitizenListProjection> findCitizenListProjectionByViolatorsId(Long violatorId);
+
+
+    @Query("SELECT protocol.violatorDetail.violator.admCase " +
+            " FROM Protocol protocol " +
+            "WHERE protocol.id IN :ids ")
+    List<AdmCase> findAdmCasesByProtocolId(List<Long> ids);
+
+    @Query("SELECT DISTINCT p " +
+            " FROM Protocol p " +
+            "WHERE p.violatorDetail.id IN (" +
+            "      SELECT vd.id " +
+            "        FROM ViolatorDetail vd " +
+            "       WHERE vd.violator.id IN (" +
+            "             SELECT v.id " +
+            "               FROM Violator v " +
+            "              WHERE v.admCaseId = :admCaseId" +
+            "           )" +
+            "   ) ")
+    List<Protocol> findFirstByAdmCaseIdSorted(@Param("admCaseId") Long admCaseId, Pageable pageable);
+}

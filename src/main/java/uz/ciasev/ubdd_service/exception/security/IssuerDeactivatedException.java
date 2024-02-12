@@ -1,0 +1,12 @@
+package uz.ciasev.ubdd_service.exception.security;
+
+import org.springframework.http.HttpStatus;
+import uz.ciasev.ubdd_service.exception.ApplicationException;
+import uz.ciasev.ubdd_service.exception.ErrorCode;
+
+public class IssuerDeactivatedException extends ApplicationException {
+
+    public IssuerDeactivatedException() {
+        super(HttpStatus.UNAUTHORIZED, ErrorCode.ISSUER_DEACTIVATED);
+    }
+}

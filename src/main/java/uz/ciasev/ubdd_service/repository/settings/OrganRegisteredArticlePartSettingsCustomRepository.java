@@ -1,0 +1,6 @@
+package uz.ciasev.ubdd_service.repository.settings;
+
+import uz.ciasev.ubdd_service.entity.settings.OrganRegisteredArticlePartSettings;
+
+public interface OrganRegisteredArticlePartSettingsCustomRepository extends OrganArticlePartSettingsCustomRepository<OrganRegisteredArticlePartSettings> {
+}

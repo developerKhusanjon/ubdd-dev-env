@@ -1,0 +1,9 @@
+package uz.ciasev.ubdd_service.service.dict.court;
+
+import uz.ciasev.ubdd_service.dto.internal.dict.request.ViolationRepeatabilityStatusCreateRequestDTO;
+import uz.ciasev.ubdd_service.dto.internal.dict.request.ViolationRepeatabilityStatusUpdateRequestDTO;
+import uz.ciasev.ubdd_service.entity.dict.court.ViolationRepeatabilityStatus;
+import uz.ciasev.ubdd_service.service.dict.DictionaryCRUDService;
+
+public interface ViolationRepeatabilityStatusDictionaryService extends DictionaryCRUDService<ViolationRepeatabilityStatus, ViolationRepeatabilityStatusCreateRequestDTO, ViolationRepeatabilityStatusUpdateRequestDTO> {
+}
