@@ -1,0 +1,19 @@
+stages:
+  - build
+
+build-job:
+  stage: build
+  only:
+    - main
+  
+  tags:
+    - ubdd-service
+   
+  script:
+    - cd /home/emi_UBDD_service/ubdd-service
+    - pwd
+    - whoami
+    - git checkout main || fail
+    - git reset --hard origin/main || fail
+    - git pull origin main || fail
+    - docker compose up --detach --build 
