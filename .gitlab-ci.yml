@@ -16,4 +16,6 @@ build-job:
     - git checkout main || fail
     - git reset --hard origin/main || fail
     - git pull origin main || fail
-    - docker compose up --detach --build 
+    - chmod +x gradlew
+    - ./gradlew build -x test
+    - docker compose up --detach --build
