@@ -35,38 +35,10 @@ public class ResolutionController {
     private final DecisionDTOService decisionDTOService;
     private final UserResolutionMadeService resolutionMadeService;
 
-    @PostMapping("/simplified")
-    @AllowedPermission(PermissionAlias.MAKE_DECISION)
-    public DecisionListResponseDTO createSimplified(@CurrentUser User user,
-                                                    @RequestBody @Valid SimplifiedResolutionRequestDTO requestDTO) {
-        return decisionDTOService.buildListForCreate(() -> resolutionMadeService.createAdmSimplified(user, requestDTO.getAdmCaseId(), requestDTO).getCreatedDecision());
-    }
-
-    @PostMapping("/transfer-to-criminal")
-    @AllowedPermission(PermissionAlias.MAKE_DECISION)
-    public void createTransferToCriminal(@CurrentUser User user,
-                                         @RequestBody @Valid TransferToCriminalCaseRequestDTO requestDTO) {
-        resolutionMadeService.createTransferToCriminalCase(user, requestDTO.getAdmCaseId(), requestDTO);
-    }
-
     @PostMapping
     public DecisionListResponseDTO create(@CurrentUser User user,
                                           @RequestBody @Valid SingleResolutionRequestDTO requestDTO) {
         return decisionDTOService.buildListForCreate(() -> resolutionMadeService.createAdmSingle(user, requestDTO.getAdmCaseId(), requestDTO).getCreatedDecision());
-    }
-
-    @GetMapping
-    @AllowedPermission(PermissionAlias.WATCH_DECISION)
-    public List<ResolutionListResponseDTO> getListByAdmCaseId(@CurrentUser User user,
-                                                              @RequestParam("admCaseId") Long admCaseId) {
-        return resolutionService.findAllByAdmCaseId(admCaseId);
-    }
-
-    @GetMapping("/{id}")
-    @AllowedPermission(PermissionAlias.WATCH_DECISION)
-    public ResolutionDetailResponseDTO getById(@CurrentUser User user,
-                                               @PathVariable Long id) {
-        return resolutionService.findDetailById(id);
     }
 
     @PostMapping("/{id}/cancellation")
@@ -76,10 +48,4 @@ public class ResolutionController {
         resolutionActionService.cancelResolutionByOrgan(user, id, dto);
     }
 
-    @GetMapping("/{id}/cancellations")
-    @AllowedPermission(PermissionAlias.WATCH_DECISION)
-    public List<CancellationResolutionListResponseDTO> getCancellationsById(@CurrentUser User user,
-                                                                            @PathVariable Long id) {
-        return resolutionService.findCancellationsById(id);
-    }
 }

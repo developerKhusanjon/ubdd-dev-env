@@ -68,7 +68,6 @@ public class CourtPreparingServiceImpl implements CourtPreparingService {
 
         violatorService.findByAdmCaseId(admCaseId)
                 .forEach(v -> {
-//                    error.addIf(v.getDependentAmount() == null, ErrorCode.ONE_FROM_VIOLATORS_HAS_NO_DEPENDENT_AMOUNT);
                     error.addIf(v.getHealthStatusId() == null, ErrorCode.ONE_FROM_VIOLATORS_HAS_NO_HEALF_STAUS);
                     error.addIf(v.getEducationLevelId() == null, ErrorCode.ONE_FROM_VIOLATORS_HAS_NO_EDUCATION_LEVEL);
                     error.addIf(v.getMaritalStatusId() == null, ErrorCode.ONE_FROM_VIOLATORS_HAS_NO_MARITAL_STATUS);

@@ -38,30 +38,20 @@ public class CourtThreeMaterialMethodService {
     private final CourtMaterialFieldsService courtFieldsService;
 
     private final CourtEventHolder courtEventHolder;
-    private final PublicApiWebhookEventCourtDataService eventDataService;
-    private final PublicApiWebhookEventPopulationService webhookEventPopulationService;
-    private final CheckCourtDuplicateRequestService courtDuplicateRequestService;
     private final MaterialHelpCourtService helpCourtService;
-    private final CourtRequestOrderService orderService;
 
     @Transactional
     public void accept(ThirdCourtRequest request) {
-        courtDuplicateRequestService.checkAndRemember(request);
-        orderService.applyWithOrderCheck(CourtMethod.COURT_THIRD_MATERIAL, request, this::handle);
+        handle(request);
     }
 
 
     private void handle(ThirdCourtRequest request) {
-        helpCourtService.checkIgnoredMaterialType(request);
-
-//        if (request.getMaterialId() == null) {
-//            throw new CourtValidationException("Material id empty");
-//        }
-//
-//        CourtMaterial material = materialRepository.getById(request.getMaterialId()).orElseThrow(() -> new CourtValidationException("Material case not find"));
 
         CourtMaterial material = getMaterialSupplier(request).get();
+
         List<CourtMaterialDecision> materialDecisions = materialDecisionRepository.findAllByCourtMaterialId(material.getId());
+
         CourtMaterialFields courtFields = courtFieldsService.getCurrent(material);
 
         MaterialBuilderContext builderContext = MaterialBuilderContext.builder()
@@ -81,10 +71,9 @@ public class CourtThreeMaterialMethodService {
 
         courtEventHolder.init();
 
-        MaterialActionContext processedActionContext = actionManager.accept(builderContext, actionContext, request);
+        actionManager.accept(builderContext, actionContext, request);
 
-        PublicApiWebhookEventDataCourtDTO courtEventDTO = courtEventHolder.close();
-//        webhookEventPopulationService.addCourtEvent(courtEventDTO);
+        courtEventHolder.close();
 
     }
 
@@ -93,14 +82,11 @@ public class CourtThreeMaterialMethodService {
             return () -> materialRepository.findById(request.getMaterialId()).orElseThrow(() -> new CourtValidationException("Material case not find"));
         }
 
-        // в суде баг, они шлютт нам пустой materialId. Тако способ позволит нам обработатаь их крвые запросы
         if (request.getInstance().equals(2L) && request.getClaimReviewId() != null) {
-//            return () -> materialRepository.findByClaimId(request.getClaimReviewId()).orElseThrow(() -> new CourtValidationException("Material case not find by claimReviewId for empty material id"));
             return () -> courtFieldsService.findByClaimId(request.getClaimReviewId())
                     .map(f -> materialRepository.findById(f.getMaterialId()).get())
                     .orElseThrow(() -> new CourtValidationException("Material case not find by claimReviewId for empty material id"));
         }
-
         throw new CourtValidationException("Material id empty");
     }
 }

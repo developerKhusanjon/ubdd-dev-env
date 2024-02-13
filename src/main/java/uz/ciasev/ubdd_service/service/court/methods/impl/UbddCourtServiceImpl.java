@@ -65,17 +65,10 @@ public class UbddCourtServiceImpl implements UbddCourtService {
     private final ResolutionActionService resolutionActionService;
     private final AdmCaseStatusService admStatusService;
     private final CourtStatusDictionaryService courtStatusDictionaryService;
-    private final CourtLogService courtLogService;
-    private final SecondMethodFromCourtService secondMethodFromCourtService;
+    private final CourtAdmCaseMovementService courtAdmCaseMovementService;
+    private final CourtCaseFieldsService courtCaseFieldsService;
+
     private final ThirdMethodFromCourtService thirdMethodFromCourtService;
-    private final FifthMethodFromCourtService fifthMethodFromCourtService;
-    private final SevenMethodFromCourtService sevenMethodFromCourtService;
-    private final EighthMethodFromCourtService eighthMethodFromCourtService;
-    private final NineMethodFromCourtService nineMethodFromCourtService;
-    private final CourtSecondMaterialMethodService secondMaterialMethodFromCourtService;
-    private final CourtThreeMaterialMethodService threeMaterialMethodService;
-    private final CheckCourtDuplicateRequestService courtDuplicateRequestService;
-    private final CourtRequestMapperFacade requestMapper;
 
     private final ViolatorService violatorService;
     private final VictimService victimService;
@@ -106,7 +99,13 @@ public class UbddCourtServiceImpl implements UbddCourtService {
 
         admStatusService.setStatus(admCase, AdmStatusAlias.SENT_TO_COURT);
 
+        CourtAdmCaseMovement movement;
+        movement = buildCourtCaseMovement(request.getCaseId(), request.getClaimId(), null);
+        courtAdmCaseMovementService.save(movement);
+
         admCaseService.update(request.getCaseId(), admCase);
+
+        courtCaseFieldsService.handleSend(admCase, request.getClaimId());
 
         if (request.getIs308()) {
             resolutionService.findActiveByAdmCaseId(request.getCaseId())
@@ -116,37 +115,33 @@ public class UbddCourtServiceImpl implements UbddCourtService {
     }
 
 
-    @Override
-    public CourtResponseDTO courtResolution(CourtRequestDTO<ThirdCourtResolutionRequestDTO> requestDTO) {
-
-        replacePersonIdByViolatorId(requestDTO);
-
-        CourtLog courtLog = courtLogService.save(requestDTO.getSendDocumentRequest(), COURT_THIRD);
-        if (requestDTO.getSendDocumentRequest().isMaterial()) {
-            ThirdCourtRequest mappedRequest = requestMapper.map(requestDTO.getSendDocumentRequest());
-            threeMaterialMethodService.accept(mappedRequest);
-        } else {
-
-            try {
-                thirdMethodFromCourtService.accept(requestDTO.getSendDocumentRequest());
-            } catch (ResolutionInAdmCaseAlreadyExists e) {
-                courtDuplicateRequestService.checkAndRemember(requestDTO.getSendDocumentRequest());
-                throw e;
-            } catch (ExternalException e) {
-                e.setEnvelopeId(courtLog.getId());
-                throw e;
-            } catch (ApplicationException e) {
-                throw new CourtWrappedException(e, courtLog.getId());
-            }
-        }
-        return buildCourtResponse(courtLog.getId());
+    private CourtAdmCaseMovement buildCourtCaseMovement(Long caseId, Long claimId, String errors) {
+        return CourtAdmCaseMovement.builder()
+                .caseId(caseId)
+                .claimId(claimId)
+                .statusTime(LocalDateTime.now())
+                .validationErrors(errors)
+                .isSentToCourt(true)
+                .build();
     }
 
 
-    private void replacePersonIdByViolatorId(CourtRequestDTO<ThirdCourtResolutionRequestDTO> requestDTO) {
 
-        Long caseId = requestDTO.getSendDocumentRequest().getCaseId();
-        List<ThirdCourtDefendantRequestDTO> defendants = requestDTO.getSendDocumentRequest().getDefendant();
+
+
+    @Override
+    public void acceptUbddCourtResolution(ThirdCourtResolutionRequestDTO request) {
+
+        replacePersonIdByViolatorId(request);
+
+        thirdMethodFromCourtService.accept(request);
+
+    }
+
+    private void replacePersonIdByViolatorId(ThirdCourtResolutionRequestDTO request) {
+        Long caseId = request.getCaseId();
+        List<ThirdCourtDefendantRequestDTO> defendants = request.getDefendant();
+
 
         if (defendants.stream().anyMatch(d -> d.getViolatorId() == null)) {
             if (defendants.size() != 1) {
@@ -172,18 +167,10 @@ public class UbddCourtServiceImpl implements UbddCourtService {
 
         defendants.stream()
                 .filter(defendant ->
-                        defendant.getReturnReason() == null && requestDTO.getSendDocumentRequest().getStatus() == 17L &&
+                        defendant.getReturnReason() == null && request.getStatus() == 17L &&
                                 CourtFinalResultByInstanceAliases.getNameByValue(defendant.getFinalResult()).equals(CourtFinalResultByInstanceAliases.FR_I_CASE_RETURNING)
                 )
                 .forEach(defendant -> defendant.setReturnReason(99L));
     }
-
-    private CourtResponseDTO buildCourtResponse(Long envelopeId) {
-        return new CourtResponseDTO(
-                new CourtResultDTO(CourtResult.SUCCESSFULLY, "Ok"),
-                envelopeId
-        );
-    }
-
 
 }

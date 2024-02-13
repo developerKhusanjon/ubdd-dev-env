@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import uz.ciasev.ubdd_service.mvd_core.api.court.controller.CourtExternalApiController;
+import uz.ciasev.ubdd_service.controller_ubdd.CourtController;
 import uz.ciasev.ubdd_service.config.wrapper.IgnoreResponseBinding;
 import uz.ciasev.ubdd_service.mvd_core.api.court.dto.CourtResponseDTO;
 import uz.ciasev.ubdd_service.mvd_core.api.court.dto.CourtResultDTO;
@@ -21,7 +21,7 @@ import java.util.List;
 
 @Slf4j
 @Order(0)
-@ControllerAdvice(assignableTypes = {CourtExternalApiController.class})
+@ControllerAdvice(assignableTypes = {CourtController.class})
 @RequiredArgsConstructor
 public class CourtExceptionHandler extends CiasevRestExceptionHandler {
 
