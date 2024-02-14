@@ -310,7 +310,6 @@ public class PublicApiWebhookEventPopulationServiceImpl implements PublicApiWebh
 
     private void addEvent(PublicApiWebhookType type, Organ organ, AdmCase admCase, Supplier<PublicApiWebhookEventDataDTO> mainDTO) {
 
-//        if (!publicApiWebhookService.isPublicApiWebhookOrgan(organ)) {
         if (!publicApiWebhookService.isOrganSubscribeToEvent(organ, type)) {
             return;
         }

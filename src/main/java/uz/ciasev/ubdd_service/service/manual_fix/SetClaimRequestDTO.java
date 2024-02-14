@@ -1,4 +1,4 @@
-package uz.ciasev.ubdd_service.controller_ubdd;
+package uz.ciasev.ubdd_service.service.manual_fix;
 
 import lombok.Data;
 

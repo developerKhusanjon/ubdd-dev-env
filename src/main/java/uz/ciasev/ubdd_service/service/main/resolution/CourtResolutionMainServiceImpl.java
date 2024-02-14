@@ -65,7 +65,6 @@ public class CourtResolutionMainServiceImpl implements CourtResolutionMainServic
 
     private final AdmCaseService admCaseService;
     private final ViolatorService violatorService;
-    private final EvidenceService evidenceService;
     private final InspectorService inspectorService;
     private final ResolutionService resolutionService;
     private final ResolutionActionService resolutionActionService;
@@ -76,7 +75,6 @@ public class CourtResolutionMainServiceImpl implements CourtResolutionMainServic
     private final AdmEventService notificatorService;
     private final AdmCaseStatusService statusService;
     private final ResolutionHelpService helpService;
-    private final CourtEventHolder courtEventHolder;
     private final PublicApiWebhookEventCourtDataService eventDataService;
     private final CourtFileService courtFileService;
 
@@ -84,7 +82,8 @@ public class CourtResolutionMainServiceImpl implements CourtResolutionMainServic
     @Transactional
     public void prepareCaseForEditing(Long caseId, Long claimId) {
         var admCase = admCaseService.getById(caseId);
-        admCaseAccessService.checkPermitActionWithAdmCase(COURT_PREPARE_CASE_FOR_EDITING, admCase);
+
+        //admCaseAccessService.checkPermitActionWithAdmCase(COURT_PREPARE_CASE_FOR_EDITING, admCase);
 
         statusService.setStatus(admCase, SENT_TO_COURT);
         admCaseService.update(admCase.getId(), admCase);
@@ -107,17 +106,12 @@ public class CourtResolutionMainServiceImpl implements CourtResolutionMainServic
     @Override
     @Transactional
     public void returnCaseFromCourt(Long caseId, Long claimId) {
-//        ActionAlias actionAlias = isEditing ? COURT_RETURN_CASE_BY_EDITING : COURT_RETURN_CASE;
 
         var admCase = admCaseService.getById(caseId);
-        admCaseAccessService.checkPermitActionWithAdmCase(COURT_RETURN_CASE, admCase);
 
         statusService.setStatus(admCase, RETURN_FROM_COURT);
         admCaseService.update(admCase.getId(), admCase);
 
-//        if (isEditing) {
-//            cancelResolutionIfExist(caseId, null, ReasonCancellationAlias.COURT_REVIEW);
-//        }
     }
 
 
@@ -193,24 +187,17 @@ public class CourtResolutionMainServiceImpl implements CourtResolutionMainServic
     }
 
     private Resolution createCourtResolutionInner(Long admCaseId, CourtResolutionRequestDTO requestDTO) {
-        // проверяем запрос
         AdmCase admCase = admCaseService.getById(admCaseId);
-        admCaseAccessService.checkPermitActionWithAdmCase(COURT_CREATE_RESOLUTION, admCase);
 
         List<CourtDecisionRequestDTO> decisionRequestDTOS = requestDTO.getDecisions();
         List<CourtEvidenceDecisionRequestDTO> evidenceDecisionRequestDTOS = requestDTO.getEvidenceDecisions();
 
         AdmEntityList<Violator> violatorList = new AdmEntityList<>(violatorService.findByAdmCaseId(admCase.getId()));
-        AdmEntityList<Evidence> evidences = new AdmEntityList<>(evidenceService.findAllByAdmCaseId(admCase.getId()));
 
-        resolutionValidationService.validateDecisions(violatorList, decisionRequestDTOS);
-//        resolutionValidationService.validateEvidenceDecisions(evidences, evidenceDecisionRequestDTOS);
-
-
-        // вычисляем поля
         ExternalInspector inspector = inspectorService.buildCourtInspector(requestDTO);
+
         Place resolutionPlace = inspector;
-        LocalDate executionFromDate = requestDTO.getResolutionTime().toLocalDate();
+
         ValueNumberGeneratorService numberGeneratorService = buildNumberGeneratorService(requestDTO);
 
         ResolutionCreateRequest resolution = helpService.buildResolution(requestDTO);
@@ -225,8 +212,6 @@ public class CourtResolutionMainServiceImpl implements CourtResolutionMainServic
 
                     Decision decision = helpService.buildDecision(violator, d, penaltyAccountSettingsSupplier);
 
-                    //перенесено в дто
-//                    d.setExecutionFromDate(executionFromDate);
                     decision.setIsSavedPdf(true);
 
                     List<Compensation> compensations = d.getCompensations().stream()
@@ -241,15 +226,12 @@ public class CourtResolutionMainServiceImpl implements CourtResolutionMainServic
 
         List<EvidenceDecisionCreateRequest> evidenceDecisions = evidenceDecisionRequestDTOS.stream()
                 .map(evidenceDecisionDTO -> {
-//                    Evidence evidence = evidences.getById(evidenceDecisionDTO.getEvidenceId());
                     EvidenceDecisionCreateRequest evidenceDecision = evidenceDecisionDTO.buildEvidenceDecision();
-//                    evidenceDecision.setEvidence(evidence);
                     return evidenceDecision;
                 })
                 .collect(Collectors.toList());
 
         CreatedResolutionDTO savedData = helpService.resolve(
-//                AdmEventType.COURT_RESOLUTION_CREATE,
                 admCase,
                 inspector,
                 resolutionPlace,
@@ -260,12 +242,9 @@ public class CourtResolutionMainServiceImpl implements CourtResolutionMainServic
                 evidenceDecisions
         );
 
-        guaranteeInvoices(admCase, savedData.getCreatedDecisions());
+        //guaranteeInvoices(admCase, savedData.getCreatedDecisions());
 
         Resolution savedResolution = savedData.getResolution();
-        List<Decision> decisions = savedData.getDecisions();
-
-        eventDataService.setCourtDTOForResolution(courtEventHolder.getCurrentInstance(), savedResolution, decisions);
 
         notificatorService.fireEvent(AdmEventType.COURT_RESOLUTION_CREATE, savedData);
 

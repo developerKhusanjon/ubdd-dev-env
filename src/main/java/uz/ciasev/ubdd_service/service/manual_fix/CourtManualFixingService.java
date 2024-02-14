@@ -3,7 +3,6 @@ package uz.ciasev.ubdd_service.service.manual_fix;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uz.ciasev.ubdd_service.controller_ubdd.SetClaimRequestDTO;
 import uz.ciasev.ubdd_service.mvd_core.api.court.dto.CourtResponseDTO;
 import uz.ciasev.ubdd_service.mvd_core.api.court.dto.CourtResultDTO;
 import uz.ciasev.ubdd_service.entity.action.ActionAlias;

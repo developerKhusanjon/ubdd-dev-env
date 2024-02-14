@@ -14,7 +14,7 @@ import javax.validation.Valid;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "${mvd-ciasev.url-v0}/ubdd", produces = MediaType.APPLICATION_JSON_VALUE)
-public class CourtController {
+public class UbddCourtController {
 
     private final UbddCourtService ubddCourtService;
 

@@ -132,7 +132,7 @@ public class UbddCourtServiceImpl implements UbddCourtService {
     @Override
     public void acceptUbddCourtResolution(ThirdCourtResolutionRequestDTO request) {
 
-        replacePersonIdByViolatorId(request);
+        // replacePersonIdByViolatorId(request);
 
         thirdMethodFromCourtService.accept(request);
 
@@ -143,11 +143,11 @@ public class UbddCourtServiceImpl implements UbddCourtService {
         List<ThirdCourtDefendantRequestDTO> defendants = request.getDefendant();
 
 
-        if (defendants.stream().anyMatch(d -> d.getViolatorId() == null)) {
-            if (defendants.size() != 1) {
-                throw new CourtValidationException("One of defendants has null violatorId");
-            }
-        }
+//        if (defendants.stream().anyMatch(d -> d.getViolatorId() == null)) {
+//            if (defendants.size() != 1) {
+//                throw new CourtValidationException("One of defendants has null violatorId");
+//            }
+//        }
 
         Function<ThirdCourtDefendantRequestDTO, Long> violatorIdSupplier = defendants.size() == 1
                 ? defendant -> violatorService.findSingleByAdmCaseId(caseId).getId()

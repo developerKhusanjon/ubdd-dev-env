@@ -61,8 +61,6 @@ public class ThirdMethodFromCourtServiceImpl implements ThirdMethodFromCourtServ
             FR_IV_REJECTED,
             FR_IV_NOT_RELEVANT);
 
-    private static final Long CASSATION_ADDITIONAL_RESULT_CANCELING_DECISION = 538L;    //1L;
-    private static final Long CASSATION_ADDITIONAL_RESULT_UPDATE_DECISION = 539L;       //2L;
     private static final Long CASSATION_ADDITIONAL_RESULT_DECISION_NOT_CHANGED = 540L;  //3L;
 
     private final AdmCaseService admCaseService;
@@ -74,12 +72,9 @@ public class ThirdMethodFromCourtServiceImpl implements ThirdMethodFromCourtServ
     private final CourtFinalResultDecisionService finalResultDecisionService;
     private final CourtThirdMethodMovementService courtThirdMethodMovementService;
     private final CourtAdmCaseMovementService courtAdmCaseMovementService;
-    private final CourtEventHolder courtEventHolder;
-    private final PublicApiWebhookEventCourtDataService eventDataService;
-    private final PublicApiWebhookEventPopulationService webhookEventPopulationService;
+
     private final AdmEventService admEventService;
-    private final CheckCourtDuplicateRequestService courtDuplicateRequestService;
-    private final CourtRequestOrderService orderService;
+
     private final ThirdMethodValidationServiceImpl validationService;
     private final ThirdMethodDecisionService decisionService;
 
@@ -87,16 +82,12 @@ public class ThirdMethodFromCourtServiceImpl implements ThirdMethodFromCourtServ
     @Override
     @Transactional
     public void accept(ThirdCourtResolutionRequestDTO resolution) {
-        courtDuplicateRequestService.checkAndRemember(resolution);
-
-        orderService.applyWithOrderCheck(CourtMethod.COURT_THIRD, resolution, this::handle);
+        handle(resolution);
     }
 
     void handle(ThirdCourtResolutionRequestDTO resolution) {
-        CourtStatus status = courtStatusService.getById(resolution.getStatus());
-        validationService.validate(resolution);
 
-        courtEventHolder.init();
+        CourtStatus status = courtStatusService.getById(resolution.getStatus());
 
         saveCourtData(resolution, status);
         calculateMovements(resolution);
@@ -124,9 +115,6 @@ public class ThirdMethodFromCourtServiceImpl implements ThirdMethodFromCourtServ
             default:
                 throw new CourtValidationException("Unknown status in method 3 ");
         }
-
-        PublicApiWebhookEventDataCourtDTO courtEventDTO = courtEventHolder.close();
-        webhookEventPopulationService.addCourtEvent(courtEventDTO);
 
     }
 
@@ -168,7 +156,6 @@ public class ThirdMethodFromCourtServiceImpl implements ThirdMethodFromCourtServ
      * - блок решение
      */
     private void returnCase(ThirdCourtResolutionRequestDTO resolution) {
-        validationService.validateReturnReason(resolution);
 
         resolutionMainService.returnCaseFromCourt(resolution.getCaseId(), resolution.getClaimId());
         admEventService.fireEvent(
@@ -285,7 +272,6 @@ public class ThirdMethodFromCourtServiceImpl implements ThirdMethodFromCourtServ
 
         courtCaseFieldsService.save(courtCaseFields);
 
-        eventDataService.setCourtDTOForFields(courtEventHolder.getCurrentInstance(), courtCaseFields);
     }
 
 

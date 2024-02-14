@@ -22,7 +22,7 @@ public class ThirdCourtResolutionRequestDTO implements CourtBaseDTO {
     // Идентификатор материала в системи EMI
     private Long materialId;
 
-    // Идентификатор процесса а системе X-SUD
+    // Идентификатор процесса, а системе X-SUD
     @NotNull(message = "claimId empty")
     private Long claimId;
 

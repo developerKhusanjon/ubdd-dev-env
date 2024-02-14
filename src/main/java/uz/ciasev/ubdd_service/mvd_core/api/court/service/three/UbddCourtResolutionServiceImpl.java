@@ -148,7 +148,6 @@ public class UbddCourtResolutionServiceImpl implements UbddCourtResolutionServic
 
         validateAndMadeDecision(resolution);
         saveFinalResultAndArticles(resolution);
-
     }
 
     private void makeSendToOtherCourt(ThirdCourtResolutionRequestDTO resolution) {
@@ -214,8 +213,6 @@ public class UbddCourtResolutionServiceImpl implements UbddCourtResolutionServic
 
     private void validateAndMadeDecision(ThirdCourtResolutionRequestDTO resolution) {
         var claimId = calculateNewClaimId(resolution);
-
-        validationService.validateDecision(resolution);
 
         var finalResult = getNameByValue(extractFinalResult(resolution));
 
