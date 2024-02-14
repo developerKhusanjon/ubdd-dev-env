@@ -3,7 +3,7 @@ version: "2.1"
 services:
 
   node1:
-    image: openjdk:14-jdk
+    image: openjdk:11-jdk
     container_name: ubdd_service
     mem_limit: 8G
     restart: always
