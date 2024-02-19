@@ -3,6 +3,7 @@ package uz.ciasev.ubdd_service.service.invoice;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import uz.ciasev.ubdd_service.dto.internal.response.adm.InvoiceResponseDTO;
+import uz.ciasev.ubdd_service.dto.ubdd.UbddInvoiceRequest;
 import uz.ciasev.ubdd_service.entity.invoice.Invoice;
 import uz.ciasev.ubdd_service.entity.resolution.decision.Decision;
 import uz.ciasev.ubdd_service.entity.resolution.punishment.PenaltyPunishment;
@@ -22,6 +23,11 @@ import static uz.ciasev.ubdd_service.entity.invoice.InvoiceOwnerTypeAlias.PENALT
 public class InvoiceServiceImpl implements InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
+
+    @Override
+    public void create(UbddInvoiceRequest request) {
+        invoiceRepository.save(request.toEntity());
+    }
 
     @Override
     public Invoice findById(Long id) {

@@ -64,13 +64,6 @@ public class SendToMibServiceImpl implements SendToMibService {
         Pair<MibCardMovement, MibResult> moveWithStatus;
         try {
             moveWithStatus = doSend(card, user);
-//        } catch (MibApiSocketTimeoutException e) {
-//            return SendResponse.failure(e.getDetail(), "MIBNING MIB-PURTAL TIZIMI BIR DAQIQADA JAVOB BERMADI (MIB HARAKATLARIDAGI RO‘YXATNI TEKShIRING)");
-//        } catch (MibApiHttpHostConnectException | MibApiConnectTimeoutException e) {
-//            return SendResponse.failure(e.getDetail(), "MIB SERVERI BILAN ALOQA YO'Q!");
-//        } catch (MibApiApplicationException e) {
-//            return SendResponse.failure(e);
-//        }
         } catch (MibApiApplicationException e) {
             return MibSendResponseBuilder.of(e);
         }
@@ -107,6 +100,29 @@ public class SendToMibServiceImpl implements SendToMibService {
     }
 
     @Override
+    public void doSend(MibExecutionCard card, @Nullable User user, MibResult mibResult) {
+
+        // cardService.prepareSend(card); // this is for auto Notification
+        // validationService.validateSend(card);
+
+        cardRepository.save(card);
+
+        Pair<MibCardMovement, MibResult> moveWithStatus = sendExecutionCard(user, card, mibResult);
+        // MibCardMovement move = moveWithStatus.getFirst();
+        MibResult sendResult = moveWithStatus.getSecond();
+        MibSendStatus status = sendResult.getStatus();
+
+        if (status.isSuccessfully()) {
+            Decision decision = card.getDecision();
+            decisionService.saveStatus(decision, AdmStatusAlias.SEND_TO_MIB);
+            // publicApiWebhookEventPopulationService.addSendToMibEvent(move);
+        } // else {
+            // publicApiWebhookEventPopulationService.addValidationMibEvent(move);
+        // }
+
+    }
+
+    @Override
     public Pair<MibCardMovement, MibResult> doSendManual(MibExecutionCard card, @Nullable User user) {
         cardService.prepareSend(card);
         cardRepository.save(card);
@@ -132,6 +148,24 @@ public class SendToMibServiceImpl implements SendToMibService {
                 () -> new ImplementationException(ErrorCode.MIB_CARD_HAS_NO_DECISION)));
 
         return apiDTOService.buildSendDecisionRequest(mibCard);
+    }
+
+    private Pair<MibCardMovement, MibResult> sendExecutionCard(User user, MibExecutionCard card, MibResult mibResponse) {
+        MibCardMovement move = new MibCardMovement();
+        move.setSendTime(mibResponse.getSendTime());
+        move.setMibRequestId(mibResponse.getRequestId());
+        move.setSendStatus(mibResponse.getStatus());
+        move.setSendMessage(mibResponse.getMessage());
+
+        try {
+            cardMovementService.create(user, card, move);
+        } catch (DataIntegrityViolationException e) {
+            if (DBHelper.isConstraintViolation(e, CiasevDBConstraint.UniqueMibCardMovementRequestId)) {
+                throw new MibRequestIdAlreadyExists();
+            }
+            throw e;
+        }
+        return Pair.of(move, mibResponse);
     }
 
     private Pair<MibCardMovement, MibResult> sendExecutionCard(User user, MibExecutionCard card) {

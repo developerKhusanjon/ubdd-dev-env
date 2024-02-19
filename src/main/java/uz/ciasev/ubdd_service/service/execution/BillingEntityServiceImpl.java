@@ -162,15 +162,6 @@ public class BillingEntityServiceImpl implements BillingEntityService {
 
     @Override
     public BillingEntity getInvoiceOwner(Invoice invoice) {
-//        switch (invoice.getOwnerType().getAlias()) {
-//            case COMPENSATION:
-//                return compensationService.getById(invoice.getCompensationId());
-//            case PENALTY:
-//                return punishmentService.findByPenaltyId(invoice.getPenaltyPunishmentId());
-//            default:
-//                throw new NotImplementedException("Invoice owner type");
-//        }
-
         return applyByType(
                 invoice,
                 punishmentService::findByPenaltyId,

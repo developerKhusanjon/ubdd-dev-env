@@ -14,7 +14,6 @@ public interface PaymentService {
 
     List<Payment> findByInvoiceId(Long invoiceId);
 
-    List<PaymentDetailResponseDTO> findDetailByInvoiceId(Long invoiceId);
 
     Payment save(Invoice invoice, BillingPaymentDTO billingPaymentDTO);
 

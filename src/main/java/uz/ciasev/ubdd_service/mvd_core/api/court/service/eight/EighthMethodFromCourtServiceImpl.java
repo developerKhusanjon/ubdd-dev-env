@@ -23,52 +23,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EighthMethodFromCourtServiceImpl implements EighthMethodFromCourtService {
 
-    private final AdmCaseService admCaseService;
-    private final DecisionService decisionService;
     private final CourtGeneralSendingService courtGeneralSendingService;
-    private final InvoiceRepository invoiceRepository;
-    private final DecisionRepository decisionRepository;
-    private final DecisionSpecifications decisionSpecifications;
     private final MaterialHelpCourtService materialHelpCourtService;
 
 
     @Override
     @Transactional
     public CourtRequestDTO<EightCourtResolutionRequestDTO> sendResolution(String seriesInput, String number) {
-//        String series = Objects.requireNonNullElse(seriesInput, "");
-//
-//        if (number == null) {
-//            throw new CourtValidationException("Number for search required");
-//        }
-//
-//
-////        Specification<Decision> searchParam;
-////
-////        if ("KV".equals(series)) {
-////            searchParam = decisionSpecifications.withInvoiceSerial(series + number);
-////        } else if (series.startsWith("P")) {
-////            searchParam = decisionSpecifications.withProtocolSeriesAndNumber(series, number);
-////        } else {
-////            searchParam = decisionSpecifications.withNumber(number).and(decisionSpecifications.withSeries(series));
-////        }
-////
-////        List<Decision> decision = decisionRepository.findAll(searchParam)
-////                .stream().filter(d -> d.getResolution().isActive())
-//
-//
-//        Optional<Decision> otherParamSearch = Optional.empty();
-//
-//        if ("KV".equals(series)) {
-//            otherParamSearch = invoiceRepository.findDecisionByPenaltyInvoiceSerial(series + number);
-//        } else if (series.startsWith("P")) {
-//            otherParamSearch = decisionRepository.findByProtocolSeriesAndNumber(series, number);
-//        }
-//
-//        Decision decision = otherParamSearch.orElseGet(() ->
-//                decisionService
-//                .findBySeriesAndNumber(series, number)
-//                .orElseThrow(() -> new CourtDecisionNotFoundException(series, number))
-//        );
 
         Decision decision = materialHelpCourtService.findDecisionByCourtSearchParam(seriesInput, number)
                 .orElseThrow(() -> new CourtDecisionNotFoundException(seriesInput, number));
@@ -79,6 +40,7 @@ public class EighthMethodFromCourtServiceImpl implements EighthMethodFromCourtSe
         AdmCase admCase = resolution.getAdmCase();
 
         EightCourtResolutionRequestDTO response = new EightCourtResolutionRequestDTO();
+
         response.setCaseId(caseId);
         response.setInvestigatorName(resolution.getConsiderInfo());
         response.setInvestigatingOrg(resolution.getOrgan().getInvestigatingOrganization());

@@ -2,6 +2,7 @@ package uz.ciasev.ubdd_service.entity.dict.mib;
 
 import lombok.*;
 import uz.ciasev.ubdd_service.entity.dict.AbstractEmiStatusDict;
+import uz.ciasev.ubdd_service.entity.dict.requests.StatusDictCreateDTOI;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -24,6 +25,5 @@ public class MibSendStatus extends AbstractEmiStatusDict {
     public static boolean isSuccessfullyCode(String code) {
         return SUCCESSFULLY_CODE.equals(code);
     }
-
 
 }

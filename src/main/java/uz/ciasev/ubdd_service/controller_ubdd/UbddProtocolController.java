@@ -16,14 +16,14 @@ import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "${mvd-ciasev.url-v0}/adm-cases/", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "${mvd-ciasev.url-v0}/protocol", produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 public class UbddProtocolController {
 
     private final ProtocolCreateService protocolCreateService;
     private final ProtocolDTOService dtoService;
 
-    @PostMapping("protocol")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProtocolDetailResponseDTO createProtocol(@CurrentUser User user,
                                                     @RequestBody @Valid ProtocolRequestDTO protocol) {

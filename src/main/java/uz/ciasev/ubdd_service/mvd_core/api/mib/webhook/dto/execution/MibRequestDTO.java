@@ -31,7 +31,6 @@ public class MibRequestDTO {
     private List<MibPaymentDTO> payments;
 
     @JsonProperty("doc_article_file")
-//    @NotNull(message = ErrorCode.MIB_DOCUMENT_FILE_REQUIRED)
     private MibDocumentDTO document;
 
     public List<MibPaymentDTO> getPayments() {

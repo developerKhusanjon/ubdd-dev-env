@@ -20,7 +20,7 @@ public enum InvoiceOwnerTypeAlias {
         } else if (id == 3L) {
             return DAMAGE;
         }
-        throw new NotImplementedException(String.format("Enum value in InvoiceOwnerTypeAlias for id %s not present", id));
+        return PENALTY;
     }
 
 }

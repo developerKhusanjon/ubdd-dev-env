@@ -29,17 +29,12 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentRepository.findByInvoiceId(invoiceId);
     }
 
-    @Override
-    public List<PaymentDetailResponseDTO> findDetailByInvoiceId(Long invoiceId) {
-        return findByInvoiceId(invoiceId)
-                .stream()
-                .map(PaymentDetailResponseDTO::new)
-                .collect(Collectors.toList());
-    }
 
     @Override
     public Payment save(Invoice invoice, BillingPaymentDTO paymentDTO) {
+
         Payment payment = new Payment();
+
         payment.setNumber(String.valueOf(paymentDTO.getId()));
         payment.setPaymentTime(paymentDTO.getPaidAt());
 
@@ -48,33 +43,26 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setBlankNumber(paymentDTO.getDocNumber());
 
         payment.setAmount(MoneyFormatter.currencyToCoin(paymentDTO.getAmount()));
+
         BillingPayerInfoDTO payerInfo = paymentDTO.getPayerInfo();
+
         payment.setFromBankCode(payerInfo.getFromBankCode());
         payment.setFromBankAccount(payerInfo.getFromBankAccount());
         payment.setFromBankName(payerInfo.getFromBankName());
         payment.setFromInn(payerInfo.getFromInn());
 
         BillingPayeeInfoDTO payeeInfo = paymentDTO.getPayeeInfo();
+
         payment.setToBankCode(payeeInfo.getToBankCode());
         payment.setToBankAccount(payeeInfo.getToBankAccount());
         payment.setToBankName(payeeInfo.getToBankName());
         payment.setToInn(payeeInfo.getToInn());
+
         payment.setInvoice(invoice);
 
         return paymentRepository.saveAndFlush(payment);
     }
 
-//    @Override
-//    public Optional<Payment> getLastPaymentForInvoice(Invoice invoice) {
-//        return paymentRepository
-//                .findTopByInvoiceIdInOrderByPaymentTimeDesc(invoice.getId());
-////                .orElseThrow(PaymentNotFoundException::new);
-//    }
-//
-//    @Override
-//    public Optional<Long> getTotalAmount(Invoice invoice) {
-//        return paymentRepository.sumAmountByInvoiceId(invoice.getId());
-//    }
 
     @Override
     public Optional<Payment> findById(Long paymentId) {

@@ -48,7 +48,6 @@ public class BillingExecutionServiceImpl implements BillingExecutionService {
     protected final BillingEntityService billingEntityService;
 
     {
-//        this.executionMap = new EnumMap<>(InvoiceOwnerTypeAlias.class);
         executionMap.put(InvoiceOwnerTypeAlias.PENALTY, this::executionPenalty);
         executionMap.put(InvoiceOwnerTypeAlias.COMPENSATION, this::executionCompensation);
         executionMap.put(InvoiceOwnerTypeAlias.DAMAGE, this::executionDamage);
@@ -57,39 +56,31 @@ public class BillingExecutionServiceImpl implements BillingExecutionService {
     @Override
     @Transactional(timeout = 60)
     public void handlePayment(BillingPaymentDTO paymentDTO) {
+
         if (paymentService.isProcessed(paymentDTO)) {
             return;
         }
 
         Invoice invoice = invoiceService.findByBillingId(paymentDTO.getInvoiceId());
-
-//        Теперь мы будем принимать оплаты, по отмененным квитанциям.
-//        if (!invoice.isActive()) {
-//            if (invoice.getDeactivateReason() != InvoiceDeactivateReasonAlias.FULLY_PAID) {
-//                throw new InvoiceDeactivatedException(invoice.getDeactivateReason());
-//            }
-//        }
+        paymentService.save(invoice, paymentDTO);
 
         Payment savedPayment = paymentService.save(invoice, paymentDTO);
 
         BillingEntity billingEntity = billingEntityService.getInvoiceOwner(invoice);
         Violator violatorOwner = billingEntityService.getOwnerViolator(billingEntity);
 
-        publicApiWebhookEventPopulationService.addPaymentEvent(savedPayment, invoice, violatorOwner);
+        // publicApiWebhookEventPopulationService.addPaymentEvent(savedPayment, invoice, violatorOwner);
         courtService.acceptIfCourt(invoice, savedPayment);
-// TODO: 09.11.2023
+
         calculateAndSetExecution(billingEntity);
         applyToOtherDecisionIfNeed(violatorOwner, invoice, billingEntity);
+
     }
 
     @Override
     @Transactional
-    public BillingData calculateAndSetExecution(BillingEntity billingEntity) {
+    public void calculateAndSetExecution(BillingEntity billingEntity) {
         BillingData billingData = billingEntityService.getBillingData(billingEntity);
-
-//        if (!billingData.isHasPayments()) {
-//            return billingData;
-//        }
 
         Optional<LocalDateTime> lastPaymentTimeOpt = billingData.getLastPayTime();
         Long paidAmount = billingData.getTotalAmount().orElse(0L);
@@ -98,8 +89,6 @@ public class BillingExecutionServiceImpl implements BillingExecutionService {
         billingEntity.setPaidAmount(paidAmount);
 
         executionMap.get(billingEntity.getInvoiceOwnerTypeAlias()).accept(billingEntity, billingData.getExecutorNames());
-
-        return billingData;
     }
 
 

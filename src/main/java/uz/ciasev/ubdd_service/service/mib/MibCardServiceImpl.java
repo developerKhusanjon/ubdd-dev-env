@@ -15,6 +15,7 @@ import uz.ciasev.ubdd_service.exception.ValidationException;
 import uz.ciasev.ubdd_service.exception.notfound.EntityByIdNotFound;
 import uz.ciasev.ubdd_service.exception.notfound.EntityByParamsNotFound;
 import uz.ciasev.ubdd_service.repository.mib.MibExecutionCardRepository;
+import uz.ciasev.ubdd_service.repository.user.UserRepository;
 import uz.ciasev.ubdd_service.service.resolution.decision.DecisionService;
 
 import java.time.LocalDate;
@@ -30,6 +31,7 @@ public class MibCardServiceImpl implements MibCardService {
     private final MibValidationService validationService;
     private final DecisionService decisionService;
     private final MibCardNotificationService cardNotificationService;
+    private final UserRepository userRepository;
 
     @Override
     public List<MibExecutionCard> findPenaltyAndCompensationByDecisionId(Long decisionId) {
@@ -70,25 +72,25 @@ public class MibCardServiceImpl implements MibCardService {
     @Transactional
     public MibExecutionCard openCardForDecision(User user, Decision decision, MibCardRequestDTO requestDTO) {
 
-        if (cardRepository.findByDecisionId(decision.getId()).isPresent()) {
-            throw new ValidationException(ErrorCode.MIB_EXECUTION_CARD_ALREADY_EXIST);
-        }
+        user = userRepository.findByUsernameIgnoreCase("ubdd-service").orElse(null);
 
         MibExecutionCard card = requestDTO.buildMibExecutionCard();
+
         card.setDecision(decision);
+
         card.setOwnerTypeAlias(MibOwnerTypeAlias.DECISION);
-        if (user.getId() != null) {
+
+        if (user != null &&user.getId() != null) {
             card.setUser(user);
         }
-        //card.setOutNumber("MIB-" + user.getOrgan().getCode() + "-" + decision.getNumber());
-        card.setOutNumber("MIB-" + user.getOrganCode() + "-" + decision.getNumber());
+
+        if (user != null) card.setOutNumber("MIB-" + user.getOrganCode() + "-" + decision.getNumber());
+
         card.setOutDate(LocalDate.now());
-        cardNotificationService.setAutoNotification(card);
-        MibExecutionCard savedCard = cardRepository.save(card);
 
-//        todo добавить сохранеиеи какрора
+        // cardNotificationService.setAutoNotification(card);
 
-        return savedCard;
+        return cardRepository.save(card);
     }
 
     @Override

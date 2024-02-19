@@ -56,23 +56,6 @@ public class MibValidationServiceImpl implements MibValidationService {
                     Objects.isNull(card.getNotificationId()),
                     ErrorCode.NOTIFICATION_REQUIRED
             );
-            // Теперь файлы оповещения будут прикрепляться в момент генерации запроса в миб, так что в валидацие смысла больше нет.
-//        if (card.getNotificationType() != null) {
-//            errors.addIf(
-//                    card.getNotificationType().getAlias().equals(MibNotificationTypeAlias.MANUAL) && !documentTypes.stream().filter(MIB_NOTIFICATION_MANUAL_MAIL::equals).findFirst().isPresent(),
-//                    ErrorCode.MIB_NOTIFICATION_MANUAL_MAIL_DOCUMENT_REQUIRED
-//            );
-//
-//            errors.addIf(
-//                    card.getNotificationType().getAlias().equals(MibNotificationTypeAlias.MAIL) && !documentTypes.stream().filter(MIB_NOTIFICATION_MAIL::equals).findFirst().isPresent(),
-//                    ErrorCode.MIB_NOTIFICATION_MAIL_DOCUMENT_REQUIRED
-//            );
-//        }
-
-//        errors.addIf(
-//                !documentTypes.stream().filter(EXECUTION_REQUIREMENT::equals).findFirst().isPresent(),
-//                ErrorCode.EXECUTION_REQUIREMENT_DOCUMENT_REQUIRED
-//        );
 
             if (lastMovement.isPresent()) {
                 List<DocumentTypeAlias> documentTypes = documentRepository.findByCardId(card.getId()).stream()

@@ -88,25 +88,25 @@ public class MibApiExecutionServiceImpl implements MibApiExecutionService {
     @Override
     @Transactional(timeout = 90)
     public MvdExecutionResponseDTO executionResultWebhook(Long requestId, MibRequestDTO result) {
-// TODO: 10.11.2023 start mib null exception
+
         MibCardMovement movement = cardMovementService.getByMibRequestId(requestId);
+
         cardMovementService.validateActiveForHandelExecutionStatus(movement);
-// TODO: 06.11.2023
-//        checked
+
         historyRepository.save(new MibCardMovementHistory(movement, result));
 
-//        if (!movement.isActive()) {
-//            throw new ValidationException(ErrorCode.MIB_MOVEMENT_IS_NOT_ACTIVE);
-////            response = new MvdExecutionResponseDTO(-1L);
-//        }
-
         MibCaseStatus caseStatus = result.getExecutionCaseStatus();
+
         if (caseStatus == null) {
             throw new RuntimeException("Case status of the mib request dto is null");
         }
+
         movement.setMibCaseNumber(result.getExecutionCaseNumber());
+
         movement.setMibCaseStatus(caseStatus);
+
         MvdExecutionResponseDTO response;
+
         try {
             response = statusHandlerMap.get(caseStatus.getAlias()).handle(movement, result);
         } catch (NullPointerException e) {
@@ -119,7 +119,6 @@ public class MibApiExecutionServiceImpl implements MibApiExecutionService {
             throw new RuntimeException("cardMovementService.update throw NullPointer exception");
         }
 
-        //Порядок изменнен, чт бы не грузить файлы на диск если при обрабоке заросы произойде ошибка.
         try {
             mibApiExecutionDocumentFileProcessing.process(movement, result);
         } catch (NullPointerException e) {
@@ -136,7 +135,6 @@ public class MibApiExecutionServiceImpl implements MibApiExecutionService {
         Pair<Long, Long> payedAmount = getConsumer(movement, paidDataMap)
                 .apply(movement);
 
-        // Оплаченная сумма с учетом только Ягана биллинг
         return new MvdExecutionResponseDTO(payedAmount.getSecond());
     }
 

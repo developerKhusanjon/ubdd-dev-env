@@ -86,7 +86,6 @@ public class MibApiAdmServiceImpl implements MibApiAdmService {
     private final ResolutionHelpService helpService;
     private final ResolutionActionService resolutionActionService;
     private final HistoryService historyService;
-    private final DecisionTypeDictionaryService decisionTypeDictionaryService;
     private final TerminationReasonDictionaryService terminationReasonDictionaryService;
     private final ManualBillingService manualBillingService;
     private final StatusService admStatusService;
@@ -210,6 +209,7 @@ public class MibApiAdmServiceImpl implements MibApiAdmService {
         manualBillingService.replaceMibPayments(punishment, payments);
         punishmentService.addExecution(punishment, ExecutorType.MIB_ORGAN, "IIB", new ForceExecutionDTO(lastPayDate, ForceExecutionType.MIB));
         executionCallbackService.executeCallback(decision);
+
     }
 
     private void cancelExecution(Decision decision) {

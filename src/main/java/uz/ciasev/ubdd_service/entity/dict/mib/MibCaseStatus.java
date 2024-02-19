@@ -25,8 +25,6 @@ public class MibCaseStatus extends AbstractExternalDictEntity implements Aliased
     private Boolean isSuspensionArticle;
 
 
-    // JPA AND CRITERIA ONLY FIELDS
-
     @Column(name = "type_id", insertable = false, updatable = false)
     private Long typeId;
 

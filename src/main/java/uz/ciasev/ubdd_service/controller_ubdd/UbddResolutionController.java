@@ -17,7 +17,7 @@ import javax.validation.Valid;
 
 @Validated
 @RestController
-@RequestMapping(path = "${mvd-ciasev.url-v0}/resolutions", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "${mvd-ciasev.url-v0}/resolution", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class UbddResolutionController {
 
@@ -31,7 +31,7 @@ public class UbddResolutionController {
         return decisionDTOService.buildListForCreate(() -> resolutionMadeService.createAdmSingle(user, requestDTO.getAdmCaseId(), requestDTO).getCreatedDecision());
     }
 
-    @PostMapping("/{id}/cancellation")
+    @PostMapping("/cancel/{id}")
     public void cancelResolution(@CurrentUser User user,
                                  @PathVariable Long id,
                                  @RequestBody @Valid CancellationResolutionRequestDTO dto) {

@@ -21,7 +21,6 @@ public class BillingPaymentDTO {
     @NotNull(message = "invoiceId field required")
     private Long invoiceId;
 
-//    @NotNull(message = "invoiceSerial field required")
     private String invoiceSerial;
 
     @NotNull(message = "bid field required")
@@ -41,4 +40,5 @@ public class BillingPaymentDTO {
 
     @Valid
     private BillingPayeeInfoDTO payeeInfo;
+
 }

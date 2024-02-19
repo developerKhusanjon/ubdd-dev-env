@@ -175,23 +175,9 @@ public class Invoice implements AdmEntity {
     @Setter
     private String addition;
 
-//    @Getter
-//    @Setter
-//    private String article;
-//
-//    @Getter
-//    @Setter
-//    private String prim;
-//
-//    @Getter
-//    @Setter
-//    private String part;
-
     @Getter
     @Setter
     private String deactivateReasonDesc;
-
-    // УДОБНЫЕ ПОЛЯ
 
     @Column(name = "invoice_owner_type_id", insertable = false, updatable = false)
     private Long ownerTypeId;

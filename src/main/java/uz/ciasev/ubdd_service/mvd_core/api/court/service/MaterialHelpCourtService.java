@@ -59,21 +59,6 @@ public class MaterialHelpCourtService {
             throw new CourtValidationException("Number for search required");
         }
 
-
-//        Specification<Decision> searchParam;
-//
-//        if ("KV".equals(series)) {
-//            searchParam = decisionSpecifications.withInvoiceSerial(series + number);
-//        } else if (series.startsWith("P")) {
-//            searchParam = decisionSpecifications.withProtocolSeriesAndNumber(series, number);
-//        } else {
-//            searchParam = decisionSpecifications.withNumber(number).and(decisionSpecifications.withSeries(series));
-//        }
-//
-//        List<Decision> decision = decisionRepository.findAll(searchParam)
-//                .stream().filter(d -> d.getResolution().isActive())
-
-
         Optional<Decision> otherParamSearch = Optional.empty();
 
         if ("KV".equals(series)) {

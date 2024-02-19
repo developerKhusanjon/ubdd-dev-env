@@ -15,12 +15,15 @@ public class BillingPayerInfoDTO {
     @JsonProperty("branch")
     @NotNull(message = "branch field required")
     private String fromBankCode;
+
     @JsonProperty("account")
     @NotNull(message = "account field required")
     private String fromBankAccount;
+
     @JsonProperty("name")
     @NotNull(message = "name field required")
     private String fromBankName;
+
     @JsonProperty("inn")
     @NotNull(message = "inn field required")
     private String fromInn;

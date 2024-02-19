@@ -49,7 +49,7 @@ import static uz.ciasev.ubdd_service.config.security.SecurityConstants.*;
 @Profile("!publicapi")
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private static final String URI_LOGIN = "/auth/login";
+    private static final String URI_LOGIN = "/v0/ubdd-api/auth/login";
     private static final String URI_CAPTCHA_LOGIN = "/captcha/auth/login";
     private static final String URI_LOGIN_GAI = "/auth/login/gai";
     private static final String EXTERNAL_SYSTEM_LOGIN = "/auth/external/login";
@@ -151,11 +151,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/v0/core-api/**").permitAll()
                 .antMatchers("/internal/core-api/**").permitAll()
                 .antMatchers("/tools/**").permitAll()
-                .antMatchers("/auth/captcha/generate", URI_LOGIN, URI_CAPTCHA_LOGIN, EXTERNAL_SYSTEM_LOGIN).permitAll()
+                .antMatchers(URI_LOGIN).permitAll()
                 .antMatchers(HttpMethod.GET, baseUrlV0 + "/catalogs/message-localizations").permitAll()
                 .antMatchers(baseUrlV0 + "/**").hasAnyRole(EXTERNAL)
-                .antMatchers("/v0/web/**").hasAnyRole(GOD, ADMIN, USER)
-                .antMatchers("/dev/**").hasRole(GOD)
                 .antMatchers("/**").authenticated()
                 .and()
                 .addFilter(getUsernameLoginFilter())
