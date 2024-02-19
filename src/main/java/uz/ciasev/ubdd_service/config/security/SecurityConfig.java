@@ -157,10 +157,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/**").authenticated()
                 .and()
                 .addFilter(getUsernameLoginFilter())
-                .addFilter(getCaptchaLoginFilter())
-                .addFilter(getWorkCertificateLoginFilter())
-                .addFilter(new JWTExternalAuthenticationFilter(externalLogins,
-                        oauth2SymetricSecret, objectMapper, EXTERNAL_SYSTEM_LOGIN))
                 .addFilter(new JWTAuthorizationFilter(authenticationManager(),
                         userJWTService, userService, objectMapper, externalLogins, webhooksToken))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -189,24 +185,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         );
     }
 
-    private UserLoginFilter<CaptchaUsernameLoginDTO> getCaptchaLoginFilter() throws Exception {
-        return new UserCaptchaLoginFilter<>(authenticationManager(),
-                objectMapper,
-                URI_CAPTCHA_LOGIN,
-                userJWTService,
-                new CaptchaUsernameLoginRequestMapper(sessionManager),
-                userLoginTimeService
-        );
-    }
-
-    private UserLoginFilter<WorkCertificateLoginDTO> getWorkCertificateLoginFilter() throws Exception {
-        return new UserLoginFilter<>(authenticationManager(),
-                objectMapper,
-                URI_LOGIN_GAI,
-                userJWTService,
-                new WorkCertificateLoginRequestMapper(),
-                userLoginTimeService);
-    }
 
     public static User getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

@@ -82,15 +82,6 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
         DecodedJWT jwt = userJWTService.decode(token);
 
-//        Optional<User> webhookUser = authorizeWebhookUsers(token, jwt);
-//        if (webhookUser.isPresent()) {
-//            return new UsernamePasswordAuthenticationToken(webhookUser.get(), null, webhookUser.get().getAuthorities());
-//        }
-//
-//        Optional<User> optionalUser = authorizeExternalUsers(token, jwt);
-//        if (optionalUser.isPresent()) {
-//            return new UsernamePasswordAuthenticationToken(optionalUser.get(), null, optionalUser.get().getAuthorities());
-//        }
 
         User user = userJWTService.getUser(jwt);
         user.addApiAccess(EXTERNAL);
