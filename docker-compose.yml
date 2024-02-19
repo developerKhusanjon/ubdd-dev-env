@@ -18,5 +18,5 @@ services:
     env_file:
       - .env
     ports:
-      - "9090:9090"
+      - "9790:9090"
     command: java -jar build/libs/ubdd-service-0.0.1-SNAPSHOT.jar
