@@ -19,9 +19,4 @@ services:
       - .env
     ports:
       - "9090:9090"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9090/tools/health"]
-      interval: 30s
-      timeout: 30s
-      retries: 3
     command: java -jar build/libs/ubdd-service-0.0.1-SNAPSHOT.jar
