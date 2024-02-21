@@ -66,6 +66,7 @@ public class PunishmentListResponseDTO {
     @Data
     public static class PenaltyResponseDTO {
 
+        private final Long id;
         private final Long amount;
         private final Long paidAmount;
         @Deprecated private final Boolean isDiscount;
@@ -83,6 +84,7 @@ public class PunishmentListResponseDTO {
 
         public PenaltyResponseDTO(PenaltyPunishment punishmentDetail, Invoice invoice) {
 
+            this.id = punishmentDetail.getId();
             this.amount = punishmentDetail.getAmount();
             this.paidAmount = punishmentDetail.getPaidAmount();
             this.lastPayTime = punishmentDetail.getLastPayTime();
