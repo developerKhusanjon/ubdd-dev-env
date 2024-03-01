@@ -86,10 +86,10 @@ public class ViolatorDetailServiceImpl implements ViolatorDetailService {
     @Override
     @DigitalSignatureCheck(event = SignatureEvent.VIOLATOR_EDIT)
     @Transactional
-    // Без этой транзакции удаление сущности минтруда будет происходить раньше апдейта сущности нарушителя
     public ViolatorDetail updateViolatorDetail(User user, Long id, Long protocolId, ViolatorDetailRequestDTO requestDTO) {
         ViolatorDetail violatorDetail = findByViolatorIdAndProtocolId(id, protocolId);
         AdmCase admCase = admCaseService.getByViolator(violatorDetail.getViolator());
+
         admCaseAccessService.checkConsiderActionWithAdmCase(user, ActionAlias.EDIT_VIOLATOR_DETAIL, admCase);
 
         lastEmploymentInfoService.addLastEmploymentInfoToOwner(

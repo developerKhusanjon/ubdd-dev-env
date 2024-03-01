@@ -76,11 +76,6 @@ public class JuridicServiceImpl implements JuridicService {
     @Transactional
     public Juridic replace(User user, Long juridicId, JuridicCreateRequestDTO juridicRequestDTO) {
 
-        // rise constaint violation
-//        if (juridicId != null) {
-//            juridicRepository.deleteById(juridicId);
-//        }
-
         if (juridicRequestDTO != null) {
             return create(user, juridicRequestDTO);
         }

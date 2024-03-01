@@ -11,6 +11,8 @@ import uz.ciasev.ubdd_service.exception.implementation.LogicalException;
 import uz.ciasev.ubdd_service.exception.notfound.EntityByIdNotFound;
 import uz.ciasev.ubdd_service.exception.notfound.EntityByParamsNotFound;
 import uz.ciasev.ubdd_service.repository.invoice.InvoiceRepository;
+import uz.ciasev.ubdd_service.repository.resolution.punishment.PenaltyPunishmentRepository;
+import uz.ciasev.ubdd_service.service.generator.InvoiceNumberGeneratorService;
 import uz.ciasev.ubdd_service.utils.PageUtils;
 
 import java.util.Optional;
@@ -23,10 +25,25 @@ import static uz.ciasev.ubdd_service.entity.invoice.InvoiceOwnerTypeAlias.PENALT
 public class InvoiceServiceImpl implements InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
+    private final PenaltyPunishmentRepository penaltyPunishmentRepository;
+    private final InvoiceNumberGeneratorService invoiceNumberGeneratorService;
 
     @Override
-    public void create(UbddInvoiceRequest request) {
-        invoiceRepository.save(request.toEntity());
+    public Invoice create(UbddInvoiceRequest request) {
+        Invoice invoice = request.toEntity();
+
+        if (request.getPenaltyPunishmentId() != null) {
+            PenaltyPunishment penalty = penaltyPunishmentRepository
+                    .findById(request.getPenaltyPunishmentId())
+                    .orElseThrow(
+                            () -> new EntityByIdNotFound(PenaltyPunishment.class, request.getPenaltyPunishmentId())
+                    );
+            invoice.setPenaltyPunishment(penalty);
+        }
+
+        invoice.setInvoiceInternalNumber(invoiceNumberGeneratorService.generateNumber());
+
+        return invoiceRepository.save(invoice);
     }
 
     @Override
@@ -43,7 +60,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     public Invoice findByBillingId(Long id) {
         return invoiceRepository
                 .findByInvoiceId(id)
-                .orElseThrow(() -> new EntityByParamsNotFound(Invoice.class, "billingId", id));
+                .orElseThrow(() -> new EntityByParamsNotFound(Invoice.class, "invoiceId", id));
     }
 
     @Override

@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
-//@ValidViolator
 public class ViolatorRequestDTO {
 
     @NotBlank(message = ErrorCode.MOBILE_REQUIRED)
@@ -54,18 +53,12 @@ public class ViolatorRequestDTO {
 
     private List<QualificationArticleRequestDTO> earlierViolatedArticleParts;
 
-    @JsonProperty(value = "notificationViaSms")
-    private boolean notificationViaSms = false;
-
-    @JsonProperty(value = "notificationViaMail")
-    private boolean notificationViaMail = false;
-
     public Violator buildViolator() {
         Violator violator = new Violator();
 
         violator.setMobile(this.mobile);
-        violator.setNotificationViaSms(this.notificationViaSms);
-        violator.setNotificationViaMail(this.notificationViaMail);
+        violator.setNotificationViaSms(false);
+        violator.setNotificationViaMail(false);
         violator.setLandline(this.landline);
         violator.setDependentAmount(this.dependentAmount);
         violator.setInn(this.inn);
@@ -82,8 +75,8 @@ public class ViolatorRequestDTO {
     public Violator applyTo(Violator violator) {
 
         violator.setMobile(this.mobile);
-        violator.setNotificationViaSms(this.notificationViaSms);
-        violator.setNotificationViaMail(this.notificationViaMail);
+        violator.setNotificationViaSms(false);
+        violator.setNotificationViaMail(false);
         violator.setLandline(this.landline);
         violator.setDependentAmount(this.dependentAmount);
         violator.setInn(this.inn);

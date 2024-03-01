@@ -7,9 +7,11 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import uz.ciasev.ubdd_service.config.security.CurrentUser;
 import uz.ciasev.ubdd_service.dto.internal.request.protocol.ProtocolRequestDTO;
+import uz.ciasev.ubdd_service.dto.internal.request.protocol.QualificationRequestDTO;
 import uz.ciasev.ubdd_service.dto.internal.response.adm.protocol.ProtocolDetailResponseDTO;
 import uz.ciasev.ubdd_service.entity.user.User;
 import uz.ciasev.ubdd_service.service.main.protocol.ProtocolCreateService;
+import uz.ciasev.ubdd_service.service.main.protocol.ProtocolMainService;
 import uz.ciasev.ubdd_service.service.protocol.ProtocolDTOService;
 
 import javax.validation.Valid;
@@ -22,6 +24,7 @@ public class UbddProtocolController {
 
     private final ProtocolCreateService protocolCreateService;
     private final ProtocolDTOService dtoService;
+    private final ProtocolMainService protocolMainService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -30,6 +33,15 @@ public class UbddProtocolController {
 
         return dtoService.buildDetailForCreateProtocol(user, () -> protocolCreateService.createElectronProtocol(user, protocol));
 
+    }
+
+
+    @PostMapping(path = "/{id}/edit-qualification")
+    public void editProtocolQualification(
+            @CurrentUser User user,
+            @PathVariable Long id,
+            @Valid @RequestBody QualificationRequestDTO requestDTO) {
+        protocolMainService.editProtocolQualification(user, id, requestDTO);
     }
 
 }

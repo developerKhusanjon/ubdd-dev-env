@@ -19,6 +19,7 @@ public class UbddInvoiceRequest {
 
     private Long invoiceId;
 
+    @NotNull(message = "invoiceSerial is required")
     private String invoiceSerial;
 
     @NotNull(message = "invoiceNumber is required")
@@ -33,6 +34,8 @@ public class UbddInvoiceRequest {
 
     @NotNull(message = "penaltyPunishmentAmount is required")
     private Long penaltyPunishmentAmount;
+
+    private Long penaltyPunishmentId;
 
     private Long discount70Amount;
 
@@ -74,7 +77,6 @@ public class UbddInvoiceRequest {
         invoice.setOrganName(this.organName);
 
         invoice.setInvoiceSerial(this.invoiceSerial);
-        invoice.setInvoiceInternalNumber(this.invoiceNumber);
 
         invoice.setInvoiceId(this.invoiceId);
         invoice.setAmount(this.penaltyPunishmentAmount);

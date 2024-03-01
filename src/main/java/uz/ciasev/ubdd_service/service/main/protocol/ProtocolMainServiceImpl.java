@@ -161,19 +161,9 @@ public class ProtocolMainServiceImpl implements ProtocolMainService {
 
     @Override
     @Transactional
-    @DigitalSignatureCheck(event = SignatureEvent.PROTOCOL_EDIT_QUALIFICATION)
     public Protocol editProtocolQualification(User user, Long protocolId, QualificationRequestDTO requestDTO) {
 
-        protocolValidationService.validateQualificationByUser(user, requestDTO);
-
         Protocol protocol = getProtocolForAction(user, protocolId, EDIT_PROTOCOL_QUALIFICATION);
-
-        var fromArticlPart = protocol.getArticlePart().getShortName().getRu();
-
-
-//        Optional<Juridic> oldJuridic = Optional.ofNullable(protocol.getJuridicId()).map(juridicService::getDTOById);
-//        List<Long> oldRepeatability = protocolRepeatabilityService.getProtocolRepeatabilityProtocolId(protocolId);
-//        historyService.registerEditProtocolQualification(user, protocol, oldJuridic, oldRepeatability, requestDTO);
 
         historyService.registerProtocolQualification(protocol, requestDTO, QualificationRegistrationType.EDIT_QUALIFICATION);
 
@@ -181,7 +171,6 @@ public class ProtocolMainServiceImpl implements ProtocolMainService {
         Juridic juridic = juridicService.replace(user, protocol.getJuridicId(), requestDTO.getJuridic());
         protocol.setJuridic(juridic);
 
-        // todo отсюда летели ошибки, потаму что замена пыталась удалить юрика, на которого все еще ссылылся протакло.
         protocolRepeatabilityService.replace(user, protocol, requestDTO.getRepeatabilityProtocolsId());
 
         Protocol savedProtocol = protocolService.update(
@@ -189,7 +178,6 @@ public class ProtocolMainServiceImpl implements ProtocolMainService {
                 requestDTO.getAdditionArticles().stream().map(QualificationArticleRequestDTO::buildProtocolArticle).collect(Collectors.toList())
         );
 
-        // todo быстрый фикс ошибок.
         juridicService.delete(user, oldJuridicId);
 
         return savedProtocol;

@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface InvoiceService {
 
-    void create(UbddInvoiceRequest request);
+    Invoice create(UbddInvoiceRequest request);
 
     Invoice findById(Long id);
 

@@ -16,6 +16,7 @@ import uz.ciasev.ubdd_service.entity.resolution.punishment.PenaltyPunishment;
 import uz.ciasev.ubdd_service.entity.resolution.punishment.Punishment;
 import uz.ciasev.ubdd_service.entity.violator.Violator;
 import uz.ciasev.ubdd_service.exception.implementation.NotImplementedException;
+import uz.ciasev.ubdd_service.repository.resolution.punishment.PenaltyPunishmentRepository;
 import uz.ciasev.ubdd_service.service.publicapi.eventdata.PublicApiWebhookEventPopulationService;
 import uz.ciasev.ubdd_service.service.court.CourtPaymentService;
 import uz.ciasev.ubdd_service.service.invoice.InvoiceService;
@@ -38,6 +39,7 @@ public class BillingExecutionServiceImpl implements BillingExecutionService {
 
     protected final PaymentService paymentService;
     protected final PunishmentService punishmentService;
+    protected final PenaltyPunishmentRepository penaltyPunishmentRepository;
     protected final PunishmentActionService punishmentActionService;
     protected final CompensationActionService compensationService;
     protected final ExecutionCallbackService executionCallbackService;
@@ -61,20 +63,23 @@ public class BillingExecutionServiceImpl implements BillingExecutionService {
             return;
         }
 
-        Invoice invoice = invoiceService.findByBillingId(paymentDTO.getInvoiceId());
-        paymentService.save(invoice, paymentDTO);
+        Invoice invoice = invoiceService.findById(paymentDTO.getInvoiceId());
 
         Payment savedPayment = paymentService.save(invoice, paymentDTO);
 
-        BillingEntity billingEntity = billingEntityService.getInvoiceOwner(invoice);
-        Violator violatorOwner = billingEntityService.getOwnerViolator(billingEntity);
+        Long penaltyPunishmentId = invoice.getPenaltyPunishmentId();
 
-        // publicApiWebhookEventPopulationService.addPaymentEvent(savedPayment, invoice, violatorOwner);
+        if (penaltyPunishmentId != null) {
+
+            PenaltyPunishment penaltyPunishment = penaltyPunishmentRepository
+                    .findById(penaltyPunishmentId).orElseThrow(() -> new RuntimeException("PenaltyPunishment not found with id=" + penaltyPunishmentId));
+
+            penaltyPunishment.setPaidAmount(penaltyPunishment.getPaidAmount() + savedPayment.getAmount());
+            penaltyPunishment.setLastPayTime(paymentDTO.getPaidAt());
+
+        }
+
         courtService.acceptIfCourt(invoice, savedPayment);
-
-        calculateAndSetExecution(billingEntity);
-        applyToOtherDecisionIfNeed(violatorOwner, invoice, billingEntity);
-
     }
 
     @Override
