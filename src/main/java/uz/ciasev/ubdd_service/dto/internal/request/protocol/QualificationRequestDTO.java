@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import uz.ciasev.ubdd_service.dto.internal.request.ArticleRequest;
 import uz.ciasev.ubdd_service.dto.internal.request.JuridicCreateRequestDTO;
+import uz.ciasev.ubdd_service.entity.dict.article.Article;
 import uz.ciasev.ubdd_service.entity.dict.article.ArticlePart;
 import uz.ciasev.ubdd_service.entity.dict.article.ArticleViolationType;
 import uz.ciasev.ubdd_service.entity.protocol.Protocol;
@@ -37,8 +39,11 @@ public class QualificationRequestDTO implements ArticleRequest  {
     @Valid
     private List<QualificationArticleRequestDTO> additionArticles;
 
-    @NotNull(message = ErrorCode.MAIN_ARTICLE_PART_REQUIRED)
-    @ActiveOnly(message = ErrorCode.ARTICLE_PART_DEACTIVATED)
+    @NotNull(message = ErrorCode.ARTICLE_REQUIRED)
+    @ActiveOnly(message = "ARTICLE_DEACTIVATED")
+    @JsonProperty(value = "articleId")
+    private Article article;
+
     @JsonProperty(value = "articlePartId")
     private ArticlePart articlePart;
 
@@ -69,8 +74,11 @@ public class QualificationRequestDTO implements ArticleRequest  {
 
     public ProtocolCreateRequest buildProtocol() {
         ProtocolCreateRequest protocol = new ProtocolCreateRequest();
-        protocol.setArticle(this.articlePart.getArticle());
+
+        protocol.setArticle(this.article);
+
         protocol.setArticlePart(this.articlePart);
+
         protocol.setArticleViolationType(this.articleViolationType);
         protocol.setIsJuridic(this.isJuridic);
         protocol.setFabula(this.fabula);
@@ -87,5 +95,13 @@ public class QualificationRequestDTO implements ArticleRequest  {
         protocol.setFabula(this.fabula);
         protocol.setFabulaAdditional(this.fabula);
         return protocol;
+    }
+
+    public Article retrieveArticle() {
+        return this.article;
+    }
+
+    public void attachArticlePart(ArticlePart articlePart) {
+        this.articlePart = articlePart;
     }
 }

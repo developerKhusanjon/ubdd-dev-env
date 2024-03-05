@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.ciasev.ubdd_service.entity.dict.District;
 import uz.ciasev.ubdd_service.entity.dict.Region;
+import uz.ciasev.ubdd_service.entity.dict.article.Article;
+import uz.ciasev.ubdd_service.entity.dict.article.ArticlePart;
 import uz.ciasev.ubdd_service.entity.dict.user.Position;
 import uz.ciasev.ubdd_service.entity.dict.user.Rank;
 import uz.ciasev.ubdd_service.mvd_core.api.f1.service.F1Service;
@@ -83,6 +85,14 @@ public class ProtocolBaseCreateServiceImpl implements ProtocolBaseCreateService 
                     .map(ProtocolRequestAdditionalDTO::getTransport)
                     .map(ProtocolUbddDataRequestDTO::getVehicleNumber)
                     .ifPresent(protocolDTO::setVehicleNumber);
+        }
+
+        if (protocolDTO.getArticlePart() == null) {
+            Long articleId = protocolDTO.retrieveArticle().getId();
+            List<ArticlePart> articleParts = articlePartRepository.findAllByArticleId(articleId);
+            if (!articleParts.isEmpty()) {
+                protocolDTO.attachArticlePart(articleParts.get(0));
+            }
         }
 
         protocolValidationService.checkProtocolDates(protocolDTO);
