@@ -152,6 +152,7 @@ public class ProtocolRequestDTO extends QualificationRequestDTO implements Regio
         return protocol;
     }
 
+
     public String getExplanatoryText() {
         return Optional.ofNullable(explanatoryText).map(String::trim).orElse("");
     }
