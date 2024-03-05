@@ -23,6 +23,7 @@ import uz.ciasev.ubdd_service.entity.user.User;
 import uz.ciasev.ubdd_service.entity.violator.Violator;
 import uz.ciasev.ubdd_service.entity.violator.ViolatorDetail;
 import uz.ciasev.ubdd_service.event.AdmEventService;
+import uz.ciasev.ubdd_service.repository.dict.article.ArticlePartRepository;
 import uz.ciasev.ubdd_service.service.damage.DamageMainService;
 import uz.ciasev.ubdd_service.service.history.HistoryService;
 import uz.ciasev.ubdd_service.service.juridic.JuridicService;
@@ -61,6 +62,8 @@ public class ProtocolBaseCreateServiceImpl implements ProtocolBaseCreateService 
     private final UbddDataToProtocolBindService ubddDataToProtocolBindService;
     private final UbddOldStructureService ubddOldStructureService;
     private final F1Service f1Service;
+
+    private final ArticlePartRepository articlePartRepository;
 
     @Override
     @Transactional
@@ -153,7 +156,9 @@ public class ProtocolBaseCreateServiceImpl implements ProtocolBaseCreateService 
         ProtocolCreateRequest protocol = new ProtocolCreateRequest();
 
         protocol.setArticle(protocolDTO.getArticlePart().getArticle());
+
         protocol.setArticlePart(protocolDTO.getArticlePart());
+
         protocol.setArticleViolationType(protocolDTO.getArticleViolationType());
         protocol.setIsJuridic(protocolDTO.getIsJuridic());
         protocol.setFabula(protocolDTO.getFabula());

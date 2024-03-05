@@ -13,6 +13,7 @@ import uz.ciasev.ubdd_service.entity.user.User;
 import uz.ciasev.ubdd_service.service.main.protocol.ProtocolCreateService;
 import uz.ciasev.ubdd_service.service.main.protocol.ProtocolMainService;
 import uz.ciasev.ubdd_service.service.protocol.ProtocolDTOService;
+import uz.ciasev.ubdd_service.service.protocol.ProtocolService;
 
 import javax.validation.Valid;
 
@@ -25,6 +26,8 @@ public class UbddProtocolController {
     private final ProtocolCreateService protocolCreateService;
     private final ProtocolDTOService dtoService;
     private final ProtocolMainService protocolMainService;
+    private final ProtocolDTOService protocolDTOServiceNew;
+    private final ProtocolService protocolService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -43,5 +46,13 @@ public class UbddProtocolController {
             @Valid @RequestBody QualificationRequestDTO requestDTO) {
         protocolMainService.editProtocolQualification(user, id, requestDTO);
     }
+
+
+    @PostMapping(path = "/{id}/separate")
+    public ProtocolDetailResponseDTO separateProtocolsFromAdmCase(@CurrentUser User user, @PathVariable Long id) {
+        protocolMainService.separateProtocol(user, id);
+        return protocolDTOServiceNew.buildDetail(user, () -> protocolService.findById(id));
+    }
+
 
 }

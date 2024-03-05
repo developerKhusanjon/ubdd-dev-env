@@ -9,4 +9,9 @@ import java.util.List;
 public interface ArticlePartRepository extends AbstractDictRepository<ArticlePart> {
 
     List<ArticlePart> findAllByIsActiveTrueAndArticleId(Long articleId, Sort sort);
+
+
+    List<ArticlePart> findAllByArticleId(Long articleId);
+
+
 }

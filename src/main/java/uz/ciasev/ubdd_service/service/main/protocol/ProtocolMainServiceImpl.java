@@ -163,7 +163,7 @@ public class ProtocolMainServiceImpl implements ProtocolMainService {
     @Transactional
     public Protocol editProtocolQualification(User user, Long protocolId, QualificationRequestDTO requestDTO) {
 
-        Protocol protocol = getProtocolForAction(user, protocolId, EDIT_PROTOCOL_QUALIFICATION);
+        Protocol protocol = protocolService.findById(protocolId);
 
         historyService.registerProtocolQualification(protocol, requestDTO, QualificationRegistrationType.EDIT_QUALIFICATION);
 
@@ -202,7 +202,7 @@ public class ProtocolMainServiceImpl implements ProtocolMainService {
         AdmCase fromAdmCase = admCaseService.getByProtocolId(protocolId);
         admCaseAccessService.checkConsiderActionWithAdmCase(user, SEPARATE_PROTOCOL, fromAdmCase);
 
-//        if (protocolSearchService.findAllSlimeProjectionByAdmCaseId(fromAdmCase.getId()).size() <= 1) {
+
         if (protocolSearchService.getCountByAdmCaseId(fromAdmCase.getId()) <= 1) {
             throw new ValidationException(ErrorCode.SEPARATE_LAST_PROTOCOL_FROM_ADM_CASE_UNACCEPTABLE);
         }
@@ -218,11 +218,7 @@ public class ProtocolMainServiceImpl implements ProtocolMainService {
     public void editProtocolViolationTime(User user, Long protocolId, ProtocolEditRequestDTO requestDTO) {
         protocolValidationService.checkProtocolDates(requestDTO);
 
-//        AdmCase admCase = admCaseService.getByProtocolId(protocolId);
-//        admCaseAccessService.checkConsiderActionWithAdmCase(user, EDIT_PROTOCOL_VIOLATION_TIME, admCase);
         Protocol protocol = getProtocolForAction(user, protocolId, EDIT_PROTOCOL_VIOLATION_TIME);
-
-        // EDIT
 
         if (!protocolValidationService.validateFirstDateLessThenSecond(requestDTO.getRegistrationTime(), protocol.getCreatedTime())) {
             throw new ValidationException(ErrorCode.REGISTRATION_TIME_MORE_THAN_CREATED_TIME);
@@ -299,6 +295,7 @@ public class ProtocolMainServiceImpl implements ProtocolMainService {
     private Protocol getProtocolForAction(User user, Long protocolId, ActionAlias actionAlias) {
 
         AdmCase admCase = admCaseService.getByProtocolId(protocolId);
+
         admCaseAccessService.checkConsiderActionWithAdmCase(user, actionAlias, admCase);
 
         return protocolService.findById(protocolId);

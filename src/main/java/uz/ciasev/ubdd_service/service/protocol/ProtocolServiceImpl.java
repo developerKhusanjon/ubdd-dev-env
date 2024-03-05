@@ -254,39 +254,4 @@ public class ProtocolServiceImpl implements ProtocolService {
         return protocolList.get(0);
     }
 
-
-
-
-//    @Override
-//    public Page<ProtocolLocationProjection> findProtocolLocations(Double latitude, Double longitude, Double radius) {
-//        List<Pair<Double, Double>> minMax = DistanceCalculator.minMaxCoordinates(latitude, longitude, radius);
-//        return protocolRepository.findProtocolLocations(
-//                0L,
-//                minMax.get(0).getFirst(),
-//                minMax.get(0).getSecond(),
-//                minMax.get(1).getFirst(),
-//                minMax.get(1).getSecond(),
-//                LocalDateTime.MIN,
-//                Pageable.unpaged()
-//        );
-//    }
-//
-//    @Override
-//    public Page<ProtocolLocationProjection> findProtocolLocations(Long regionId,
-//                                                        Double latMin,
-//                                                        Double lonMin,
-//                                                        Double latMax,
-//                                                        Double lonMax,
-//                                                        LocalDateTime createdFrom,
-//                                                        Pageable pageable) {
-//        return protocolRepository.findProtocolLocations(
-//                Optional.ofNullable(regionId).orElse(0L),
-//                latMin,
-//                lonMin,
-//                latMax,
-//                lonMax,
-//                createdFrom,
-//                pageable
-//        );
-//    }
 }
