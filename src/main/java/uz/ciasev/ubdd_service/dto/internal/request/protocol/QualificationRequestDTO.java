@@ -26,7 +26,6 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ValidQualification
 @ConsistArticle(message = ErrorCode.MAIN_ARTICLE_AND_VIOLATION_TYPE_NOT_CONSIST)
 public class QualificationRequestDTO implements ArticleRequest  {
 
@@ -87,7 +86,7 @@ public class QualificationRequestDTO implements ArticleRequest  {
     }
 
     public Protocol applyTo(Protocol protocol) {
-        protocol.setArticle(this.articlePart.getArticle());
+        protocol.setArticle(this.article);
         protocol.setArticlePart(this.articlePart);
         protocol.setArticleViolationType(this.articleViolationType);
         protocol.setIsJuridic(this.isJuridic);
@@ -103,5 +102,8 @@ public class QualificationRequestDTO implements ArticleRequest  {
 
     public void attachArticlePart(ArticlePart articlePart) {
         this.articlePart = articlePart;
+    }
+    public void attachArticleViolationType(ArticleViolationType articleViolationType) {
+        this.articleViolationType = articleViolationType;
     }
 }

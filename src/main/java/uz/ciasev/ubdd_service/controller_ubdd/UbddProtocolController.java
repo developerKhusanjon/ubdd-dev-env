@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import uz.ciasev.ubdd_service.config.security.CurrentUser;
 import uz.ciasev.ubdd_service.dto.internal.request.protocol.ProtocolRequestDTO;
 import uz.ciasev.ubdd_service.dto.internal.request.protocol.QualificationRequestDTO;
+import uz.ciasev.ubdd_service.dto.internal.response.adm.admcase.AdmCaseMergeResponseDTO;
 import uz.ciasev.ubdd_service.dto.internal.response.adm.protocol.ProtocolDetailResponseDTO;
 import uz.ciasev.ubdd_service.entity.user.User;
+import uz.ciasev.ubdd_service.service.main.admcase.AdmCaseActionService;
 import uz.ciasev.ubdd_service.service.main.protocol.ProtocolCreateService;
 import uz.ciasev.ubdd_service.service.main.protocol.ProtocolMainService;
 import uz.ciasev.ubdd_service.service.protocol.ProtocolDTOService;
@@ -29,6 +31,8 @@ public class UbddProtocolController {
     private final ProtocolDTOService protocolDTOServiceNew;
     private final ProtocolService protocolService;
 
+    private final AdmCaseActionService admCaseActionService;
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProtocolDetailResponseDTO createProtocol(@CurrentUser User user,
@@ -45,6 +49,14 @@ public class UbddProtocolController {
             @PathVariable Long id,
             @Valid @RequestBody QualificationRequestDTO requestDTO) {
         protocolMainService.editProtocolQualification(user, id, requestDTO);
+    }
+
+
+    @PostMapping("/adm-cases/{fromAdmCaseId}/merge-to/{toAdmCaseId}")
+    public AdmCaseMergeResponseDTO mergeCase(@CurrentUser User user,
+                                             @PathVariable("fromAdmCaseId") Long fromAdmCaseId,
+                                             @PathVariable("toAdmCaseId") Long toAdmCaseId) {
+        return admCaseActionService.mergeAdmCases(user, fromAdmCaseId, toAdmCaseId);
     }
 
 

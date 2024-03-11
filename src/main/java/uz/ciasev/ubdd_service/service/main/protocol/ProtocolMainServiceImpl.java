@@ -11,6 +11,7 @@ import uz.ciasev.ubdd_service.dto.internal.request.protocol.*;
 import uz.ciasev.ubdd_service.dto.internal.request.victim.VictimProtocolRequestDTO;
 import uz.ciasev.ubdd_service.dto.internal.response.adm.protocol.EditProtocolVehicleNumberRegistrationResponseDTO;
 import uz.ciasev.ubdd_service.dto.internal.ubdd_data.ProtocolVehicleNumberEditDTO;
+import uz.ciasev.ubdd_service.entity.dict.article.ArticlePart;
 import uz.ciasev.ubdd_service.entity.protocol.Juridic;
 import uz.ciasev.ubdd_service.entity.Person;
 import uz.ciasev.ubdd_service.entity.PersonDocument;
@@ -26,6 +27,7 @@ import uz.ciasev.ubdd_service.entity.victim.Victim;
 import uz.ciasev.ubdd_service.entity.victim.VictimDetail;
 import uz.ciasev.ubdd_service.exception.ErrorCode;
 import uz.ciasev.ubdd_service.exception.ValidationException;
+import uz.ciasev.ubdd_service.repository.dict.article.ArticlePartRepository;
 import uz.ciasev.ubdd_service.repository.history.EditProtocolVehicleNumberRegistrationRepository;
 import uz.ciasev.ubdd_service.repository.protocol.ProtocolRepository;
 import uz.ciasev.ubdd_service.service.AdmCaseChangeReasonService;
@@ -74,6 +76,8 @@ public class ProtocolMainServiceImpl implements ProtocolMainService {
     private final ProtocolRepository protocolRepository;
     private final UbddDataToProtocolBindService ubddDataToProtocolBindService;
     private final EditProtocolVehicleNumberRegistrationRepository editProtocolVehicleNumberRegistrationRepository;
+
+    private final ArticlePartRepository articlePartRepository;
 
 
     @Override
@@ -164,6 +168,15 @@ public class ProtocolMainServiceImpl implements ProtocolMainService {
     public Protocol editProtocolQualification(User user, Long protocolId, QualificationRequestDTO requestDTO) {
 
         Protocol protocol = protocolService.findById(protocolId);
+
+        if (requestDTO.getArticlePart() == null) {
+            Long articleId = requestDTO.retrieveArticle().getId();
+            List<ArticlePart> articleParts = articlePartRepository.findAllByArticleId(articleId);
+            if (!articleParts.isEmpty()) {
+                requestDTO.attachArticlePart(articleParts.get(0));
+                requestDTO.attachArticleViolationType(null);
+            }
+        }
 
         historyService.registerProtocolQualification(protocol, requestDTO, QualificationRegistrationType.EDIT_QUALIFICATION);
 

@@ -92,6 +92,7 @@ public class ProtocolBaseCreateServiceImpl implements ProtocolBaseCreateService 
             List<ArticlePart> articleParts = articlePartRepository.findAllByArticleId(articleId);
             if (!articleParts.isEmpty()) {
                 protocolDTO.attachArticlePart(articleParts.get(0));
+                protocolDTO.attachArticleViolationType(null);
             }
         }
 

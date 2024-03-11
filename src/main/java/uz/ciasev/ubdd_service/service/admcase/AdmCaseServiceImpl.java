@@ -54,7 +54,7 @@ public class AdmCaseServiceImpl implements AdmCaseService {
 
         String acNumber = admCaseNumberGeneratorService.generateNumber(openedDate);
         String acSeries = admCaseNumberGeneratorService.generateSeries();
-        AdmStatus admStatus = admStatusService.findByAlias(REGISTERED);
+        AdmStatus admStatus = admStatusService.findByAlias(CONSIDERING);
 
         return admCaseRepository.save(AdmCase
                 .builder()

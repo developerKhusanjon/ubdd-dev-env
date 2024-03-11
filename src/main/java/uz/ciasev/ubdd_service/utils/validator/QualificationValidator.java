@@ -63,7 +63,7 @@ public class QualificationValidator implements ConstraintValidator<ValidQualific
         }
 
         Set<QualificationArticleRequestDTO> presentedArticle = new HashSet<>();
-        presentedArticle.add(new QualificationArticleRequestDTO(protocolDTO.getArticlePart(), protocolDTO.getArticleViolationType()));
+        presentedArticle.add(new QualificationArticleRequestDTO(protocolDTO.retrieveArticle(), protocolDTO.getArticlePart(), protocolDTO.getArticleViolationType()));
 
         Boolean hasDuplicate = !additionArticles.stream()
                 .allMatch(presentedArticle::add);

@@ -199,13 +199,6 @@ public class MainServiceImpl implements MainService {
         allArticleParts.addAll(fromCaseArticleParts);
         allArticleParts.addAll(toCaseArticleParts);
 
-//        //  Нельзя смешивать дела с судовыми статьями и дела со стотьями органа
-//        if (!(validationService.checkAllPartNotConsideredByCourt(allArticleParts)
-//                || validationService.checkAllPartConsideredByCourt(allArticleParts))) {
-//            throw new MixingOfCourtAndOrganArticlesUnacceptable();
-//        }
-
-        //  Орган должен иметь возможность рассматривать все статьи обьеденяемых дел
         if (!calculatingService.isConsideredUserForAll(user, allArticleParts)) {
             throw new NotConsiderOfArticlePartException();
         }

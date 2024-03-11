@@ -55,9 +55,9 @@ public class AdmCaseAccessServiceImpl implements AdmCaseAccessService {
             return;
         }
 
-        if (permittedOpt.get().getConsidererOnly()) {
-            checkConsiderOfAdmCase(user, admCase);
-        }
+//        if (permittedOpt.get().getConsidererOnly()) {
+//            checkConsiderOfAdmCase(user, admCase);
+//        }
 
     }
 
