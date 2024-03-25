@@ -125,12 +125,13 @@ public class UserAdmResolutionServiceImpl implements UserAdmResolutionService {
         Place resolutionPlace = calculateResolutionPlace(user, requestDTO);
 
         PenaltyPunishment.DiscountVersion discount = discountService.calculateDiscount(requestDTO);
-        Supplier<OrganAccountSettings> penaltyBankAccountSettingsSupplier = getOrganAccountSettingsSupplier(resolutionPlace, requestDTO.getBankAccountType(), requestDTO);
+
+        //Supplier<OrganAccountSettings> penaltyBankAccountSettingsSupplier = getOrganAccountSettingsSupplier(resolutionPlace, requestDTO.getBankAccountType(), requestDTO);
 
 
         ResolutionCreateRequest resolution = helpService.buildResolution(requestDTO);
         List<Compensation> compensations = buildCompensations(resolutionPlace, requestDTO);
-        Decision decision = helpService.buildDecision(violator, requestDTO, penaltyBankAccountSettingsSupplier);
+        Decision decision = helpService.buildDecision(violator, requestDTO, null /*penaltyBankAccountSettingsSupplier*/);
 
         decision.getPenalty().ifPresent(p -> p.setDiscount(discount));
 
@@ -222,9 +223,12 @@ public class UserAdmResolutionServiceImpl implements UserAdmResolutionService {
     private boolean checkResolutionIsSame(Decision decision, SingleResolutionRequestDTO requestDTO) {
         return (decision.isActive() &&
                 !decision.getPunishments().isEmpty() &&
-                decision.getArticleViolationTypeId().equals(requestDTO.getArticleViolationType().getId()) &&
+                ((decision.getArticleViolationTypeId() == null && requestDTO.getArticleViolationType() == null)
+                        || (requestDTO.getArticleViolationType() != null
+                        && decision.getArticleViolationTypeId().equals(requestDTO.getArticleViolationType().getId()))) &&
                 decision.getDecisionTypeId().equals(requestDTO.getDecisionType().getId()) &&
-                decision.getArticlePartId().equals(requestDTO.getArticlePart().getId()) &&
+                ((decision.getArticlePartId() == null && requestDTO.getArticlePart() == null)
+                        || (requestDTO.getArticlePart() != null && decision.getArticlePartId().equals(requestDTO.getArticlePart().getId()))) &&
                 decision.getPunishments().get(0).isActive() &&
                 decision.getPunishments().get(0).getPenalty().getAmount().equals(requestDTO.getMainPunishment().getAmount()));
     }
@@ -235,7 +239,8 @@ public class UserAdmResolutionServiceImpl implements UserAdmResolutionService {
             case IN_EXECUTION_PROCESS:
             case EXECUTED:
                 return true;
-            default:break;
+            default:
+                break;
         }
         return false;
     }

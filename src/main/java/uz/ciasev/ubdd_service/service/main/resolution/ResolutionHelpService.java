@@ -70,10 +70,7 @@ public class ResolutionHelpService {
         decision.setViolator(violator);
 
         Optional<PenaltyPunishment> penaltyOpt = decision.getPenalty();
-        if (penaltyOpt.isPresent()) {
-            BankAccount bankAccount = getAccountSettings.get().getPenaltyAccount();
-            penaltyOpt.get().setAccount(bankAccount);
-        }
+        penaltyOpt.ifPresent(penaltyPunishment -> penaltyPunishment.setAccount(EMPTY_ACCOUNT));
 
         decision.getPunishments()
                 .stream()
@@ -113,8 +110,7 @@ public class ResolutionHelpService {
 
     public Compensation buildGovCompensation(CompensationRequestDTO compensationRequestDTO, Supplier<OrganAccountSettings> getAccountSettings) {
         Compensation compensation = compensationRequestDTO.buildCompensation();
-        BankAccount bankAccount = getAccountSettings.get().getCompensationAccountOrThrow();
-        compensation.setAccount(bankAccount);
+        compensation.setAccount(EMPTY_ACCOUNT);
 
         return compensation;
     }
