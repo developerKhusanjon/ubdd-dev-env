@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import uz.ciasev.ubdd_service.entity.protocol.Protocol;
 import uz.ciasev.ubdd_service.event.AdmEventType;
 import uz.ciasev.ubdd_service.event.subscribers.ProtocolCreateSubscriber;
-import uz.ciasev.ubdd_service.service.ombudsman.OmbudsmanWebhookCreateService;
+import uz.ciasev.ubdd_service.service.webhook.ombudsman.OmbudsmanWebhookCreateService;
 
 
 @Service

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import uz.ciasev.ubdd_service.entity.admcase.AdmCase;
 import uz.ciasev.ubdd_service.event.subscribers.ProtocolConsiderStatusSubscriber;
-import uz.ciasev.ubdd_service.service.replica.ReplicaWebhookCreateService;
+import uz.ciasev.ubdd_service.service.webhook.replica.ReplicaWebhookCreateService;
 
 
 @Service

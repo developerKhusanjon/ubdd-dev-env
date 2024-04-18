@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import uz.ciasev.ubdd_service.event.subscribers.OrganResolutionCreateSubscriber;
 import uz.ciasev.ubdd_service.service.main.resolution.dto.CreatedResolutionDTO;
-import uz.ciasev.ubdd_service.service.sit_center.SitCenterWebhookCreateService;
+import uz.ciasev.ubdd_service.service.webhook.sit_center.SitCenterWebhookCreateService;
 
 
 @Service

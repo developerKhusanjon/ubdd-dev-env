@@ -173,8 +173,12 @@ public interface ProtocolRepository extends ProtocolCustomRepository, JpaReposit
                     "         , d.series             de_series " +
                     "         , mp.type_id           mp_type_id " +
                     "         , mp.amount_text       mp_amount_text " +
+                    "         , mpp.discount_for_date       mpp_discount30_for_date " +
+                    "         , mpp.discount50_for_date       mpp_discount50_for_date " +
                     "         , ap.type_id           ap_type_id " +
                     "         , ap.amount_text       ap_amount_text " +
+                    "         , pr.latitude       pr_latitude " +
+                    "         , pr.longitude       pr_longitude " +
                     "    FROM core_v0.protocol pr " +
                     "             LEFT JOIN core_v0.violator_detail vd " +
                     "                       ON pr.violator_detail_id = vd.id " +
@@ -191,6 +195,9 @@ public interface ProtocolRepository extends ProtocolCustomRepository, JpaReposit
                     "             LEFT JOIN core_v0.punishment mp " +
                     "                       ON mp.decision_id = d.id " +
                     "                       AND mp.is_main " +
+                    "             LEFT JOIN core_v0.penalty_punishment mpp " +
+                    "                       ON mpp.punishment_id = mp.id " +
+                    "                       AND mp.is_main " +
                     "             LEFT JOIN core_v0.punishment ap " +
                     "                       ON ap.decision_id = d.id " +
                     "                       AND NOT ap.is_main " +
@@ -204,6 +211,8 @@ public interface ProtocolRepository extends ProtocolCustomRepository, JpaReposit
                     "     , PM.pr_district_id        protocolDistrictId " +
                     "     , district.name->>'lat'    districtName " +
                     "     , PM.pr_region_id          protocolRegionId " +
+                    "     , PM.pr_latitude           latitude " +
+                    "     , PM.pr_longitude          longitude " +
                     "     , region.name->>'lat'      regionName " +
                     "     , PM.pr_registration_time  registrationTime " +
                     "     , PM.violator_id           violatorId " +
@@ -211,7 +220,7 @@ public interface ProtocolRepository extends ProtocolCustomRepository, JpaReposit
                     "     , person.second_name_lat   violatorSecondNameLat " +
                     "     , person.last_name_lat     violatorLastNameLat " +
                     "     , person.birth_date        violatorBirthDate " +
-                    "     , person.pinpp        violatorPinpp " +
+                    "     , person.pinpp             violatorPinpp " +
                     "     , PM.de_id                 decisionId " +
                     "     , PM.re_id                 resolutionId " +
                     "     , PM.de_status_id          decisionStatusId " +
@@ -226,6 +235,8 @@ public interface ProtocolRepository extends ProtocolCustomRepository, JpaReposit
                     "     , PM.de_series             decisionSeries " +
                     "     , PM.mp_type_id            mainPunishmentTypeId " +
                     "     , pt1.name->>'lat'         mainPunishmentType " +
+                    "     , PM.mpp_discount30_for_date        discount30Date " +
+                    "     , PM.mpp_discount50_for_date        discount50Date " +
                     "     , PM.mp_amount_text        mainPunishmentAmount " +
                     "     , PM.ap_type_id            additionalPunishmentTypeId " +
                     "     , pt2.name->>'lat'         additionalPunishmentType " +
@@ -503,6 +514,8 @@ public interface ProtocolRepository extends ProtocolCustomRepository, JpaReposit
             "   protocol.violationTime as violationTime, " +
             "   jsonb_extract_path_text(protocol.articlePart.name, 'lat') as articlePartNameLat, " +
             "   jsonb_extract_path_text(articleViolationType.name, 'lat') as articleViolationTypeNameLat, " +
+            "   jsonb_extract_path_text(protocol.violatorDetail.violator.person.citizenshipType.name, 'lat') as violatorCitizenshipTypeNameLat, " +
+            "   jsonb_extract_path_text(protocol.violatorDetail.personDocumentType.name, 'lat') as violatorDocumentTypeNameLat, " +
             "   protocol.violatorDetail.documentSeries as violatorDocumentSeries, " +
             "   protocol.violatorDetail.documentNumber as violatorDocumentNumber, " +
             "   protocol.violatorDetail.violator.person.firstNameLat as violatorFirstNameLat, " +
@@ -600,4 +613,8 @@ public interface ProtocolRepository extends ProtocolCustomRepository, JpaReposit
             "           )" +
             "   ) ")
     List<Protocol> findFirstByAdmCaseIdSorted(@Param("admCaseId") Long admCaseId, Pageable pageable);
+
+    @Query("SELECT p.id FROM Protocol as p where p.createdTime>:fromDate")
+    List<Long> findAllByCreatedTimeAfter(LocalDateTime fromDate);
+
 }

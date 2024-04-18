@@ -11,7 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SitCenterWantedPersonDetectedSubscriber extends WantedPersonDetectedSubscriber {
 
-    private final uz.ciasev.ubdd_service.service.sit_center.SitCenterWebhookCreateService service;
+    private final uz.ciasev.ubdd_service.service.webhook.sit_center.SitCenterWebhookCreateService service;
 
     @Override
     public void apply(List<WantedProtocol> wantedList) {

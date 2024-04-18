@@ -10,7 +10,7 @@ import uz.ciasev.ubdd_service.service.main.resolution.dto.CreatedResolutionDTO;
 @RequiredArgsConstructor
 public class SitCenterCourtResolutionCreateEventSubscriber extends CourtResolutionSubscriber {
 
-    private final uz.ciasev.ubdd_service.service.sit_center.SitCenterWebhookCreateService service;
+    private final uz.ciasev.ubdd_service.service.webhook.sit_center.SitCenterWebhookCreateService service;
 
     @Override
     public void apply(CreatedResolutionDTO resolution) {

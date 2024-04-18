@@ -25,6 +25,7 @@ import uz.ciasev.ubdd_service.service.user.SystemUserService;
 import uz.ciasev.ubdd_service.specifications.ProtocolSpecifications;
 import uz.ciasev.ubdd_service.specifications.SpecificationsCombiner;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,10 +47,17 @@ public class ProtocolServiceImpl implements ProtocolService {
     public Protocol create(Inspector user, ViolatorDetail violatorDetail, ProtocolCreateRequest protocol, List<ProtocolArticle> additionArticles) {
 
         protocol.setCreatedUser(systemUserService.getCurrentUser());
-        protocol.setUser(user.getUser());
 
-        protocol.setInspectorInfo(protocol.getInspectorFio() + " ( " + protocol.getInspectorPosition() + " ) ");
+        protocol.setUser(user.getUser());
+        protocol.setInspectorInfo(user.getInfo());
+        protocol.setInspectorFio(user.getFio());
+        protocol.setInspectorRegion(user.getRegion());
+        protocol.setInspectorDistrict(user.getDistrict());
+        protocol.setInspectorRank(user.getRank());
+        protocol.setInspectorPosition(user.getPosition());
+        protocol.setInspectorWorkCertificate(user.getWorkCertificate());
         protocol.setOrgan(user.getOrgan());
+        protocol.setDepartment(user.getDepartment());
         protocol.setViolatorDetail(violatorDetail);
 
         String number = generatorService.generateNumber(protocol);
@@ -129,6 +137,11 @@ public class ProtocolServiceImpl implements ProtocolService {
     @Override
     public List<Long> findAllIdByViolatorId(Long violatorId) {
         return protocolRepository.findAllId(protocolSpecifications.withViolatorIdExactly(violatorId));
+    }
+
+    @Override
+    public List<Long> findAllIdByFromDate(LocalDateTime fromDate) {
+        return protocolRepository.findAllByCreatedTimeAfter(fromDate);
     }
 
     @Override
@@ -254,4 +267,39 @@ public class ProtocolServiceImpl implements ProtocolService {
         return protocolList.get(0);
     }
 
+
+
+
+//    @Override
+//    public Page<ProtocolLocationProjection> findProtocolLocations(Double latitude, Double longitude, Double radius) {
+//        List<Pair<Double, Double>> minMax = DistanceCalculator.minMaxCoordinates(latitude, longitude, radius);
+//        return protocolRepository.findProtocolLocations(
+//                0L,
+//                minMax.get(0).getFirst(),
+//                minMax.get(0).getSecond(),
+//                minMax.get(1).getFirst(),
+//                minMax.get(1).getSecond(),
+//                LocalDateTime.MIN,
+//                Pageable.unpaged()
+//        );
+//    }
+//
+//    @Override
+//    public Page<ProtocolLocationProjection> findProtocolLocations(Long regionId,
+//                                                        Double latMin,
+//                                                        Double lonMin,
+//                                                        Double latMax,
+//                                                        Double lonMax,
+//                                                        LocalDateTime createdFrom,
+//                                                        Pageable pageable) {
+//        return protocolRepository.findProtocolLocations(
+//                Optional.ofNullable(regionId).orElse(0L),
+//                latMin,
+//                lonMin,
+//                latMax,
+//                lonMax,
+//                createdFrom,
+//                pageable
+//        );
+//    }
 }

@@ -9,7 +9,7 @@ import uz.ciasev.ubdd_service.event.subscribers.DecisionStatusChangeSubscriber;
 @RequiredArgsConstructor
 public class SitCenterDecisionStatusEventSubscriber extends DecisionStatusChangeSubscriber {
 
-    private final uz.ciasev.ubdd_service.service.sit_center.SitCenterWebhookCreateService service;
+    private final uz.ciasev.ubdd_service.service.webhook.sit_center.SitCenterWebhookCreateService service;
 
     @Override
     public void apply(Decision decision) {

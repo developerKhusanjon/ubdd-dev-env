@@ -26,7 +26,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping(path = "${mvd-ciasev.webhooks.base-url}/mib-internal", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
-@Profile("emi-api")
+@Profile("ubdd-api")
 public class MibInternalWebhooksController {
 
     private final MibApiExecutionService executionService;

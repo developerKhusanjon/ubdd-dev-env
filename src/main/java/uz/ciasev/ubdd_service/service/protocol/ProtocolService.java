@@ -10,6 +10,7 @@ import uz.ciasev.ubdd_service.entity.user.User;
 import uz.ciasev.ubdd_service.entity.violator.Violator;
 import uz.ciasev.ubdd_service.entity.violator.ViolatorDetail;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ProtocolService {
@@ -35,6 +36,8 @@ public interface ProtocolService {
     List<Protocol> findAllByViolatorId(Long violatorId);
 
     List<Long> findAllIdByViolatorId(Long violatorId);
+
+    List<Long> findAllIdByFromDate(LocalDateTime fromDate);
 
     List<Protocol> findAllProtocolsInAdmCase(Long admCaseId);
 

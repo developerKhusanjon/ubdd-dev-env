@@ -1,8 +1,8 @@
 package uz.ciasev.ubdd_service.event.subscribers;
 
 import org.springframework.data.util.Pair;
-import uz.ciasev.ubdd_service.entity.resolution.punishment.Punishment;
 import uz.ciasev.ubdd_service.entity.resolution.execution.ExecutorType;
+import uz.ciasev.ubdd_service.entity.resolution.punishment.Punishment;
 import uz.ciasev.ubdd_service.event.AdmEventType;
 import uz.ciasev.ubdd_service.exception.event.AdmEventUnexpectedDataTypeError;
 import uz.ciasev.ubdd_service.exception.event.AdmEventUnexpectedDataTypeOfPairError;

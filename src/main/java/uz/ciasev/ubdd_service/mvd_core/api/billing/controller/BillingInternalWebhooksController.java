@@ -14,7 +14,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping(path = "${mvd-ciasev.webhooks.base-url}/billing", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
-@Profile("emi-api")
+@Profile("ubdd-api")
 public class BillingInternalWebhooksController {
 
     private final BillingPaymentApiService paymentApiService;

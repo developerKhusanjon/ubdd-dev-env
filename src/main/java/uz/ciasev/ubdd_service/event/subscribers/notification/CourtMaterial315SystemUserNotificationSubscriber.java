@@ -5,9 +5,9 @@ import org.springframework.stereotype.Service;
 import uz.ciasev.ubdd_service.dto.internal.request.notification.sms.SystemUserNotificationBroadcastRequestDTO;
 import uz.ciasev.ubdd_service.entity.court.CourtMaterial;
 import uz.ciasev.ubdd_service.entity.court.CourtMaterialDecision;
+import uz.ciasev.ubdd_service.entity.dict.NotificationTypeAlias;
 import uz.ciasev.ubdd_service.event.subscribers.RegisterMaterialInCourtSubscriber;
 import uz.ciasev.ubdd_service.repository.court.CourtMaterialDecisionRepository;
-import uz.ciasev.ubdd_service.entity.dict.NotificationTypeAlias;
 import uz.ciasev.ubdd_service.service.notification.system.SystemUserNotificationMessageService;
 import uz.ciasev.ubdd_service.service.notification.system.SystemUserNotificationService;
 

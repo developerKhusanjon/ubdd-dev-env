@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uz.ciasev.ubdd_service.event.subscribers.OrganResolutionCreateSubscriber;
-import uz.ciasev.ubdd_service.service.publicapi.eventdata.PublicApiWebhookEventPopulationService;
 import uz.ciasev.ubdd_service.service.main.resolution.dto.CreatedResolutionDTO;
+import uz.ciasev.ubdd_service.service.publicapi.eventdata.PublicApiWebhookEventPopulationService;
 
 @Profile("!publicapi")
 @Service
