@@ -11,7 +11,7 @@ services:
       - .:/mvd_api/
     environment:
       - TZ=Asia/Tashkent
-      - SPRING_PROFILES_ACTIVE=local,emi-api,citizen-api,core-api
+      - SPRING_PROFILES_ACTIVE=ubdd-api
       - LOGGING_LEVEL_UZ_CIASEV_MVD=INFO
       - HOST_NAME=LOCAL
     working_dir: /mvd_api
