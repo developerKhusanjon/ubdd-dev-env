@@ -118,7 +118,7 @@ public class ResolutionValidationServiceImpl implements ResolutionValidationServ
             return;
         }
 
-         validatePenaltyAmount(decision, toDate);
+        // validatePenaltyAmount(decision, toDate);
     }
 
     @Override

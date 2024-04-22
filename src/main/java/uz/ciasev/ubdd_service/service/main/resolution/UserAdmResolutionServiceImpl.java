@@ -159,7 +159,7 @@ public class UserAdmResolutionServiceImpl implements UserAdmResolutionService {
         return new Place() {
             @Override
             public Region getRegion() {
-                return user.getRegion();
+                return requestDTO.getRegion();
             }
 
             @Override
