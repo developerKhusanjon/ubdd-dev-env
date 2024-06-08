@@ -31,11 +31,11 @@ public class UbddResolutionController {
         return decisionDTOService.buildListForCreate(() -> resolutionMadeService.createAdmSingle(user, requestDTO.getAdmCaseId(), requestDTO).getCreatedDecision());
     }
 
-    @PostMapping("/cancel/{id}")
+    @PostMapping("/cancel/{admCaseId}")
     public void cancelResolution(@CurrentUser User user,
-                                 @PathVariable Long id,
+                                 @PathVariable Long admCaseId,
                                  @RequestBody @Valid CancellationResolutionRequestDTO dto) {
-        resolutionActionService.cancelResolutionByOrgan(user, id, dto);
+        resolutionActionService.cancelResolutionByOrgan(user, admCaseId, dto);
     }
 
 }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uz.ciasev.ubdd_service.exception.NotFoundException;
 import uz.ciasev.ubdd_service.mvd_core.api.mib.webhook.dto.adm.MibAdmTerminationDTO;
 import uz.ciasev.ubdd_service.dto.internal.request.resolution.organ.CancellationResolutionRequestDTO;
 import uz.ciasev.ubdd_service.entity.Inspector;
@@ -75,7 +76,7 @@ public class ResolutionServiceActionImpl implements ResolutionActionService {
     @Transactional
     @DigitalSignatureCheck(event = SignatureEvent.RESOLUTION_CANCEL)
     public CancellationResolution cancelResolutionByOrgan(User user, Long id, CancellationResolutionRequestDTO dto) {
-        return cancelResolution(user, id, CANCELLATION_RESOLUTION, dto);
+        return cancelResolution(user, id, dto);
     }
 
     @Override
@@ -129,7 +130,7 @@ public class ResolutionServiceActionImpl implements ResolutionActionService {
     @DigitalSignatureCheck(event = SignatureEvent.RESOLUTION_CANCEL)
     public CancellationResolution cancelResolutionByProtest(User user, Long resolutionId, CancellationResolutionRequestDTO dto) {
 
-        return cancelResolution(user, resolutionId, CANCEL_RESOLUTION_ON_PROSECUTOR_PROTEST, dto);
+        return cancelResolution(user, resolutionId, dto);
     }
 
     private void cancel(Resolution resolution,
@@ -261,14 +262,12 @@ public class ResolutionServiceActionImpl implements ResolutionActionService {
     }
 
     @Transactional
-    private CancellationResolution cancelResolution(User user, Long id, ActionAlias alias, CancellationResolutionRequestDTO dto) {
-        Resolution resolution = resolutionService.getById(id);
+    private CancellationResolution cancelResolution(User user, Long admCaseId, CancellationResolutionRequestDTO dto) {
+        Resolution resolution = resolutionService.findActiveByAdmCaseId(admCaseId).orElseThrow(() -> new NotFoundException("Resolution not found"));
         AdmCase admCase = resolution.getAdmCase();
 
-        List<Decision> decisions = decisionService.findByResolutionId(id);
+        List<Decision> decisions = decisionService.findByResolutionId(resolution.getId());
         decisionAccessService.checkIsNotCourt(resolution);
-
-        //checkResolutionDecisions(user, decisions, alias);
 
         CancellationResolution cancellation = CancellationResolution
                 .builder()
@@ -276,8 +275,7 @@ public class ResolutionServiceActionImpl implements ResolutionActionService {
                 .reasonCancellation(dto.getReasonCancellation())
                 .organCancellation(dto.getOrganCancellation())
                 .cancellationDate(dto.getCancellationTime())
-                .fileUri(dto.getFileUri())
-                .signature(dto.getSignature())
+                .fileUri("")
                 .user(user)
                 .build();
 

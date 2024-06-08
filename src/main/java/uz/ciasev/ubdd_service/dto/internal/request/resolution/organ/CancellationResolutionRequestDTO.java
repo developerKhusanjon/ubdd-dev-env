@@ -28,9 +28,4 @@ public class CancellationResolutionRequestDTO {
     @NotNull(message = ErrorCode.CANCELLATION_TIME_REQUIRED)
     private LocalDateTime cancellationTime;
 
-    @ValidFileUri(allow = FileFormatAlias.PDF, message = ErrorCode.URI_INVALID)
-    @NotNull(message = ErrorCode.CANCELLATION_FILE_REQUIRED)
-    private String fileUri;
-
-    private String signature;
 }
