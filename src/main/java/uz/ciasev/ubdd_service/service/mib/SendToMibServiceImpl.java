@@ -102,23 +102,17 @@ public class SendToMibServiceImpl implements SendToMibService {
     @Override
     public void doSend(MibExecutionCard card, @Nullable User user, MibResult mibResult) {
 
-        // cardService.prepareSend(card); // this is for auto Notification
-        // validationService.validateSend(card);
-
         cardRepository.save(card);
 
         Pair<MibCardMovement, MibResult> moveWithStatus = sendExecutionCard(user, card, mibResult);
-        // MibCardMovement move = moveWithStatus.getFirst();
+
         MibResult sendResult = moveWithStatus.getSecond();
         MibSendStatus status = sendResult.getStatus();
 
         if (status.isSuccessfully()) {
             Decision decision = card.getDecision();
             decisionService.saveStatus(decision, AdmStatusAlias.SEND_TO_MIB);
-            // publicApiWebhookEventPopulationService.addSendToMibEvent(move);
-        } // else {
-            // publicApiWebhookEventPopulationService.addValidationMibEvent(move);
-        // }
+        }
 
     }
 

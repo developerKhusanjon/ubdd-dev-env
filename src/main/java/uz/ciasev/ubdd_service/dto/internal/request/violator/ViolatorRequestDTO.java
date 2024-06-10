@@ -22,15 +22,12 @@ import java.util.stream.Collectors;
 public class ViolatorRequestDTO {
 
     @NotBlank(message = ErrorCode.MOBILE_REQUIRED)
-    @Pattern(regexp = "^\\d{12}$", message = ErrorCode.VIOLATOR_MOBILE_FORMAT_INVALID)
     private String mobile;
 
-    @Pattern(regexp = "^\\d{9}$", message = ErrorCode.VIOLATOR_LANDLINE_FORMAT_INVALID)
     private String landline;
 
     private Long dependentAmount;
 
-    @Pattern(regexp = "^\\d{9}$", message = ErrorCode.VIOLATOR_INN_FORMAT_INVALID)
     private String inn;
 
     @ActiveOnly(message = ErrorCode.HEALTH_STATUS_DEACTIVATED)
