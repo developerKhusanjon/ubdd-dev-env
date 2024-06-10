@@ -34,13 +34,7 @@ import java.util.Optional;
 @Service
 public class MibApiServiceImpl implements MibApiService {
 
-    private final String SEND_DOC_URI = "api/app/send-doc";
-
-    private final String SEND_ENVELOPE_URI = "api/app/send-envelope";
-
     private final String GET_CASE_URI = "api/app/get-actions";
-
-    private final String SEND_DOC_RETURN_REQUEST = "api/app/get-return";
 
     private final String baseUrl;
 
@@ -48,36 +42,22 @@ public class MibApiServiceImpl implements MibApiService {
 
     private final RestTemplate restTemplate;
 
-    private final MibSendStatusService mibSendStatusService;
 
     private final JsonApiHelper jsonApiHelper;
 
     private final ObjectMapper objectMapper;
 
-    public MibApiServiceImpl(MibSendStatusService mibSendStatusService,
-                             JsonApiHelper jsonApiHelper,
+    public MibApiServiceImpl(JsonApiHelper jsonApiHelper,
                              @Qualifier("mibRestTemplate") RestTemplate restTemplate,
                              @Value("${mib-api.base-url}") String baseUrl,
                              @Value("${mib-api.token}") String token, ObjectMapper objectMapper) {
         this.baseUrl = baseUrl;
         this.token = token;
         this.restTemplate = restTemplate;
-        this.mibSendStatusService = mibSendStatusService;
         this.jsonApiHelper = jsonApiHelper;
         this.objectMapper = objectMapper;
     }
 
-    @Override
-    public MibResult sendExecutionCard(Long cardId, MibSendDecisionRequestApiDTO requestDTO) {
-        return makeRequest(cardId, SEND_DOC_URI, requestDTO);
-
-    }
-
-
-    @Override
-    public MibResult sendSubscribeOnCourtEnvelope(Long cardId, CourtMibCardMovementSubscribeRequestApiDTO requestDTO) {
-        return makeRequest(cardId, SEND_ENVELOPE_URI, requestDTO);
-    }
 
     @Override
     public MibSverkaResponseDTO getMibCase(Long cardId, String serial, String number) {
@@ -87,31 +67,6 @@ public class MibApiServiceImpl implements MibApiService {
                 Map.of("protocolSeries", serial, "protocolNumber", number),
                 MibSverkaResponseDTO.class
         );
-    }
-
-    @Override
-    public MibResult sendExecutionCardReturnRequest(Long cardId, ReturnRequestApiDTO requestDTO) {
-//        return makeRequest(cardId, SEND_DOC_RETURN_REQUEST, requestDTO);
-        MibApiResponse2DTO responseBody = makeRequest(cardId, SEND_DOC_RETURN_REQUEST, requestDTO, MibApiResponse2DTO.class);
-        return buildMibResult(responseBody);
-    }
-
-    private MibResult makeRequest(Long cardId, String uri, Object requestBodyDTO) {
-        MibApiResponseWrapper responseBody = makeRequest(cardId, uri, requestBodyDTO, MibApiResponseWrapper.class);
-
-        return buildMibResult(responseBody.getResult());
-//        if (Optional.ofNullable(responseBody.getResult()).map(MibApiResponseResultDTO::getResultCode).isEmpty()) {
-//            throw new MibApiEmptyResultCodeException();
-//        }
-//
-//        MibApiResponseResultDTO mibResponse = responseBody.getResult();
-//        MibSendStatus status = mibSendStatusService.getOrCreate(mibResponse.getResultCode(), mibResponse.getResultMsg());
-//
-//        return MibResult.builder()
-//                .status(status)
-//                .requestId(mibResponse.getEnvelopeId())
-//                .message(mibResponse.getResultMsg())
-//                .build();
     }
 
     private <T> T makeRequest(Long cardId, String uri, Object requestBodyDTO, Class<T> responseType) {
@@ -163,21 +118,6 @@ public class MibApiServiceImpl implements MibApiService {
         }
 
         return responseBody;
-    }
-
-    private MibResult buildMibResult(MibApiResponseDTOI mibResponse) {
-
-        if (Optional.ofNullable(mibResponse).map(MibApiResponseDTOI::getResultCode).isEmpty()) {
-            throw new MibApiEmptyResultCodeException();
-        }
-
-        MibSendStatus status = mibSendStatusService.getOrCreate(mibResponse.getResultCode(), mibResponse.getResultMsg());
-
-        return MibResult.builder()
-                .status(status)
-                .requestId(mibResponse.getEnvelopeId())
-                .message(mibResponse.getResultMsg())
-                .build();
     }
 
 }

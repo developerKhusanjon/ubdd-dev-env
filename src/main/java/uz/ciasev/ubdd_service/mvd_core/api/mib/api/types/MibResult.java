@@ -14,12 +14,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class MibResult {
 
-    private MibSendStatus status;
-
     @NotNull(message = "requestId must not be null")
     private Long requestId;
 
-    @NotNull(message = "decisionId must not be null")
+    @NotNull(message = "admCaseId must not be null")
+    private Long admCaseId;
+
     private Long decisionId;
 
     @NotNull(message = "sendTime must not be null")

@@ -43,132 +43,29 @@ import java.util.Optional;
 @Slf4j
 public class SendToMibServiceImpl implements SendToMibService {
 
-    private final MibCardService cardService;
-    private final MibValidationService validationService;
     private final DecisionActionService decisionService;
-    private final DecisionAccessService decisionAccessService;
-    private final MibApiService mibApiService;
     private final MibExecutionCardRepository cardRepository;
-    private final PublicApiWebhookEventPopulationService publicApiWebhookEventPopulationService;
-    private final MibApiDTOService apiDTOService;
     private final MibCardMovementService cardMovementService;
 
-    @Override
-    @Transactional
-    @SingleThreadOperation(type = SingleThreadOperationTypeAlias.DECISION_TO_MIB)
-    public SendResponse send(User user, @SingleThreadOperationResource Long cardId) {
-
-        MibExecutionCard card = cardService.getById(cardId);
-        validationService.checkSendAvailable(user, card);
-
-        Pair<MibCardMovement, MibResult> moveWithStatus;
-        try {
-            moveWithStatus = doSend(card, user);
-        } catch (MibApiApplicationException e) {
-            return MibSendResponseBuilder.of(e);
-        }
-
-        MibCardMovement move = moveWithStatus.getFirst();
-        MibResult sendResult = moveWithStatus.getSecond();
-
-        return MibSendResponseBuilder.of(sendResult, () -> new MibCardResponseDTO(card, move));
-    }
-
-    @Override
-    public Pair<MibCardMovement, MibResult> doSend(MibExecutionCard card, @Nullable User user) {
-
-        validationService.checkAutoSendPermitOnDecision(user, card.getDecision());
-
-        cardService.prepareSend(card);
-        validationService.validateSend(card);
-        cardRepository.save(card);
-
-        Pair<MibCardMovement, MibResult> moveWithStatus = sendExecutionCard(user, card);
-        MibCardMovement move = moveWithStatus.getFirst();
-        MibResult sendResult = moveWithStatus.getSecond();
-        MibSendStatus status = sendResult.getStatus();
-
-        if (status.isSuccessfully()) {
-            Decision decision = card.getDecision();
-            decisionService.saveStatus(decision, AdmStatusAlias.SEND_TO_MIB);
-            publicApiWebhookEventPopulationService.addSendToMibEvent(move);
-        } else {
-            publicApiWebhookEventPopulationService.addValidationMibEvent(move);
-        }
-
-        return moveWithStatus;
-    }
 
     @Override
     public void doSend(MibExecutionCard card, @Nullable User user, MibResult mibResult) {
 
         cardRepository.save(card);
 
-        Pair<MibCardMovement, MibResult> moveWithStatus = sendExecutionCard(user, card, mibResult);
+        sendExecutionCard(user, card, mibResult);
 
-        MibResult sendResult = moveWithStatus.getSecond();
-        MibSendStatus status = sendResult.getStatus();
-
-        if (status.isSuccessfully()) {
-            Decision decision = card.getDecision();
-            decisionService.saveStatus(decision, AdmStatusAlias.SEND_TO_MIB);
-        }
+        Decision decision = card.getDecision();
+        decisionService.saveStatus(decision, AdmStatusAlias.SEND_TO_MIB);
 
     }
 
-    @Override
-    public Pair<MibCardMovement, MibResult> doSendManual(MibExecutionCard card, @Nullable User user) {
-        cardService.prepareSend(card);
-        cardRepository.save(card);
-        Pair<MibCardMovement, MibResult> moveWithStatus = sendExecutionCard(user, card);
-        MibCardMovement move = moveWithStatus.getFirst();
-        MibResult sendResult = moveWithStatus.getSecond();
-        MibSendStatus status = sendResult.getStatus();
-
-        if (status.isSuccessfully()) {
-            Decision decision = card.getDecision();
-            decisionService.saveStatus(decision, AdmStatusAlias.SEND_TO_MIB);
-            publicApiWebhookEventPopulationService.addSendToMibEvent(move);
-        } else {
-            throw new RuntimeException("Request was failed");
-        }
-        return moveWithStatus;
-    }
-
-    @Override
-    public MibSendDecisionRequestApiDTO getSendJson(User user, Long mibCardId) {
-        MibExecutionCard mibCard = cardService.getById(mibCardId);
-        decisionAccessService.checkAccess(user, Optional.ofNullable(mibCard.getDecision()).orElseThrow(
-                () -> new ImplementationException(ErrorCode.MIB_CARD_HAS_NO_DECISION)));
-
-        return apiDTOService.buildSendDecisionRequest(mibCard);
-    }
 
     private Pair<MibCardMovement, MibResult> sendExecutionCard(User user, MibExecutionCard card, MibResult mibResponse) {
         MibCardMovement move = new MibCardMovement();
         move.setSendTime(mibResponse.getSendTime());
         move.setMibRequestId(mibResponse.getRequestId());
-        move.setSendStatus(mibResponse.getStatus());
-        move.setSendMessage(mibResponse.getMessage());
-
-        try {
-            cardMovementService.create(user, card, move);
-        } catch (DataIntegrityViolationException e) {
-            if (DBHelper.isConstraintViolation(e, CiasevDBConstraint.UniqueMibCardMovementRequestId)) {
-                throw new MibRequestIdAlreadyExists();
-            }
-            throw e;
-        }
-        return Pair.of(move, mibResponse);
-    }
-
-    private Pair<MibCardMovement, MibResult> sendExecutionCard(User user, MibExecutionCard card) {
-        MibSendDecisionRequestApiDTO request = apiDTOService.buildSendDecisionRequest(card);
-        MibResult mibResponse = mibApiService.sendExecutionCard(card.getId(), request);
-        MibCardMovement move = new MibCardMovement();
-        move.setSendTime(LocalDateTime.now());
-        move.setMibRequestId(mibResponse.getRequestId());
-        move.setSendStatus(mibResponse.getStatus());
+        move.setSendStatusId(1L);
         move.setSendMessage(mibResponse.getMessage());
 
         try {

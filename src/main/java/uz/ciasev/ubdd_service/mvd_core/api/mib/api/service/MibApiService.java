@@ -9,11 +9,6 @@ import uz.ciasev.ubdd_service.mvd_core.api.mib.api.dto.envelop.MibSendDecisionRe
 
 public interface MibApiService {
 
-    MibResult sendExecutionCard(Long cardId, MibSendDecisionRequestApiDTO requestDTO);
-
-    MibResult sendSubscribeOnCourtEnvelope(Long cardId, CourtMibCardMovementSubscribeRequestApiDTO requestDTO);
-
     MibSverkaResponseDTO getMibCase(Long cardId, String serial, String number);
 
-    MibResult sendExecutionCardReturnRequest(Long cardId, ReturnRequestApiDTO requestDTO);
 }

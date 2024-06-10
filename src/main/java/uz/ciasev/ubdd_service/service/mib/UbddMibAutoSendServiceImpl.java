@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uz.ciasev.ubdd_service.dto.internal.request.mib.MibCardRequestDTO;
 import uz.ciasev.ubdd_service.entity.Address;
+import uz.ciasev.ubdd_service.entity.admcase.AdmCase;
 import uz.ciasev.ubdd_service.entity.dict.District;
 import uz.ciasev.ubdd_service.entity.dict.Region;
 import uz.ciasev.ubdd_service.entity.mib.MibAutoSendLog;
@@ -18,6 +19,7 @@ import uz.ciasev.ubdd_service.repository.mib.MibAutoSendLogRepository;
 import uz.ciasev.ubdd_service.service.address.AddressService;
 import uz.ciasev.ubdd_service.service.dict.DistrictDictionaryService;
 import uz.ciasev.ubdd_service.service.dict.RegionDictionaryService;
+import uz.ciasev.ubdd_service.service.resolution.ResolutionService;
 import uz.ciasev.ubdd_service.service.resolution.decision.DecisionService;
 import uz.ciasev.ubdd_service.service.temporary.UbddDecison202311Service;
 
@@ -32,45 +34,41 @@ import java.util.Optional;
 public class UbddMibAutoSendServiceImpl implements UbddMibAutoSendService {
 
     private final MibCardService mibCardService;
-    private final DecisionService decisionService;
     private final SendToMibService mibService;
     private final MibAutoSendLogRepository mibAutoSendLogRepository;
     private final AddressService addressService;
     private final DistrictDictionaryService districtService;
     private final RegionDictionaryService regionService;
+    private final ResolutionService resolutionService;
 
 
     @Override
-    public void send(Long decisionId, MibResult mibResult) {
+    public void send(Long admCaseId, MibResult mibResult) {
+
+        Decision decision = resolutionService.getDecisionOfResolutionById(admCaseId).orElseThrow(() -> new NotFoundException("Decision not found for admCaseId=" + admCaseId));
+
+        mibResult.setDecisionId(decision.getId());
+
         MibExecutionCard executionCard;
-        try {
-            executionCard = executionCardByDecision(decisionId);
-        } catch (NotFoundException e) {
-            log.info("Execution Card By Decision Id:{} Failed", decisionId);
-            return;
-        }
+
+        executionCard = executionCardByDecision(decision);
+
         MibAutoSendLog mibAutoSendLog = new MibAutoSendLog(executionCard);
-        try {
-            process(executionCard, mibResult);
-        } catch (Exception e) {
-            if (e.getMessage() == null) {
-                e.printStackTrace();
-            }
-            mibAutoSendLog.setError(String.format("ERROR: %s, %s, %s", e.getMessage(), e.getLocalizedMessage(), e.getClass().getCanonicalName()));
-        }
+
+        process(executionCard, mibResult);
+
         mibAutoSendLogRepository.save(mibAutoSendLog);
     }
 
-    private MibExecutionCard executionCardByDecision(Long decisionId) {
-        Optional<MibExecutionCard> executionCardOptional = mibCardService.findByDecisionId(decisionId);
+    private MibExecutionCard executionCardByDecision(Decision decision) {
+        Optional<MibExecutionCard> executionCardOptional = mibCardService.findByDecisionId(decision.getId());
 
         return executionCardOptional.orElseGet(() ->
-                generateCardByDecision(decisionId)
+                generateCardByDecision(decision)
         );
     }
 
-    private MibExecutionCard generateCardByDecision(Long decisionId) {
-        Decision decision = decisionService.getById(decisionId);
+    private MibExecutionCard generateCardByDecision(Decision decision) {
         Address actualAddress = addressService.findById(decision.getViolator().getActualAddressId());
         Region region = actualAddress.getRegionIdOpt().map(regionService::getById).orElseThrow(() -> new NotFoundException("Card generation failed: region of violator's actual address is null"));
         District district = actualAddress.getDistrictIdOpt().map(districtService::getById).orElseThrow(() -> new NotFoundException("Card generation failed: district of violator's actual address is null"));

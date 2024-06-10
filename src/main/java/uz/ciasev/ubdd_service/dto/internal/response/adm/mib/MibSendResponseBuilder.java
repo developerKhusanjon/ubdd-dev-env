@@ -13,13 +13,4 @@ public class MibSendResponseBuilder {
         return SendResponse.failure(e.getSendResponseCode(), e.getSendResponseMessage());
     }
 
-    public static SendResponse of(MibResult sendResult, Supplier<Object> data) {
-        MibSendStatus status = sendResult.getStatus();
-
-        if (status.isSuccessfully()) {
-            return SendResponse.success(status.getCode(), sendResult.getMessage(), data.get());
-        } else {
-            return SendResponse.failure(status.getCode(), sendResult.getMessage());
-        }
-    }
 }

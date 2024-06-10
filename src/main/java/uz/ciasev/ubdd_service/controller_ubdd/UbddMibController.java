@@ -7,23 +7,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.w3c.dom.stylesheets.LinkStyle;
 import uz.ciasev.ubdd_service.exception.ErrorCode;
-import uz.ciasev.ubdd_service.mvd_core.api.court.dto.UbddCourtRequest;
-import uz.ciasev.ubdd_service.mvd_core.api.court.dto.third.ThirdCourtResolutionRequestDTO;
 import uz.ciasev.ubdd_service.mvd_core.api.mib.api.types.MibResult;
 import uz.ciasev.ubdd_service.mvd_core.api.mib.webhook.dto.execution.MibRequestDTO;
 import uz.ciasev.ubdd_service.mvd_core.api.mib.webhook.dto.execution.MvdExecutionResponseDTO;
 import uz.ciasev.ubdd_service.mvd_core.api.mib.webhook.service.execution.MibApiExecutionService;
 import uz.ciasev.ubdd_service.mvd_core.api.mib.webhook.service.protocol.MibApiAdmService;
-import uz.ciasev.ubdd_service.service.court.methods.UbddCourtService;
-import uz.ciasev.ubdd_service.service.mib.MibAutoSendService;
 import uz.ciasev.ubdd_service.service.mib.UbddMibAutoSendService;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
-import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 
 @Validated
@@ -38,7 +31,7 @@ public class UbddMibController {
 
     @PostMapping("/sent")
     public void postSendGeneral(@RequestBody @Valid MibResult mibResult) {
-        mibAutoSendService.send(mibResult.getDecisionId(), mibResult);
+        mibAutoSendService.send(mibResult.getAdmCaseId(), mibResult);
     }
 
 
