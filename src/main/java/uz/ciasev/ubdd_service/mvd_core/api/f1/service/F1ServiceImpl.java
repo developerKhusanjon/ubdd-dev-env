@@ -43,10 +43,8 @@ import java.util.Set;
 @Service
 public class F1ServiceImpl implements F1Service {
 
-    private final String gcpPhotoUrl;
     private final ObjectMapper mapper;
     private final String gcpPersonInfoUrl;
-    private final String gcpSearchHistoryUrl;
     private final RestTemplate restTemplate;
     private final GenderDictionaryService genderService;
     private final NationalityDictionaryService nationalityService;
@@ -61,9 +59,7 @@ public class F1ServiceImpl implements F1Service {
                          NationalityDictionaryService nationalityService,
                          DictionaryService<PersonDocumentType> documentTypeService, ExternalAddressService externalAddressService) {
         this.gcpPersonInfoUrl = host + "/v0/api/gcp";
-        this.gcpPhotoUrl = gcpPhotoUrl;
         this.mapper = mapper;
-        this.gcpSearchHistoryUrl = "/v0/gcp-api";
         this.restTemplate = restTemplate;
         this.genderService = genderService;
         this.nationalityService = nationalityService;
@@ -134,71 +130,6 @@ public class F1ServiceImpl implements F1Service {
         return photo;
     }
 
-    @Override
-    public List<F1DocumentListDTO> getPersonInfoByFilter(User user,
-                                                         String pinpp,
-                                                         String searchedPinpp,
-                                                         String firstNameLat,
-                                                         String secondNameLat,
-                                                         String lastNameLat,
-                                                         LocalDate birthFrom,
-                                                         LocalDate birthTo,
-                                                         String series,
-                                                         String number,
-                                                         Boolean fullInfo,
-                                                         Boolean isTablet) {
-
-
-        if (firstNameLat == null && secondNameLat == null && lastNameLat == null && pinpp == null && (series == null || number == null))
-            throw FiltersNotSetException.onOfRequired(Set.of("pinpp"), Set.of("series", "number"), Set.of("firstName", "lastName"));
-
-
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(gcpPersonInfoUrl + "/persons/info")
-                .queryParam("pinfl", pinpp)
-                .queryParam("firstNameLat", (firstNameLat == null || firstNameLat.isEmpty()) ? "%%" : firstNameLat)
-                .queryParam("secondNameLat", secondNameLat)
-                .queryParam("lastNameLat", (lastNameLat == null || lastNameLat.isEmpty()) ? "%%" : lastNameLat)
-                .queryParam("birthFrom", birthFrom)
-                .queryParam("birthTo", birthTo)
-                .queryParam("series", series)
-                .queryParam("number", number);
-
-        ResponseEntity<GcpListResponse> response = sendRequest(builder.build().encode().toUri(), GcpListResponse.class);
-        List<F1DocumentListDTO> f1DocumentDTOS = new ArrayList<>();
-        GcpListResponse gcpListResponse = response.getBody();
-        if (gcpListResponse != null && gcpListResponse.getData() != null) {
-            List<GcpPersonInfo> objects = gcpListResponse.getData().getObjects();
-            for (GcpPersonInfo object : objects) {
-                f1DocumentDTOS.add(getF1Document(object));
-            }
-        }
-
-        return f1DocumentDTOS;
-    }
-
-    @Override
-    public F1DocumentListDTO getF1Document(GcpPersonInfo gcpPersonInfo) {
-
-        F1DocumentListDTO f1DocumentDTO = new F1DocumentListDTO(gcpPersonInfo);
-
-        f1DocumentDTO.setId(gcpPersonInfo.getId());
-        f1DocumentDTO.setBirthAddress(externalAddressService.buildAddressDTO(gcpPersonInfo.getBirthAddress()));
-        f1DocumentDTO.setGivenAddress(externalAddressService.buildAddressDTO(gcpPersonInfo.getGivenAddress()));
-        f1DocumentDTO.setResidentAddress(externalAddressService.buildAddressDTO(gcpPersonInfo.getResidentAddress()));
-        f1DocumentDTO.setPersonPhotoUrl(String.join("", gcpPhotoUrl, String.valueOf(gcpPersonInfo.getPhotoId()), "/type/", gcpPersonInfo.getPhotoType()));
-
-        return f1DocumentDTO;
-    }
-
-    @Override
-    @Transactional
-    public void clearSearchHistory(User user, Violator violator) {
-        if (user == null || violator == null) throw new ValidationException("Username and violator pinpp wasn't attached");
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(gcpSearchHistoryUrl + "/inspector-searched")
-                .queryParam("pinpp", user.getUsername())
-                .queryParam("username", violator.getPerson().getPinpp());
-        sendDeleteActionRequest(builder.build().encode().toUri());
-    }
 
     private <T> ResponseEntity<T> sendRequest(URI uri, Class<T> responseType) {
         long start = System.currentTimeMillis();
@@ -219,21 +150,6 @@ public class F1ServiceImpl implements F1Service {
         }
     }
 
-    private void sendDeleteActionRequest(URI uri) {
-        long start = System.currentTimeMillis();
-        log.debug("GCP REQUEST START {}: {} (QWAS)", LocalDateTime.now(), uri);
-        try {
-            restTemplate.delete(uri);
-        } catch (HttpClientErrorException e) {
-            throw new ValidationException(extractErrorCode(e));
-        } catch (RestClientResponseException e) {
-            throw new F1ServerApplicationException(extractErrorCode(e), e.getResponseBodyAsString());
-        } catch (RestClientException e) {
-            throw new F1ServerApplicationException(ErrorCode.F1_SERVICE_CONNECTION_ERROR, e.getMessage());
-        } finally {
-            log.debug("GCP REQUEST END {}: {}, REQUEST-TIME:{} (QWAS)", LocalDateTime.now(), uri, System.currentTimeMillis() - start);
-        }
-    }
 
     private String extractErrorCode(RestClientResponseException e) {
         ApiResponseError error = convertStringToObject(e);

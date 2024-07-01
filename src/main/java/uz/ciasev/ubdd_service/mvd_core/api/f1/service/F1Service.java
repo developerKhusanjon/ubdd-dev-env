@@ -15,22 +15,7 @@ public interface F1Service {
 
     byte[] getPhotoById(String id, String photoType);
 
-    List<F1DocumentListDTO> getPersonInfoByFilter(User user,
-                                                  String pinpp,
-                                                  String searchedPinpp,
-                                                  String firstNameLat,
-                                                  String secondNameLat,
-                                                  String lastNameLat,
-                                                  LocalDate birthFrom,
-                                                  LocalDate birthTo,
-                                                  String series,
-                                                  String number,
-                                                  Boolean fullInfo,
-                                                  Boolean isTablet);
-
     GcpPersonInfo findGcpInfoByPinpp(String pinpp);
 
-    F1DocumentListDTO getF1Document(GcpPersonInfo gcpPersonInfo);
 
-   void clearSearchHistory(User user, Violator violator);
 }
