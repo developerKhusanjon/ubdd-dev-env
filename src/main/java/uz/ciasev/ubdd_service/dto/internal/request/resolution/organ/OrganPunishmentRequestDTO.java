@@ -11,6 +11,7 @@ import uz.ciasev.ubdd_service.utils.validator.MoneyAmount;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 
 @Data
 public class OrganPunishmentRequestDTO implements PunishmentRequestDTO {
@@ -35,6 +36,14 @@ public class OrganPunishmentRequestDTO implements PunishmentRequestDTO {
     @Min(value = 0, message = ErrorCode.HOURS_LESS_THEN_0)
     private Integer hours;
 
+    private LocalDate discount50ForDate;
+
+    private Long discount50Amount;
+
+    private LocalDate discount70ForDate;
+
+    private Long discount70Amount;
+
     public Punishment buildPunishment() {
         Punishment punishment = new Punishment();
         punishment.setType(this.punishmentType);
@@ -44,6 +53,10 @@ public class OrganPunishmentRequestDTO implements PunishmentRequestDTO {
                 PenaltyPunishment punishmentDetail = new PenaltyPunishment();
                 punishmentDetail.setPunishment(punishment);
                 punishmentDetail.setAmount(this.amount);
+                punishmentDetail.setDiscount50Amount(this.discount50Amount);
+                punishmentDetail.setDiscount50ForDate(this.discount50ForDate);
+                punishmentDetail.setDiscount70Amount(this.discount70Amount);
+                punishmentDetail.setDiscount70ForDate(this.discount70ForDate);
                 punishment.setPenalty(punishmentDetail);
                 break;
             }
