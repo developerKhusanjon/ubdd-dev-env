@@ -27,8 +27,7 @@ public class OrganCompensationRequestDTO implements CompensationRequestDTO {
     @JsonProperty(value = "victimTypeId")
     private VictimType victimType;
 
-    @MoneyAmount(message = ErrorCode.COMPENSATION_AMOUNT_INVALID)
-//    @Max(value = 25600000L, message = ErrorCode.COMPENSATION_AMOUNT_MORE_THEN_BRV)
+    @MoneyAmount(message = ErrorCode.COMPENSATION_AMOUNT_INVALID, allowZero = true)
     private Long amount;
 
     @JsonProperty(value = "bankAccountTypeId")
@@ -37,7 +36,7 @@ public class OrganCompensationRequestDTO implements CompensationRequestDTO {
     public Compensation buildCompensation() {
         Compensation compensation = new Compensation();
 
-        compensation.setAmount(this.amount);
+        compensation.setAmount(this.amount * 100);
         compensation.setVictimType(this.victimType);
         compensation.setPayerTypeId(CourtCompensationPayerType.VIOLATOR.getId());
 

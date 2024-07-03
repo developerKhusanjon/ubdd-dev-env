@@ -56,7 +56,7 @@ public class ResolutionServiceImpl implements ResolutionService {
         resolution.setOrgan(considerPlace.getOrgan());
         resolution.setDepartment(considerPlace.getDepartment());
 
-        resolution.setSeries(numberGeneratorService.generateSeries(resolution));
+        resolution.setSeries("UBDD");
         resolution.setNumber(numberGeneratorService.generateNumber(resolution));
 
         resolution.setStatus(admStatusDictionaryService.getStartStatus(resolution));

@@ -76,19 +76,6 @@ public class SystemUserNotificationServiceImpl implements SystemUserNotification
             systemNotificationRepository.createForUsers(notifiedUsersId, requestDTO.getAdmCaseId(), requestDTO.getDecisionId(), requestDTO.getType().name(), requestDTO.getText());
         }
 
-//        List<SystemUserNotification> notifications = notifiedUsersId
-//                .stream()
-//                .map(userId -> SystemUserNotification.builder()
-//                        .userId(userId)
-//                        .admCaseId(requestDTO.getAdmCaseId())
-//                        .decisionId(requestDTO.getDecisionId())
-//                        .notificationTypeAlias(requestDTO.getType())
-//                        .text(requestDTO.getText())
-//                        .build())
-//                .collect(Collectors.toList());
-//
-//        systemNotificationRepository.saveAll(notifications);
-
     }
 
     private List<Long> getNotifiedUsers(SystemUserNotificationBroadcastRequestDTO requestDTO) {

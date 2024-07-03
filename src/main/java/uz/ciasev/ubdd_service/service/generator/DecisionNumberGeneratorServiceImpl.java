@@ -19,7 +19,7 @@ public class DecisionNumberGeneratorServiceImpl implements DecisionNumberGenerat
     @Override
     public AdmDocumentNumber generate(Decision decision) {
         return AdmDocumentNumber.builder()
-                .series(generateSeries(decision))
+                .series("UBDD")
                 .number(generateNumber(decision))
                 .isUniqueNumber(true)
                 .build();

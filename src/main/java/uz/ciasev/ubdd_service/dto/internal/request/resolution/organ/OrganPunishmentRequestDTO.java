@@ -52,10 +52,10 @@ public class OrganPunishmentRequestDTO implements PunishmentRequestDTO {
             case PENALTY: {
                 PenaltyPunishment punishmentDetail = new PenaltyPunishment();
                 punishmentDetail.setPunishment(punishment);
-                punishmentDetail.setAmount(this.amount);
-                punishmentDetail.setDiscount50Amount(this.discount50Amount);
+                punishmentDetail.setAmount(this.amount * 100);
+                punishmentDetail.setDiscount50Amount(this.discount50Amount * 100);
                 punishmentDetail.setDiscount50ForDate(this.discount50ForDate);
-                punishmentDetail.setDiscount70Amount(this.discount70Amount);
+                punishmentDetail.setDiscount70Amount(this.discount70Amount * 100);
                 punishmentDetail.setDiscount70ForDate(this.discount70ForDate);
                 punishment.setPenalty(punishmentDetail);
                 break;
@@ -63,14 +63,14 @@ public class OrganPunishmentRequestDTO implements PunishmentRequestDTO {
             case WITHDRAWAL: {
                 WithdrawalPunishment punishmentDetail = new WithdrawalPunishment();
                 punishmentDetail.setPunishment(punishment);
-                punishmentDetail.setAmount(this.amount);
+                punishmentDetail.setAmount(this.amount * 100);
                 punishment.setWithdrawal(punishmentDetail);
                 break;
             }
             case CONFISCATION: {
                 ConfiscationPunishment punishmentDetail = new ConfiscationPunishment();
                 punishmentDetail.setPunishment(punishment);
-                punishmentDetail.setAmount(this.amount);
+                punishmentDetail.setAmount(this.amount * 100);
                 punishment.setConfiscation(punishmentDetail);
                 break;
             }
