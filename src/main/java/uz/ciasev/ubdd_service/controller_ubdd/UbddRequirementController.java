@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(path = "${mvd-ciasev.url-v0}/ubdd", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "${mvd-ciasev.url-v0}", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class UbddRequirementController {
 
