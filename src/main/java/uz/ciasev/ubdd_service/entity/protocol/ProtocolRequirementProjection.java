@@ -37,4 +37,11 @@ public interface ProtocolRequirementProjection {
     String getAdditionalPunishmentAmount();
     Long getCompensationAmount();
     Long getCompensationPaidAmount();
+    String getInvoice();
+    String getLatitude();
+    String getLongitude();
+    LocalDate  getDiscount30Date();
+    LocalDate  getDiscount50Date();
+
+
 }

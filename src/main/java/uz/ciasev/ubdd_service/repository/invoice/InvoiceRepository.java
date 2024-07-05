@@ -72,4 +72,21 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
     @Query("SELECT i.penaltyPunishment.punishment.decision FROM Invoice i WHERE i.invoiceSerial = :invoiceSerial")
     Optional<Decision> findDecisionByPenaltyInvoiceSerial(String invoiceSerial);
+
+    @Query(value = "select p.id,i.invoice_serial from core_v0.protocol p  " +
+            "left join core_v0.violator_detail vd on vd.id =p.violator_detail_id " +
+            "left join core_v0.decision d on d.violator_id=vd.violator_id " +
+            "left join core_v0.punishment pun on pun.decision_id =d.id " +
+            "left join core_v0.penalty_punishment pp on pp.punishment_id=pun.id " +
+            "left join core_v0.invoice i on i.penalty_punishment_id=pp.id " +
+            "where p.id in (:ids) and i.is_active = true", nativeQuery = true)
+    List<String[]> getInvoicesAndProtocols(List<Long> ids);
+
+    @Query(value = "select i.* from core_v0.invoice i left join  " +
+            "core_v0.penalty_punishment pp on pp.id =i.penalty_punishment_id " +
+            "join core_v0.punishment p on p.id=pp.punishment_id  " +
+            "join core_v0.decision d on d.id =p.decision_id " +
+            "join core_v0.resolution r on r.id =d.resolution_id " +
+            "where r.adm_case_id=:admCaseId limit 1",nativeQuery = true)
+    Optional<Invoice> findInvoiceByAdmCase(Long admCaseId);
 }

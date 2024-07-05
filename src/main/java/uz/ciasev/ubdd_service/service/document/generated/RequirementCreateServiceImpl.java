@@ -15,6 +15,7 @@ import uz.ciasev.ubdd_service.entity.user.User;
 import uz.ciasev.ubdd_service.exception.ErrorCode;
 import uz.ciasev.ubdd_service.exception.NotFoundException;
 import uz.ciasev.ubdd_service.exception.ValidationException;
+import uz.ciasev.ubdd_service.repository.invoice.InvoiceRepository;
 import uz.ciasev.ubdd_service.repository.protocol.ProtocolRepository;
 import uz.ciasev.ubdd_service.repository.wanted_vehicle.WantedVehicleRepository;
 import uz.ciasev.ubdd_service.service.pdf.PdfFile;
@@ -46,6 +47,7 @@ public class RequirementCreateServiceImpl implements RequirementCreateService {
     private final ProtocolRepository protocolRepository;
     private final PersonService personService;
     private final WantedVehicleRepository wantedVehicleRepository;
+    private final InvoiceRepository invoiceRepository;
 
     private final static int PROTOCOL_REQUIREMENT_MAX_SIZE = 1000;
     private final static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy");
@@ -137,7 +139,8 @@ public class RequirementCreateServiceImpl implements RequirementCreateService {
             }
         }
         return convertToUbddDTO(() -> protocolRepository.findProtocolRequirementInfoByProtocolIds(protocolIds),
-                () -> protocolRepository.getProtocolArticlesByProtocolIds(protocolIds));
+                () -> protocolRepository.getProtocolArticlesByProtocolIds(protocolIds),
+                () -> invoiceRepository.getInvoicesAndProtocols(protocolIds));
     }
 
     @Override
@@ -182,10 +185,14 @@ public class RequirementCreateServiceImpl implements RequirementCreateService {
                     protocolModel.setArticles(
                             protocolArticles.stream()
                                     .filter(pa -> pa.getProtocolId().equals(projection.getProtocolId()))
-                                    .map(pa -> sj(
-                                            pa.getArticlePartShortName(),
-                                            pa.getArticleViolationTypeShortName(),
-                                            " "
+                                    .map(pa -> new ArticleRequirementDTO(
+                                            pa.getArticleId(),
+                                            pa.getArticlePartId(),
+                                            sj(
+                                                    pa.getArticlePartShortName(),
+                                                    pa.getArticleViolationTypeShortName(),
+                                                    " "
+                                            )
                                     )).collect(toList())
                     );
                     protocolModel.setStatus(
@@ -231,6 +238,30 @@ public class RequirementCreateServiceImpl implements RequirementCreateService {
                     protocolArticles.stream()
                             .filter(pa -> pa.getProtocolId().equals(projection.getProtocolId()))
                             .forEach(protocolModel::addArticle);
+                    return protocolModel;
+                }).collect(toList());
+    }
+
+    private List<UbddProtocolRequirementDTO> convertToUbddDTO
+            (Supplier<List<ProtocolRequirementProjection>> protocolsSupplier,
+             Supplier<List<ProtocolArticlesProjection>> articlesSupplier,
+             Supplier<List<String[]>> invoicesSupplier) {
+
+        List<ProtocolArticlesProjection> protocolArticles = articlesSupplier.get();
+        List<String[]> protocolsInvoices = invoicesSupplier.get();
+
+        return protocolsSupplier.get()
+                .stream()
+                .map(projection -> {
+                    UbddProtocolRequirementDTO protocolModel = new UbddProtocolRequirementDTO(projection);
+                    protocolModel.setBirthDate(formatDate(projection.getViolatorBirthDate()));
+                    protocolModel.setRegistrationDate(formatDateTime(projection.getRegistrationTime()));
+                    protocolArticles.stream()
+                            .filter(pa -> pa.getProtocolId().equals(projection.getProtocolId()))
+                            .forEach(protocolModel::addArticle);
+                    protocolsInvoices.stream()
+                            .filter(array -> array[0].equals(String.valueOf(projection.getProtocolId())))
+                            .forEach(array -> protocolModel.setInvoice(array[1]));
                     return protocolModel;
                 }).collect(toList());
     }

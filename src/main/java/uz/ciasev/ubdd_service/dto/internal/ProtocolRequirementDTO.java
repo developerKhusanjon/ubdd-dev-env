@@ -14,7 +14,7 @@ public class ProtocolRequirementDTO {
 
     private Integer row;
     private String registrationDate;
-    private List<String> articles;
+    private List<ArticleRequirementDTO> articles;
     private String status;
     private String considerDate;
     private Boolean is34;

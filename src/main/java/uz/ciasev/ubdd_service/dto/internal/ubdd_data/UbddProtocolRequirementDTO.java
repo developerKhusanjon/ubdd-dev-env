@@ -8,6 +8,7 @@ import uz.ciasev.ubdd_service.entity.protocol.ProtocolArticlesProjection;
 import uz.ciasev.ubdd_service.entity.protocol.ProtocolRequirementProjection;
 import uz.ciasev.ubdd_service.utils.FioUtils;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,12 @@ public class UbddProtocolRequirementDTO {
     private Long regionId;
     private String districtName;
     private Long districtId;
+    @Setter
+    private String invoice;
+    private String punishmentAmount;
+    private LocalDate discount30Date;
+    private LocalDate discount50Date;
+    private Location location;
     private List<ArticleBody> articles;
 
     public UbddProtocolRequirementDTO(ProtocolRequirementProjection projection) {
@@ -48,6 +55,10 @@ public class UbddProtocolRequirementDTO {
         this.regionId = projection.getProtocolRegionId();
         this.districtName = projection.getDistrictName();
         this.districtId = projection.getProtocolDistrictId();
+        this.punishmentAmount = projection.getMainPunishmentAmount();
+        this.discount30Date = projection.getDiscount30Date();
+        this.discount50Date = projection.getDiscount50Date();
+        this.location = new Location(projection.getLatitude(), projection.getLongitude());
     }
 
     @Getter
@@ -68,5 +79,13 @@ public class UbddProtocolRequirementDTO {
                 projection.getArticlePartId(),
                 projection.getArticleViolationTypeId(),
                 projection.getIsMain()));
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    class Location {
+        private String latitude;
+        private String longtitude;
     }
 }

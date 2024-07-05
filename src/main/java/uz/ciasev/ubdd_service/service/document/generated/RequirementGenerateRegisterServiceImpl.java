@@ -5,10 +5,10 @@ import org.springframework.stereotype.Service;
 import uz.ciasev.ubdd_service.dto.internal.ProtocolGroupByPersonDTO;
 import uz.ciasev.ubdd_service.dto.internal.RequirementPrintDTO;
 import uz.ciasev.ubdd_service.entity.document.RequirementGeneration;
+import uz.ciasev.ubdd_service.entity.signature.SignatureEvent;
 import uz.ciasev.ubdd_service.entity.user.User;
 import uz.ciasev.ubdd_service.repository.document.RequirementGenerateRegisterRepository;
 import uz.ciasev.ubdd_service.service.aop.signature.DigitalSignatureCheck;
-import uz.ciasev.ubdd_service.entity.signature.SignatureEvent;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
