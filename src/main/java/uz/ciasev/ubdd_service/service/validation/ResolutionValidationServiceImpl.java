@@ -78,27 +78,6 @@ public class ResolutionValidationServiceImpl implements ResolutionValidationServ
     }
 
     @Override
-    public void validateDecisions(AdmEntityList<Violator> violators, List<? extends DecisionRequestDTO> decisions) {
-        List<Long> decisionsId = decisions.stream().map(DecisionRequestDTO::getViolatorId).collect(Collectors.toList());
-
-        if (validationService.checkHasDuplicate(decisionsId)) {
-            throw new DecisionsContainDuplicateViolatorException();
-        }
-
-
-        Set<Long> violatorsIdSet = violators.getIds();
-        Set<Long> decisionsIdSet = new HashSet<>(decisionsId);
-
-        if (validationService.isNotEquals(violatorsIdSet, decisionsIdSet)) {
-            throw new ViolatorAndDecisionNotConsistException(violatorsIdSet, decisionsIdSet);
-        }
-
-        for(DecisionRequestDTO decision : decisions) {
-            validateCourtCompensationsByViolators(violators, decision.getCompensations());
-        }
-    }
-
-    @Override
     public void validateDecisionByProtocol(Violator violator, DecisionRequestDTO decision) {
         Protocol protocol = protocolService.findSingleMainByAdmCaseId(violator.getAdmCaseId());
         LocalDate toDate = protocol.getViolationTime().toLocalDate();

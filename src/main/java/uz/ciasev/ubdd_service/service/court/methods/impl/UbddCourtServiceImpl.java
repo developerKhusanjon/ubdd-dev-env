@@ -127,50 +127,11 @@ public class UbddCourtServiceImpl implements UbddCourtService {
 
 
 
-
-
     @Override
     public void acceptUbddCourtResolution(ThirdCourtResolutionRequestDTO request) {
 
-        // replacePersonIdByViolatorId(request);
-
         thirdMethodFromCourtService.accept(request);
 
-    }
-
-    private void replacePersonIdByViolatorId(ThirdCourtResolutionRequestDTO request) {
-        Long caseId = request.getCaseId();
-        List<ThirdCourtDefendantRequestDTO> defendants = request.getDefendant();
-
-
-//        if (defendants.stream().anyMatch(d -> d.getViolatorId() == null)) {
-//            if (defendants.size() != 1) {
-//                throw new CourtValidationException("One of defendants has null violatorId");
-//            }
-//        }
-
-        Function<ThirdCourtDefendantRequestDTO, Long> violatorIdSupplier = defendants.size() == 1
-                ? defendant -> violatorService.findSingleByAdmCaseId(caseId).getId()
-                : defendant -> violatorService.findByAdmCaseIdAndPersonId(caseId, defendant.getViolatorId());
-
-        defendants.forEach(defendant -> {
-
-            defendant.setViolatorId(violatorIdSupplier.apply(defendant));
-
-            defendant.getExactedDamage().forEach(damage -> {
-                Long victimId = damage.getVictimId();
-                if (victimId != null) {
-                    damage.setVictimId(victimService.findByAdmCaseIdAndPersonId(caseId, victimId));
-                }
-            });
-        });
-
-        defendants.stream()
-                .filter(defendant ->
-                        defendant.getReturnReason() == null && request.getStatus() == 17L &&
-                                CourtFinalResultByInstanceAliases.getNameByValue(defendant.getFinalResult()).equals(CourtFinalResultByInstanceAliases.FR_I_CASE_RETURNING)
-                )
-                .forEach(defendant -> defendant.setReturnReason(99L));
     }
 
 }

@@ -20,8 +20,6 @@ public interface ResolutionValidationService {
     @Deprecated
     void validateDecision(DecisionRequestDTO requestDTO);
 
-    void validateDecisions(AdmEntityList<Violator> violators, List<? extends DecisionRequestDTO> decisions);
-
     void validateDecisionByProtocol(Violator violator, DecisionRequestDTO decision);
 
     void validateCourtCompensationsByViolators(AdmEntityList<Violator> violators, List<? extends CompensationRequestDTO> compensations);

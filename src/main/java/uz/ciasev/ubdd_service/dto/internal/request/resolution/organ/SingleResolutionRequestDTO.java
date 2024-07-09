@@ -88,9 +88,6 @@ public class SingleResolutionRequestDTO implements DecisionRequestDTO, Resolutio
 
     private String signature;
 
-    @JsonProperty(value = "bankAccountTypeId")
-    private BankAccountType bankAccountType;
-
     @JsonProperty(value = "districtId")
     private District district;
 

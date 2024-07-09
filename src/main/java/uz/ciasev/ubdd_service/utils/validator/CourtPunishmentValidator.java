@@ -15,7 +15,6 @@ public class CourtPunishmentValidator extends PunishmentValidator<CourtPunishmen
             return false;
         }
 
-        //  2022-09-14 Бегзод сказал принимтаь от суда конфискацию и изьятие с нулевой суммой
         if (punishmentRequestDTO.getAmount() == 0) {
             constraintValidatorContext
                     .buildConstraintViolationWithTemplate(ErrorCode.AMOUNT_SIZE_SO_SMALL)

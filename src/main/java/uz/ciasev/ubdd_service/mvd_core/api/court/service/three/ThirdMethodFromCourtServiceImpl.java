@@ -127,7 +127,6 @@ public class ThirdMethodFromCourtServiceImpl implements ThirdMethodFromCourtServ
      */
     private void madeDecision(ThirdCourtResolutionRequestDTO resolution) {
         if (isCassationUpholdReturn(resolution)) {
-//            throw new CourtValidationException("is17Status in 13");
             returnCase(resolution);
             return;
         }
