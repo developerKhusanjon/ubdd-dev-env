@@ -41,7 +41,7 @@ public interface WantedVehicleRepository extends JpaRepository<Vehicle, Long> {
             "LEFT JOIN wanted_vehicle.d_vehicle_arrest_place dvap on dvap.id =va.arrest_place_id " +
             "LEFT JOIN core_v0.d_region region on region.id=wc.region_id " +
             "LEFT JOIN core_v0.d_district district on district.id =wc.district_id " +
-            "where wc.is_deleted = false and vehicle.number =:number order  by wc.created_time desc ",nativeQuery = true)
+            "where wc.is_deleted = false and wc.is_closed = false and vehicle.number =:number order  by wc.created_time desc ",nativeQuery = true)
     List<WantedVehicleFilterProjection> findAllWantedCardByVehicle(@Param("number") String number);
 
 }

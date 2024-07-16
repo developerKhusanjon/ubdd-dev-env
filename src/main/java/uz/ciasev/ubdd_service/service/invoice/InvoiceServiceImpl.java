@@ -97,4 +97,11 @@ public class InvoiceServiceImpl implements InvoiceService {
         return findPenaltyInvoiceByDecision(decision)
                 .orElseThrow(() -> new EntityByParamsNotFound(Invoice.class, "decisionId", decision.getId()));
     }
+
+    @Override
+    public Invoice findByAdmCaseId(Long id) {
+        return invoiceRepository.findInvoiceByAdmCase(id).orElseThrow(
+                () -> new EntityByParamsNotFound(Invoice.class, "admCaseId", id)
+        );
+    }
 }

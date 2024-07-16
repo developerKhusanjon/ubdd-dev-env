@@ -63,7 +63,7 @@ public class BillingExecutionServiceImpl implements BillingExecutionService {
             return;
         }
 
-        Invoice invoice = invoiceService.findById(paymentDTO.getInvoiceId());
+        Invoice invoice = invoiceService.findById(paymentDTO.getAdmCaseId());
 
         Payment savedPayment = paymentService.save(invoice, paymentDTO);
 

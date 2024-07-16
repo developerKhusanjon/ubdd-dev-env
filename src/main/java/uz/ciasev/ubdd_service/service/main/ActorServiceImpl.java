@@ -231,35 +231,6 @@ public class ActorServiceImpl implements ActorService {
         }
     }
 
-    @Override
-    public void deleteIfNotHasDetails(Violator violator) {
-
-        if (!violatorDetailRepository.existsByViolatorId(violator.getId())) {
-            violatorService.delete(violator);
-        }
-    }
-
-
-    @Override
-    public List<PersonListResponseDTO> getAllPersonsInAdmCase(Long admCaseId) {
-
-        List<Long> personsId = new ArrayList<>();
-        personsId.addAll(violatorService.findByAdmCaseId(admCaseId).stream().map(Violator::getPersonId).collect(Collectors.toList()));
-        personsId.addAll(victimService.findByAdmCaseId(admCaseId).stream().map(Victim::getPersonId).collect(Collectors.toList()));
-        personsId.addAll(participantService.findAllByAdmCaseId(admCaseId).stream().map(Participant::getPersonId).collect(Collectors.toList()));
-
-        return personService.findAllDetailById(personsId);
-    }
-
-    @Override
-    public List<PersonListResponseDTO> getAllViolatorAndVictimPersonsInAdmCase(Long admCaseId) {
-
-        List<Long> personsId = new ArrayList<>();
-        personsId.addAll(violatorService.findByAdmCaseId(admCaseId).stream().map(Violator::getPersonId).collect(Collectors.toList()));
-        personsId.addAll(victimService.findByAdmCaseId(admCaseId).stream().map(Victim::getPersonId).collect(Collectors.toList()));
-
-        return personService.findAllDetailById(personsId);
-    }
 
     @Transactional
     @DigitalSignatureCheck(event = SignatureEvent.VIOLATOR_REBIND)
@@ -372,9 +343,4 @@ public class ActorServiceImpl implements ActorService {
         violatorDetail.setDocumentGivenAddress(givenAddress);
     }
 
-    @Override
-    public void updateViolatorServiceData(User user, Long id) {
-        Violator violator = violatorService.getById(id);
-        violatorAspectWorkerService.processViolatorSync(violator, true);
-    }
 }

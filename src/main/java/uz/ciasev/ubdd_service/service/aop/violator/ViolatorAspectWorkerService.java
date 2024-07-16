@@ -48,14 +48,6 @@ public class ViolatorAspectWorkerService {
         mainPool.submit(new Worker(violator, updatePhoto, traceId));
     }
 
-    public void processViolatorSync(Violator violator, boolean updatePhoto) {
-
-        if (!isRealPinpp(violator)) {
-            return;
-        }
-        new Worker(violator, updatePhoto, null).run();
-    }
-
     private boolean isRealPinpp(Violator violator) {
 
         Boolean isRealPinpp = Optional.ofNullable(violator)

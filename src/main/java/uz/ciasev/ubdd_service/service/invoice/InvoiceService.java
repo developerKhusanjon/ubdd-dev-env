@@ -27,4 +27,6 @@ public interface InvoiceService {
     Optional<Invoice> findPenaltyInvoiceByDecision(Decision decision);
 
     Invoice getPenaltyInvoiceByDecision(Decision decision);
+
+    Invoice findByAdmCaseId(Long id);
 }

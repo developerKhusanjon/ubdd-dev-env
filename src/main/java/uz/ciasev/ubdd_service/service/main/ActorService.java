@@ -39,17 +39,8 @@ public interface ActorService {
 
     void deleteIfNotHasDetails(Victim victim);
 
-    void deleteIfNotHasDetails(Violator violator);
-
-    List<PersonListResponseDTO> getAllPersonsInAdmCase(Long admCaseId);
-
-    List<PersonListResponseDTO> getAllViolatorAndVictimPersonsInAdmCase(Long admCaseId);
-
-    Violator rebindViolator(User user, Long violatorId, ActorRebindRequestDTO requestDTO);
-
     boolean isAllVictimsRelatedWithViolator(List<Long> victimsId, Violator violator);
 
     boolean isAllVictimsRelatedWithAdmCase(List<Long> victimsId, Long admCaseId);
 
-    void updateViolatorServiceData(User user, Long id);
 }

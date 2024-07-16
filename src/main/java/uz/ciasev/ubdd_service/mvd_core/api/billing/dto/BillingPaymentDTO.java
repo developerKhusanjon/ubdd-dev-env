@@ -18,8 +18,8 @@ public class BillingPaymentDTO {
     @NotNull(message = "id field required")
     private Long id;
 
-    @NotNull(message = "invoiceId field required")
-    private Long invoiceId;
+    @NotNull(message = "admCaseId field required")
+    private Long admCaseId;
 
     private String invoiceSerial;
 
@@ -36,9 +36,11 @@ public class BillingPaymentDTO {
     private LocalDateTime paidAt;
 
     @Valid
+    @NotNull(message = "payerInfo field required")
     private BillingPayerInfoDTO payerInfo;
 
     @Valid
+    @NotNull(message = "payeeInfo field required")
     private BillingPayeeInfoDTO payeeInfo;
 
 }

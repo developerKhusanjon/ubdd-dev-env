@@ -20,13 +20,9 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
     Optional<Invoice> findByInvoiceId(Long id);
 
-    Optional<Invoice> findByPenaltyPunishmentId(Long penaltyId);
-
     boolean existsByPenaltyPunishmentId(Long penaltyId);
 
     List<Invoice> findByPenaltyPunishmentId(Long penaltyId, Pageable page);
-
-    Optional<Invoice> findByCompensationId(Long compensationId);
 
     boolean existsByCompensationId(Long compensationId);
 
