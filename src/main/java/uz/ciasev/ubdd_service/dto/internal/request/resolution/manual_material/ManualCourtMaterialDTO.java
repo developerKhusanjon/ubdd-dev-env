@@ -108,11 +108,6 @@ public class ManualCourtMaterialDTO implements RegionDistrictRequest, CourtMater
     }
 
     @Override
-    public List<? extends EvidenceDecisionRequestDTO> getEvidenceDecisions() {
-        return List.of();
-    }
-
-    @Override
     public ResolutionCreateRequest buildResolution() {
         ResolutionCreateRequest resolution = new ResolutionCreateRequest();
         resolution.setResolutionTime(this.hearingTime);

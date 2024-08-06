@@ -48,6 +48,8 @@ public class ProtocolRequestDTO extends QualificationRequestDTO implements Regio
     @NotNull(message = "INSPECTOR_FIO_REQUIRED")
     private String inspectorFio;
 
+    private String inspectorInfo;
+
     @NotNull(message = "INSPECTOR_WORK_CERTIFICATE_REQUIRED")
     private String inspectorWorkCertificate;
 
@@ -106,6 +108,7 @@ public class ProtocolRequestDTO extends QualificationRequestDTO implements Regio
 
     private Boolean isTablet;
 
+    @NotNull(message = ErrorCode.EXTERNAL_ID_REQUIRED)
     private String externalId;
 
     @ActiveOnly(message = ErrorCode.UBDD_GROUP_DEACTIVATED)

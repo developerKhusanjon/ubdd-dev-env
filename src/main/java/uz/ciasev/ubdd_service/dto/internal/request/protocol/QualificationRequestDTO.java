@@ -26,11 +26,9 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ConsistArticle(message = ErrorCode.MAIN_ARTICLE_AND_VIOLATION_TYPE_NOT_CONSIST)
 public class QualificationRequestDTO implements ArticleRequest  {
 
-    @NotNull(message = ErrorCode.IS_JURIDIC_REQUIRED)
-    private Boolean isJuridic;
+    private Boolean isJuridic = false;
 
     @Valid
     private JuridicCreateRequestDTO juridic;
@@ -39,10 +37,10 @@ public class QualificationRequestDTO implements ArticleRequest  {
     private List<QualificationArticleRequestDTO> additionArticles;
 
     @NotNull(message = ErrorCode.ARTICLE_REQUIRED)
-    @ActiveOnly(message = "ARTICLE_DEACTIVATED")
     @JsonProperty(value = "articleId")
     private Article article;
 
+    @NotNull(message = ErrorCode.ARTICLE_PART_REQUIRED)
     @JsonProperty(value = "articlePartId")
     private ArticlePart articlePart;
 
@@ -52,12 +50,8 @@ public class QualificationRequestDTO implements ArticleRequest  {
 
     private List<Long> repeatabilityProtocolsId;
 
-    @Size(min = 50, max = 4000, message = ErrorCode.FABULA_MIN_MAX_LENGTH)
     @NotBlank(message = ErrorCode.FABULA_REQUIRED)
     private String fabula;
-
-    @Size(max = 4000, message = ErrorCode.FABULA_ADDITIONAL_MAX_SIZE)
-    private String fabulaAdditional;
 
     public List<QualificationArticleRequestDTO> getAdditionArticles() {
         return this.additionArticles == null

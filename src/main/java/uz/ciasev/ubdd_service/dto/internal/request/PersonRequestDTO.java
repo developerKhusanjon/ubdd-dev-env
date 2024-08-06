@@ -21,7 +21,6 @@ import java.time.LocalDate;
 
 @Data
 @Builder
-//@NotUzbCitizen
 @NoArgsConstructor
 @AllArgsConstructor
 public class PersonRequestDTO {

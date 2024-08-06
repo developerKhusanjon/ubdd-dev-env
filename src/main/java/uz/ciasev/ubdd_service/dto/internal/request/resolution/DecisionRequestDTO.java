@@ -31,5 +31,4 @@ public interface DecisionRequestDTO {
 
     Boolean getIsJuridic();
 
-    List<? extends CompensationRequestDTO> getCompensations();
 }

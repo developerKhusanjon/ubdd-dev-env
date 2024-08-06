@@ -96,8 +96,4 @@ public class CourtDecisionRequestDTO implements DecisionRequestDTO {
         return Optional.ofNullable(this.executionFromDate).orElseGet(LocalDate::now);
     }
 
-    @Override
-    public List<CourtCompensationRequestDTO> getCompensations() {
-        return Optional.ofNullable(this.compensations).orElseGet(List::of);
-    }
 }

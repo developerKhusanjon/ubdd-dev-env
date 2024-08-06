@@ -52,7 +52,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ProtocolBaseCreateServiceImpl implements ProtocolBaseCreateService {
 
-    private final ProtocolValidationService protocolValidationService;
     private final JuridicService juridicService;
     private final ProtocolService protocolService;
     private final RepeatabilityService protocolRepeatabilityService;
@@ -60,12 +59,8 @@ public class ProtocolBaseCreateServiceImpl implements ProtocolBaseCreateService 
     private final ActorService newActorService;
     private final PersonDataService personDataService;
     private final ProtocolAdditionalService additionalService;
-    private final HistoryService historyService;
     private final UbddDataToProtocolBindService ubddDataToProtocolBindService;
     private final UbddOldStructureService ubddOldStructureService;
-    private final F1Service f1Service;
-
-    private final ArticlePartRepository articlePartRepository;
 
     @Override
     @Transactional
@@ -87,25 +82,8 @@ public class ProtocolBaseCreateServiceImpl implements ProtocolBaseCreateService 
                     .ifPresent(protocolDTO::setVehicleNumber);
         }
 
-        if (protocolDTO.getArticlePart() == null) {
-            Long articleId = protocolDTO.retrieveArticle().getId();
-            List<ArticlePart> articleParts = articlePartRepository.findAllByArticleId(articleId);
-            if (!articleParts.isEmpty()) {
-                protocolDTO.attachArticlePart(articleParts.get(0));
-                protocolDTO.attachArticleViolationType(null);
-            }
-        }
-
-        protocolValidationService.checkProtocolDates(protocolDTO);
-
-        protocolValidationService.validateProtocolByUser(user, protocolDTO);
-
         ViolatorCreateRequestDTO violatorRequestDTO = protocolDTO.getViolator();
         Pair<Person, ? extends PersonDocument> personWithDocument = personDataService.provideByPinppOrManualDocument(violatorRequestDTO);
-        Person person = personWithDocument.getFirst();
-
-        protocolValidationService.validateViolatorByProtocol(protocolDTO, person);
-        personValidator.accept(person);
 
         AdmCase admCase = admCaseSupplier.get();
 
@@ -126,9 +104,6 @@ public class ProtocolBaseCreateServiceImpl implements ProtocolBaseCreateService 
                 .ifPresent(protocol::setTrackNumber);
 
         Protocol savedProtocol = protocolService.create(user, violatorDetail, protocol, additionArticles);
-
-        // Don't delete this comment
-        //historyService.registerProtocolQualification(savedProtocol, protocolDTO, QualificationRegistrationType.CREATE);
 
         saveRelated(user, savedProtocol, violatorWithDetail.getFirst(), protocolDTO);
 
@@ -173,7 +148,6 @@ public class ProtocolBaseCreateServiceImpl implements ProtocolBaseCreateService 
         protocol.setArticleViolationType(protocolDTO.getArticleViolationType());
         protocol.setIsJuridic(protocolDTO.getIsJuridic());
         protocol.setFabula(protocolDTO.getFabula());
-        protocol.setFabulaAdditional(protocolDTO.getFabulaAdditional());
 
         protocol.setRegion(protocolDTO.getRegion());
         protocol.setDistrict(protocolDTO.getDistrict());
@@ -205,6 +179,7 @@ public class ProtocolBaseCreateServiceImpl implements ProtocolBaseCreateService 
         protocol.setInspectorRank(new Rank(protocolDTO.getInspectorRankId()));
 
         protocol.setInspectorFio(protocolDTO.getInspectorFio());
+        protocol.setInspectorInfo(protocolDTO.getInspectorInfo());
         protocol.setInspectorWorkCertificate(protocolDTO.getInspectorWorkCertificate());
 
         protocol.setVehicleNumber(protocolDTO.getVehicleNumber());

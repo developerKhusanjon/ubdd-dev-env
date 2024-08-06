@@ -63,44 +63,6 @@ public class ProtocolValidationServiceImpl implements ProtocolValidationService 
     }
 
     @Override
-    public void validateProtocolByUser(User user, ProtocolRequestDTO protocolDTO) {
-        ValidationCollectingError errors = new ValidationCollectingError();
-
-        errors.addIf(!organPartsSettingsService.checkAccessibleRegisterArticleByUser(user, protocolDTO.getArticlePart().getId()), ErrorCode.PROTOCOL_ARTICLE_NOT_AVAILABLE_FOR_REGISTRATION_BY_USER);
-
-        errors.throwErrorIfNotEmpty();
-    }
-
-    @Override
-    public void validateRegionDistrictByUser(User user, RegionDistrictRequest regionDistrictRequest) {
-
-        if (validationService.checkRegionNotInUser(user, regionDistrictRequest.getRegion())) {
-            throw new ValidationException(ErrorCode.PROTOCOL_REGION_NOT_AVAILABLE_FOR_USER);
-        }
-
-        if (validationService.checkDistrictNotInUser(user, regionDistrictRequest.getDistrict())) {
-            throw new ValidationException(ErrorCode.PROTOCOL_DISTRICT_NOT_AVAILABLE_FOR_USER);
-        }
-    }
-
-    @Override
-    public void validateRaidRegionByUser(User user, RegionDistrictRequest regionDistrictRequest) {
-
-        if (!validationService.checkRegionNotInUser(user, regionDistrictRequest.getRegion())) {
-            throw new ValidationException(ErrorCode.RAID_PROTOCOL_REGION_NOT_AVAILABLE_FOR_USER);
-        }
-    }
-
-    @Override
-    public void validateQualificationByUser(User user, QualificationRequestDTO protocolDTO) {
-        ValidationCollectingError errors = new ValidationCollectingError();
-
-        errors.addIf(!organPartsSettingsService.checkAccessibleConsiderArticleByUser(user, protocolDTO.getArticlePart()), ErrorCode.NOT_CONSIDER_OF_ARTICLE_PART);
-
-        errors.throwErrorIfNotEmpty();
-    }
-
-    @Override
     public void validateParticipantByProtocol(Protocol protocol,
                                               Person participant,
                                               ParticipantProtocolRequestDTO participantRequestDTO) {
@@ -167,39 +129,6 @@ public class ProtocolValidationServiceImpl implements ProtocolValidationService 
     }
 
     @Override
-    public void checkProtocolDates(ProtocolDates requestDTO) {
-        if (requestDTO.getRegistrationTime() == null) {
-            throw new ValidationException(ErrorCode.REGISTRATION_TIME_REQUIRED);
-        }
-
-        ValidationCollectingError error = new ValidationCollectingError();
-
-        List<String> dateErrors = validateProtocolDates(requestDTO);
-        for (String errorCode : dateErrors) {
-            error.add(errorCode);
-        }
-
-        error.throwErrorIfNotEmpty();
-    }
-
-    @Override
-    public void validatePaperProtocol(User inspector, PaperProtocolRequestDTO requestDTO) {
-
-        checkBlankSeriesAndNumberByOrgan(inspector.getOrgan(), requestDTO.getPaperProps(), Optional.empty());
-
-        ValidationCollectingError error = new ValidationCollectingError();
-
-        if (requestDTO.getProtocol().getRegistrationTime() != null) {
-            error.addIf(
-                    requestDTO.getProtocol().getRegistrationTime().isAfter(LocalDateTime.now().plusMinutes(15)),
-                    ErrorCode.PAPER_PROTOCOL_REGISTRATION_TIME_TOO_LARGE
-            );
-        }
-
-        error.throwErrorIfNotEmpty();
-    }
-
-    @Override
     public void checkBlankSeriesAndNumberByOrgan(Organ organ, PaperPropsRequestDTO requestDTO, Optional<Protocol> editedProtocol) {
 
         Specification<Protocol> specification = protocolSpecifications.withOldNumber(requestDTO.getBlankNumber())
@@ -253,9 +182,6 @@ public class ProtocolValidationServiceImpl implements ProtocolValidationService 
         LocalDateTime violationTime = protocol.getViolationTime();
         LocalDate personBirthDate = person.getBirthDate();
 
-//        LocalDate fullYears = violationTime.minus(16, ChronoUnit.YEARS);
-//        return fullYears.isBefore(personBirthDate);
-
         return DateTimeUtils.getFullYearsBetween(personBirthDate, violationTime.toLocalDate()) < 16;
     }
 
@@ -277,10 +203,6 @@ public class ProtocolValidationServiceImpl implements ProtocolValidationService 
         if (!validateViolationTimeMinimum(dto.getViolationTime())) {
             rsl.add(ErrorCode.VIOLATION_TIME_TOO_SMALL);
         }
-
-//        if (validationService.checkNotCurrentYear(dto.getRegistrationTime())) {
-//            rsl.add(ErrorCode.REGISTRATION_TIME_YEAR_DOES_NOT_EQUAL_CURRENT_YEAR);
-//        }
 
         if (!dto.getRegistrationTime().isBefore(LocalDate.now().plusDays(1).atStartOfDay())) {
             rsl.add(ErrorCode.REGISTRATION_TIME_CANNOT_BE_IN_FUTURE);

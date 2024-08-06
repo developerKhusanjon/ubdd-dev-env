@@ -61,21 +61,12 @@ public class CourtResolutionRequestDTO implements ResolutionRequestDTO {
     @Override
     public ResolutionCreateRequest buildResolution() {
         ResolutionCreateRequest resolution = new ResolutionCreateRequest();
-//        resolution.setNumber(this.courtNumber);
-//        resolution.setSeries("");
         resolution.setResolutionTime(this.resolutionTime);
-//        resolution.setConsiderInfo(this.judgeInfo);
-//        resolution.setRegion(this.region);
-//        resolution.setDistrict(this.district);
         resolution.setClaimId(this.claimId);
 
         return resolution;
     }
 
-    @Override
-    public List<CourtEvidenceDecisionRequestDTO> getEvidenceDecisions() {
-        return Optional.ofNullable(this.evidenceDecisions).orElseGet(List::of);
-    }
 
     @Override
     public List<CourtDecisionRequestDTO> getDecisions() {

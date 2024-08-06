@@ -10,7 +10,5 @@ import uz.ciasev.ubdd_service.utils.validator.Inspector;
 @Validated
 public interface UserAdmResolutionService {
 
-    CreatedSingleResolutionDTO createSimplified(@Inspector User user, Long admCaseId, SimplifiedResolutionRequestDTO requestDTO);
-
-    CreatedSingleResolutionDTO createSingle(@Inspector User user, Long admCaseId, SingleResolutionRequestDTO resolution);
+    CreatedSingleResolutionDTO createSingle(@Inspector User user, Long externalId, SingleResolutionRequestDTO resolution);
 }

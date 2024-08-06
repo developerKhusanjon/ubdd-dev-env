@@ -49,10 +49,10 @@ public class ProtocolServiceImpl implements ProtocolService {
         protocol.setCreatedUser(systemUserService.getCurrentUser());
 
         protocol.setUser(user.getUser());
-        protocol.setInspectorInfo(user.getInfo());
-        protocol.setInspectorFio(user.getFio());
-        protocol.setInspectorRegion(user.getRegion());
-        protocol.setInspectorDistrict(user.getDistrict());
+        protocol.setInspectorInfo(protocol.getInspectorInfo());
+        protocol.setInspectorFio(protocol.getInspectorFio());
+        protocol.setInspectorRegion(protocol.getInspectorRegion());
+        protocol.setInspectorDistrict(protocol.getInspectorDistrict());
         protocol.setInspectorRank(user.getRank());
         protocol.setInspectorPosition(user.getPosition());
         protocol.setInspectorWorkCertificate(user.getWorkCertificate());

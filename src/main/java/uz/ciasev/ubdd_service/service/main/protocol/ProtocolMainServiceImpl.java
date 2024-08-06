@@ -229,8 +229,6 @@ public class ProtocolMainServiceImpl implements ProtocolMainService {
     @Override
     @Transactional
     public void editProtocolViolationTime(User user, Long protocolId, ProtocolEditRequestDTO requestDTO) {
-        protocolValidationService.checkProtocolDates(requestDTO);
-
         Protocol protocol = getProtocolForAction(user, protocolId, EDIT_PROTOCOL_VIOLATION_TIME);
 
         if (!protocolValidationService.validateFirstDateLessThenSecond(requestDTO.getRegistrationTime(), protocol.getCreatedTime())) {

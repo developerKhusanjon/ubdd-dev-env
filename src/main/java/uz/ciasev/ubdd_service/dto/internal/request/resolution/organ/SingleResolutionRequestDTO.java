@@ -37,6 +37,9 @@ import java.util.Optional;
 @ValidDecision
 public class SingleResolutionRequestDTO implements DecisionRequestDTO, ResolutionRequestDTO, ArticleRequest {
 
+    @NotNull(message = ErrorCode.EXTERNAL_ID_REQUIRED)
+    private Long externalId;
+
     private Boolean isJuridic;
 
     @ActiveOnly(message = ErrorCode.ARTICLE_PART_DEACTIVATED)
@@ -79,12 +82,6 @@ public class SingleResolutionRequestDTO implements DecisionRequestDTO, Resolutio
     @Valid
     @ValidPunishment(message = ErrorCode.ADDITION_PUNISHMENT_INVALID)
     private OrganPunishmentRequestDTO additionPunishment;
-
-    @Valid
-    private List<OrganEvidenceDecisionRequestDTO> evidenceDecisions = Collections.emptyList();
-
-    @Valid
-    private List<OrganCompensationRequestDTO> compensations;
 
     private String signature;
 
@@ -149,24 +146,6 @@ public class SingleResolutionRequestDTO implements DecisionRequestDTO, Resolutio
         return List.of(this);
     }
 
-    @Override
-    public List<OrganCompensationRequestDTO> getCompensations() {
-        return Optional.ofNullable(this.compensations).orElseGet(List::of);
-    }
-
-    @Override
-    public List<OrganEvidenceDecisionRequestDTO> getEvidenceDecisions() {
-        return Optional.ofNullable(this.evidenceDecisions).orElseGet(List::of);
-    }
-
-    public void setDecisionTypeObj(DecisionType decisionType) {
-        if (decisionType == null) {
-            return;
-        }
-        this.decisionTypeObj = decisionType;
-        this.decisionType = decisionType.getAlias();
-
-    }
 
     @Override
     public LocalDate getExecutionFromDate() {

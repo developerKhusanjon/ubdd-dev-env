@@ -17,7 +17,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Data
-@ValidEmploymentData(message = ErrorCode.VIOLATOR_DETAIL_INVALID)
 public class ViolatorDetailRequestDTO implements ActorDetailRequestDTO {
 
     @NotNull(message = ErrorCode.OCCUPATION_REQUIRED)
@@ -39,7 +38,6 @@ public class ViolatorDetailRequestDTO implements ActorDetailRequestDTO {
     @JsonProperty(value = "intoxicationTypeId")
     private IntoxicationType intoxicationType;
 
-    @Size(max = 500, message = ErrorCode.MAX_EMPLOYMENT_POSITION_LENGTH)
     private String additionally;
 
     private String signature;

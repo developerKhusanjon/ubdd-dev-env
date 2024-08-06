@@ -9,8 +9,6 @@ public interface ResolutionRequestDTO {
 
     List<? extends DecisionRequestDTO> getDecisions();
 
-    List<? extends EvidenceDecisionRequestDTO> getEvidenceDecisions();
-
     ResolutionCreateRequest buildResolution();
 
     LocalDateTime getResolutionTime();

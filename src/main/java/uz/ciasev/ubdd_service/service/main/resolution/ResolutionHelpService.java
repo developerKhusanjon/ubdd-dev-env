@@ -138,8 +138,7 @@ public class ResolutionHelpService {
             ResolutionNumberGeneratorService resolutionNumberGeneratorService,
             DecisionNumberGeneratorService decisionNumberGeneratorService,
             ResolutionCreateRequest resolution,
-            Decision decision,
-            List<Compensation> compensations
+            Decision decision
     ) {
         CreatedResolutionDTO data = resolve(
                 admCase,
@@ -148,7 +147,7 @@ public class ResolutionHelpService {
                 resolutionNumberGeneratorService,
                 decisionNumberGeneratorService,
                 resolution,
-                List.of(Pair.of(decision, compensations)),
+                List.of(Pair.of(decision, null)),
                 List.of()
         );
 
@@ -174,12 +173,10 @@ public class ResolutionHelpService {
 
         List<CreatedDecisionDTO> savedDecisions = decisions.stream().map(decisionListPair -> {
             Decision decision = decisionListPair.getFirst();
-            List<Compensation> compensations = decisionListPair.getSecond();
 
             Decision savedDecision = saveDecision(savedResolution, decisionNumberGeneratorService, decision);
-            List<Compensation> savedCompensations = compensationService.create(savedDecision, compensations);
 
-            return new CreatedDecisionDTO(savedDecision, savedCompensations);
+            return new CreatedDecisionDTO(savedDecision, null);
         }).collect(Collectors.toList());
 
         List<EvidenceDecision> evidenceDecisions = evidenceDecisionRequests.stream()

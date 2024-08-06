@@ -18,17 +18,6 @@ public class ExternalInspectorRequestDTO {
     @NotNull(message = ErrorCode.FULL_NAME_REQUIRED)
     private String fullName;
 
-//    @Size(max = 50, message = ErrorCode.MAX_FIRST_NAME_LENGTH)
-//    @NotNull(message = ErrorCode.FIRST_NAME_REQUIRED)
-//    private String firstName;
-//
-//    @Size(max = 50, message = ErrorCode.MAX_SECOND_NAME_LENGTH)
-//    private String secondName;
-//
-//    @Size(max = 50, message = ErrorCode.MAX_LAST_NAME_LENGTH)
-//    @NotNull(message = ErrorCode.LAST_NAME_REQUIRED)
-//    private String lastName;
-
     @NotNull(message = ErrorCode.REGION_REQUIRED)
     @JsonProperty(value = "regionId")
     private Region region;

@@ -21,6 +21,9 @@ public class BillingPaymentDTO {
     @NotNull(message = "admCaseId field required")
     private Long admCaseId;
 
+    @NotNull(message = "externalId field required")
+    private Long externalId;
+
     private String invoiceSerial;
 
     @NotNull(message = "bid field required")

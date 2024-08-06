@@ -71,19 +71,15 @@ public class CourtResolutionMainServiceImpl implements CourtResolutionMainServic
     private final AdmCaseAccessService admCaseAccessService;
     private final AccountCalculatingService accountCalculatingService;
     private final CourtInvoiceSendingOrderService courtInvoiceSendingService;
-    private final ResolutionValidationService resolutionValidationService;
     private final AdmEventService notificatorService;
     private final AdmCaseStatusService statusService;
     private final ResolutionHelpService helpService;
-    private final PublicApiWebhookEventCourtDataService eventDataService;
     private final CourtFileService courtFileService;
 
     @Override
     @Transactional
     public void prepareCaseForEditing(Long caseId, Long claimId) {
         var admCase = admCaseService.getById(caseId);
-
-        //admCaseAccessService.checkPermitActionWithAdmCase(COURT_PREPARE_CASE_FOR_EDITING, admCase);
 
         statusService.setStatus(admCase, SENT_TO_COURT);
         admCaseService.update(admCase.getId(), admCase);
@@ -225,10 +221,7 @@ public class CourtResolutionMainServiceImpl implements CourtResolutionMainServic
                 .collect(Collectors.toList());
 
         List<EvidenceDecisionCreateRequest> evidenceDecisions = evidenceDecisionRequestDTOS.stream()
-                .map(evidenceDecisionDTO -> {
-                    EvidenceDecisionCreateRequest evidenceDecision = evidenceDecisionDTO.buildEvidenceDecision();
-                    return evidenceDecision;
-                })
+                .map(CourtEvidenceDecisionRequestDTO::buildEvidenceDecision)
                 .collect(Collectors.toList());
 
         CreatedResolutionDTO savedData = helpService.resolve(

@@ -56,50 +56,30 @@ import static uz.ciasev.ubdd_service.entity.action.ActionAlias.CREATE_SIMPLIFIED
 public class UserAdmResolutionServiceImpl implements UserAdmResolutionService {
 
     private final AdmCaseService admCaseService;
-    private final InvoiceActionService invoiceService;
     private final ViolatorService violatorService;
-    private final ProtocolService protocolService;
-    private final PunishmentService punishmentService;
     private final CalculatingService calculatingService;
-    private final AdmCaseAccessService admCaseAccessService;
-    private final AccountCalculatingService accountCalculatingService;
     private final ResolutionValidationService resolutionValidationService;
     private final AdmEventService notificatorService;
-    private final BillingExecutionService billingExecutionService;
     private final ResolutionHelpService helpService;
     private final ResolutionNumberGeneratorService resolutionNumberGeneratorService;
     private final DecisionNumberGeneratorService decisionNumberGeneratorService;
     private final RepeatabilityService repeatabilityService;
     private final DiscountService discountService;
-    private final SingleResolutionBuildService resolutionBuildService;
     private final ResolutionService resolutionService;
     private final CompensationService compensationService;
+    private final ProtocolService protocolService;
 
 
-    @Override
-    @Transactional
-    @DigitalSignatureCheck(event = SignatureEvent.RESOLUTION)
-    public CreatedSingleResolutionDTO createSimplified(User user, Long admCaseId, SimplifiedResolutionRequestDTO requestDTO) {
-
-        AdmCase admCase = admCaseService.getById(admCaseId);
-        admCaseAccessService.checkAccessibleUserActionWithAdmCase(user, CREATE_SIMPLIFIED_RESOLUTION, admCase);
-
-        Protocol protocol = protocolService.findSingleMainByAdmCaseId(admCaseId);
-        calculatingService.checkSimplified(user, admCase, protocol);
-
-        SingleResolutionRequestDTO singleResolutionRequestDTO = resolutionBuildService.fillInResolutionForPenalty(new SimplifiedSingleResolutionRequestDTO(), protocol, requestDTO.getAmountPenalty(), LocalDateTime.now(), requestDTO.getSignature(), user);
-
-        return createSingle(user, admCase, singleResolutionRequestDTO);
-    }
 
     @Override
     @DigitalSignatureCheck(event = SignatureEvent.RESOLUTION)
-    public CreatedSingleResolutionDTO createSingle(User user, Long admCaseId, SingleResolutionRequestDTO requestDTO) {
+    public CreatedSingleResolutionDTO createSingle(User user, Long externalId, SingleResolutionRequestDTO requestDTO) {
 
-        AdmCase admCase = admCaseService.getById(admCaseId);
+        Protocol protocol = protocolService.findByExternalId(user, String.valueOf(externalId));
+        AdmCase admCase = admCaseService.getByProtocolId(protocol.getId());
 
         if (admCase.getOrgan().getId() == 12) {
-            Optional<Decision> optionalDecision = resolutionService.getDecisionOfResolutionById(admCaseId);
+            Optional<Decision> optionalDecision = resolutionService.getDecisionOfResolutionById(admCase.getId());
             if (optionalDecision.isPresent() &&
                     checkAdmCaseStatusIsSuitable(admCase) &&
                     checkResolutionIsSame(optionalDecision.get(), requestDTO)) {
@@ -119,18 +99,13 @@ public class UserAdmResolutionServiceImpl implements UserAdmResolutionService {
         Violator violator = violatorService.findSingleByAdmCaseId(admCase.getId());
         requestDTO.setViolatorId(violator.getId());
 
-        resolutionValidationService.validateOrganCompensationsByViolator(violator, requestDTO.getCompensations());
         resolutionValidationService.validateDecisionByProtocol(violator, requestDTO);
 
         Place resolutionPlace = calculateResolutionPlace(user, requestDTO);
 
         PenaltyPunishment.DiscountVersion discount = discountService.calculateDiscount(requestDTO);
 
-        //Supplier<OrganAccountSettings> penaltyBankAccountSettingsSupplier = getOrganAccountSettingsSupplier(resolutionPlace, requestDTO.getBankAccountType(), requestDTO);
-
-
         ResolutionCreateRequest resolution = helpService.buildResolution(requestDTO);
-        List<Compensation> compensations = buildCompensations(resolutionPlace, requestDTO);
         Decision decision = helpService.buildDecision(violator, requestDTO, null /*penaltyBankAccountSettingsSupplier*/);
 
         decision.getPenalty().ifPresent(p -> p.setDiscount(discount));
@@ -138,22 +113,16 @@ public class UserAdmResolutionServiceImpl implements UserAdmResolutionService {
         admCase.setConsiderUser(user);
         admCase.setConsiderInfo(user.getInfo());
 
-        CreatedSingleResolutionDTO data = helpService.resolve(admCase, user, resolutionPlace, resolutionNumberGeneratorService, decisionNumberGeneratorService, resolution, decision, compensations);
+        CreatedSingleResolutionDTO data = helpService.resolve(admCase, user, resolutionPlace, resolutionNumberGeneratorService, decisionNumberGeneratorService, resolution, decision);
 
         Decision savedDecision = data.getCreatedDecision().getDecision();
 
         repeatabilityService.create(user, savedDecision, requestDTO.getRepeatabilityProtocolsId());
 
-//        savedDecision.getPenalty().ifPresent(penaltyPunishment -> generateNewInvoiceForDecision(savedDecision));
-//        govCompensationOpt.ifPresent(this::generateNewInvoiceForCompensation);
-
         notificatorService.fireEvent(AdmEventType.ORGAN_RESOLUTION_CREATE, data);
         return data;
     }
 
-    private List<Compensation> buildCompensations(Place resolutionPlace, SingleResolutionRequestDTO requestDTO) {
-        return requestDTO.getCompensations().stream().map(compensationRequestDTO -> helpService.buildCompensation(compensationRequestDTO, getOrganAccountSettingsSupplier(resolutionPlace, compensationRequestDTO.getBankAccountType(), requestDTO))).collect(Collectors.toList());
-    }
 
     private Place calculateResolutionPlace(User user, SingleResolutionRequestDTO requestDTO) {
         return new Place() {
@@ -179,40 +148,6 @@ public class UserAdmResolutionServiceImpl implements UserAdmResolutionService {
         };
     }
 
-    private Supplier<OrganAccountSettings> getOrganAccountSettingsSupplier(Place resolutionPlace, @Nullable BankAccountType bankAccountType, SingleResolutionRequestDTO decision) {
-        return () -> {
-            ArticlePart articlePart = decision.getArticlePart();
-            Long bankAccountTypeId = Optional.ofNullable(bankAccountType).map(BankAccountType::getId).orElseGet(() -> resolutionPlace.getOrgan().getDefaultBankAccountTypeId());
-
-            return accountCalculatingService.calculateForOrgan(resolutionPlace, articlePart, bankAccountTypeId);
-        };
-    }
-
-    private void generateNewInvoiceForDecision(Decision decision) {
-        var mainPunishment = decision.getMainPunishment();
-        if (mainPunishment != null && mainPunishment.getPenalty() != null) {
-            var invoice = invoiceService.createForPenalty(decision);
-
-            punishmentService.setDiscount(mainPunishment, invoice);
-
-            billingExecutionService.calculateAndSetExecution(mainPunishment);
-        }
-    }
-
-    private void generateNewInvoiceForCompensation(Compensation compensation) {
-        if (compensation.getVictimType().is(VictimTypeAlias.GOVERNMENT)) {
-            var invoice = invoiceService.createForCompensation(compensation);
-
-            compensation.setInvoice(invoice);
-
-            billingExecutionService.calculateAndSetExecution(compensation);
-        }
-    }
-
-    private boolean calculateOrgan34Article(AdmCase admCase) {
-        List<Protocol> protocols = protocolService.findAllProtocolsInAdmCase(admCase.getId());
-        return protocols != null && protocols.size() > 1;
-    }
 
     private CreatedSingleResolutionDTO getDtoOfResolutionAlreadyMade(Decision decision) {
         return new CreatedSingleResolutionDTO(

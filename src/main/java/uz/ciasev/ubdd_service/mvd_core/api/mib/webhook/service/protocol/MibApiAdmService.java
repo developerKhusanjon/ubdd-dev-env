@@ -11,9 +11,4 @@ public interface MibApiAdmService {
 
     void execution(Long decisionId, MibRequestDTO result);
 
-    void decisionPdf(Long decisionId, byte[] fileContent);
-
-    MibAdmCaseCreatedResponseDTO createAdmCase(MibAdmCaseRequestDTO request);
-
-    void terminateResolution(MibAdmTerminationDTO dto);
 }

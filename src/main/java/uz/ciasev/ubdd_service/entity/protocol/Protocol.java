@@ -333,8 +333,8 @@ public class Protocol implements Serializable, AdmEntity, AdmProtocol {
         this.user = request.getUser();
         this.inspectorInfo = request.getInspectorInfo();
         this.inspectorFio = request.getInspectorFio();
-        this.inspectorRegion = request.getRegion();
-        this.inspectorDistrict = request.getDistrict();
+        this.inspectorRegion = request.getInspectorRegion();
+        this.inspectorDistrict = request.getInspectorDistrict();
         this.inspectorRank = request.getInspectorRank();
         this.inspectorPosition = request.getInspectorPosition();
         this.inspectorWorkCertificate = request.getInspectorWorkCertificate();

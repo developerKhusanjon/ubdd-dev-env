@@ -62,8 +62,6 @@ public class PersonServiceImpl implements PersonService {
         Optional<Person> existPerson = findByPinpp(person);
         existPerson.ifPresent(p -> person.setId(p.getId()));
         return saveAddressAndPerson(person);
-
-//        return existPerson.orElseGet(() -> saveAddressAndPerson(person));
     }
 
     @Override

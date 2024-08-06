@@ -9,7 +9,7 @@ import uz.ciasev.ubdd_service.dto.internal.request.resolution.organ.Cancellation
 import uz.ciasev.ubdd_service.dto.internal.request.resolution.organ.SingleResolutionRequestDTO;
 import uz.ciasev.ubdd_service.dto.internal.response.adm.resolution.DecisionListResponseDTO;
 import uz.ciasev.ubdd_service.entity.user.User;
-import uz.ciasev.ubdd_service.service.main.resolution.UserResolutionMadeService;
+import uz.ciasev.ubdd_service.service.main.resolution.UserAdmResolutionService;
 import uz.ciasev.ubdd_service.service.resolution.*;
 import uz.ciasev.ubdd_service.service.resolution.decision.DecisionDTOService;
 
@@ -23,12 +23,12 @@ public class UbddResolutionController {
 
     private final ResolutionActionService resolutionActionService;
     private final DecisionDTOService decisionDTOService;
-    private final UserResolutionMadeService resolutionMadeService;
+    private final UserAdmResolutionService admResolutionService;
 
     @PostMapping
     public DecisionListResponseDTO create(@CurrentUser User user,
                                           @RequestBody @Valid SingleResolutionRequestDTO requestDTO) {
-        return decisionDTOService.buildListForCreate(() -> resolutionMadeService.createAdmSingle(user, requestDTO.getAdmCaseId(), requestDTO).getCreatedDecision());
+        return decisionDTOService.buildListForCreate(() -> admResolutionService.createSingle(user, requestDTO.getExternalId(), requestDTO).getCreatedDecision());
     }
 
     @PostMapping("/cancel/{admCaseId}")

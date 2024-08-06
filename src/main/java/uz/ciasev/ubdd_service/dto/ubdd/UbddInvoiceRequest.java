@@ -65,15 +65,15 @@ public class UbddInvoiceRequest {
     @NotNull(message = "payerBirthdate is required")
     private LocalDate payerBirthdate;
 
-    @NotNull(message = "ownerTypeId is required")
-    private Integer ownerTypeId;
-
+    private Integer ownerTypeId = 1;
 
     public Invoice toEntity() {
 
         Invoice invoice = new Invoice();
 
-        invoice.setOwnerTypeAlias(InvoiceOwnerTypeAlias.getInstanceById(this.ownerTypeId));
+        //invoice.setOwnerTypeAlias(InvoiceOwnerTypeAlias.getInstanceById(this.ownerTypeId));
+        invoice.setOwnerTypeAlias(InvoiceOwnerTypeAlias.getInstanceById(1));
+
         invoice.setOrganName(this.organName);
 
         invoice.setInvoiceSerial(this.invoiceSerial);

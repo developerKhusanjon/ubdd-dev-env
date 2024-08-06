@@ -73,8 +73,4 @@ public class ManualMaterialDecisionRequestDTO implements DecisionRequestDTO {
         return null;
     }
 
-    @Override
-    public List<CourtCompensationRequestDTO> getCompensations() {
-        return List.of();
-    }
 }

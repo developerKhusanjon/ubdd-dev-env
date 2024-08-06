@@ -18,7 +18,6 @@ import static uz.ciasev.ubdd_service.entity.dict.resolution.DecisionTypeAlias.TE
 @RequiredArgsConstructor
 public class OrganDecisionValidator extends DecisionValidator implements ConstraintValidator<ValidDecision, SingleResolutionRequestDTO> {
 
-    private final ArticleParticipantTypeDictionaryService articleParticipantTypeService;
     private final ProtocolValidationService protocolValidationService;
 
 
@@ -65,11 +64,6 @@ public class OrganDecisionValidator extends DecisionValidator implements Constra
         if (violationTypeError.isPresent()) {
             isValid = false;
             context.buildConstraintViolationWithTemplate(violationTypeError.get()).addConstraintViolation();
-        }
-
-        if (decisionRequestDTO.getDecisionType().is(TERMINATION) && !decisionRequestDTO.getCompensations().isEmpty()) {
-            isValid = false;
-            context.buildConstraintViolationWithTemplate(ErrorCode.COMPENSATION_IN_TERMINATION_DECISION_NOT_ALLOW).addConstraintViolation();
         }
 
         return isValid;

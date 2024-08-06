@@ -43,8 +43,4 @@ public class CriminalCaseDecisionRequestDTO implements DecisionRequestDTO {
         return null;
     }
 
-    @Override
-    public List<? extends CompensationRequestDTO> getCompensations() {
-        return List.of();
-    }
 }

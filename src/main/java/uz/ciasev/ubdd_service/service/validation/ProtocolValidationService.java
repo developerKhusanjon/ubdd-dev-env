@@ -25,14 +25,6 @@ public interface ProtocolValidationService {
 
     void validateViolatorByProtocol(AdmProtocol protocol, Person violator);
 
-    void validateProtocolByUser(User user, ProtocolRequestDTO protocolDTO);
-
-    void validateRegionDistrictByUser(User user, RegionDistrictRequest request);
-
-    void validateRaidRegionByUser(User user, RegionDistrictRequest regionDistrictRequest);
-
-    void validateQualificationByUser(@Inspector User user, QualificationRequestDTO protocolDTO);
-
     void validateParticipantByProtocol(Protocol protocol, Person person, @Nullable ParticipantProtocolRequestDTO participantRequestDTO);
 
     void validateVictimByProtocol(Protocol protocol, Person victim, @Nullable VictimRequestDTO victimRequestDTO);
@@ -44,10 +36,6 @@ public interface ProtocolValidationService {
     boolean validateFirstDateLessThenSecond(LocalDateTime violationTime, LocalDateTime registrationTime);
 
     void validateVictimHasNoDamage(Long protocolId, Long victimId);
-
-    void checkProtocolDates(ProtocolDates requestDTO);
-
-    void validatePaperProtocol(User inspector, PaperProtocolRequestDTO requestDTO);
 
     void checkBlankSeriesAndNumberByOrgan(Organ organ, PaperPropsRequestDTO requestDTO, Optional<Protocol> editedProtocol);
 

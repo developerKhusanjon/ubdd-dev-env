@@ -15,24 +15,14 @@ import uz.ciasev.ubdd_service.service.execution.BillingExecutionService;
 @RequiredArgsConstructor
 public class BillingPaymentApiServiceImpl implements BillingPaymentApiService {
 
-    private static final String INVOICE_PAID = "invoice.paid";
     private static final String PAYMENT_CREATED = "payment.created";
 
     private final BillingExecutionService billingExecutionService;
     private final ObjectMapper objectMapper;
 
-//    @Override
-//    public void acceptPayment(BillingWebhookRequestDTOOld webhookData) {
-////        validateWebhookData(webhookData);
-//        if (webhookData.getType().equals(PAYMENT_CREATED)) {
-//            BillingPaymentDTO payment = buildPayment(webhookData.getData());
-//            billingExecutionService.handlePayment(payment);
-//        }
-//    }
-
     @Override
     public void acceptPayment(BillingWebhookRequestDTO webhookData) {
-        BillingPaymentDTO data = null;
+        BillingPaymentDTO data;
         if (PAYMENT_CREATED.equals(webhookData.getType())) {
             try {
                 data = objectMapper.treeToValue(webhookData.getData(), BillingPaymentDTO.class);
