@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.ciasev.ubdd_service.entity.user.User;
+import uz.ciasev.ubdd_service.exception.notfound.EntityByParamsNotFound;
 import uz.ciasev.ubdd_service.mvd_core.api.billing.dto.BillingPaymentDTO;
 import uz.ciasev.ubdd_service.entity.invoice.Invoice;
 import uz.ciasev.ubdd_service.entity.invoice.InvoiceOwnerTypeAlias;
@@ -68,17 +69,12 @@ public class BillingExecutionServiceImpl implements BillingExecutionService {
 
         Payment savedPayment = paymentService.save(invoice, paymentDTO);
 
-        Long penaltyPunishmentId = invoice.getPenaltyPunishmentId();
-
-        if (penaltyPunishmentId != null) {
-
-            PenaltyPunishment penaltyPunishment = penaltyPunishmentRepository
-                    .findById(penaltyPunishmentId).orElseThrow(() -> new RuntimeException("PenaltyPunishment not found with id=" + penaltyPunishmentId));
+        PenaltyPunishment penaltyPunishment = penaltyPunishmentRepository
+                    .findPenaltyPunishmentIdByExternalIdAndOrganId(paymentDTO.getExternalId() + "", user.getOrganId())
+                            .orElseThrow(() -> new EntityByParamsNotFound(PenaltyPunishment.class, "externalId", paymentDTO.getExternalId(), "organId", user.getOrganId()));
 
             penaltyPunishment.setPaidAmount(penaltyPunishment.getPaidAmount() + savedPayment.getAmount());
             penaltyPunishment.setLastPayTime(paymentDTO.getPaidAt());
-
-        }
 
         courtService.acceptIfCourt(invoice, savedPayment);
     }
@@ -95,30 +91,6 @@ public class BillingExecutionServiceImpl implements BillingExecutionService {
         billingEntity.setPaidAmount(paidAmount);
 
         executionMap.get(billingEntity.getInvoiceOwnerTypeAlias()).accept(billingEntity, billingData.getExecutorNames());
-    }
-
-
-    /**
-     * @param violator            - нарушитель-владелиц квитанции. Сейчас оплаченная сумма считаеться именно по нарушителю.
-     * @param invoice             - квитанция, по каторой пришла оплата
-     * @param currentInvoiceOwner - текуший штраф/компенсация, к каторой привязаны квитанция
-     *                            <p>
-     *                            Иногда происходят задержки/сбои в работе с биллингом, и появляються оплаты, по уже отмененным квитанциям.
-     *                            Раньше такие оплаты вызывали ошибку INVOICE_DEACTIVATED, копились в прокси-сервисе и позже обрабатывались в ручном режиме.
-     *                            <p>
-     *                            Если квитанция заблокированна временно (в связи с обжалованием в суде, передачей в миб), то надо просто принять поалту.
-     *                            Если квитанция заблокированна в связи с отменой решения, то надо проробывать применит оплату к новому решению.
-     */
-    private void applyToOtherDecisionIfNeed(Violator violator, Invoice invoice, BillingEntity currentInvoiceOwner) {
-        // для автивной квитанции оплату сажаем на ее текущего владельца и не паримся (всегда так работало)
-        if (invoice.isActive()) return;
-
-        // если резолюция текущего владельца квитанции активна, значит оплата села правельно
-        if (billingEntityService.isResolutionActive(currentInvoiceOwner)) return;
-
-        // для отмененных решений, надо попробывать применить оплату к новому решению, если оно есть.
-        billingEntityService.findActiveBillingEntity(violator, currentInvoiceOwner.getInvoiceOwnerTypeAlias())
-                .ifPresent(this::calculateAndSetExecution);
     }
 
 
