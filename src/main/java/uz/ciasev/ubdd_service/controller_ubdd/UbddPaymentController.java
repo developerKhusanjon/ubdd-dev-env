@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import uz.ciasev.ubdd_service.config.security.CurrentUser;
+import uz.ciasev.ubdd_service.entity.user.User;
 import uz.ciasev.ubdd_service.mvd_core.api.billing.dto.BillingPaymentDTO;
 import uz.ciasev.ubdd_service.service.execution.BillingExecutionService;
 
@@ -22,8 +24,8 @@ public class UbddPaymentController {
     private final BillingExecutionService billingExecutionService;
 
     @PostMapping
-    public void save(@RequestBody @NotNull @Valid BillingPaymentDTO request) {
-        billingExecutionService.handlePayment(request);
+    public void save(@CurrentUser User user, @RequestBody @NotNull @Valid BillingPaymentDTO request) {
+        billingExecutionService.handlePayment(user, request);
     }
 
 

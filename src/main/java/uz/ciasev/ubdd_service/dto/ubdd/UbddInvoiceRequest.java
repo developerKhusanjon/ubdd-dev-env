@@ -12,6 +12,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class UbddInvoiceRequest {
 
+    @NotNull(message = "externalId is required")
+    private Long externalId;
 
     private Boolean isDiscount70;
 

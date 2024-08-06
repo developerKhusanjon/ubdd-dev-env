@@ -5,12 +5,13 @@ import uz.ciasev.ubdd_service.dto.ubdd.UbddInvoiceRequest;
 import uz.ciasev.ubdd_service.entity.invoice.Invoice;
 import uz.ciasev.ubdd_service.entity.resolution.decision.Decision;
 import uz.ciasev.ubdd_service.entity.resolution.punishment.PenaltyPunishment;
+import uz.ciasev.ubdd_service.entity.user.User;
 
 import java.util.Optional;
 
 public interface InvoiceService {
 
-    Invoice create(UbddInvoiceRequest request);
+    Invoice create(User user, UbddInvoiceRequest request);
 
     Invoice findById(Long id);
 
@@ -29,4 +30,6 @@ public interface InvoiceService {
     Invoice getPenaltyInvoiceByDecision(Decision decision);
 
     Invoice findByAdmCaseId(Long id);
+
+    Invoice findInvoiceByExternalIdAndOrganId(Long externalId, Long organId);
 }

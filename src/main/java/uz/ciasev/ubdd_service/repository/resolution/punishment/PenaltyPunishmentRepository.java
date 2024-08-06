@@ -1,7 +1,25 @@
 package uz.ciasev.ubdd_service.repository.resolution.punishment;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import uz.ciasev.ubdd_service.entity.resolution.punishment.PenaltyPunishment;
 
+import java.util.Optional;
+
 public interface PenaltyPunishmentRepository extends JpaRepository<PenaltyPunishment, Long> {
+
+    @Query(value = "SELECT pp.* " +
+            "FROM protocol p " +
+            "JOIN violator_detail vd ON vd.id = p.violator_detail_id " +
+            "JOIN violator v ON v.id = vd.violator_id " +
+            "JOIN adm_case ac ON ac.id = v.adm_case_id " +
+            "JOIN resolution r ON r.adm_case_id = ac.id " +
+            "JOIN decision d ON d.resolution_id = r.id " +
+            "JOIN punishment pun ON pun.decision_id = d.id " +
+            "JOIN penalty_punishment pp ON pp.punishment_id = pun.id " +
+            "WHERE p.external_id = :externalId " +
+            "AND p.organ_id = :organId", nativeQuery = true)
+    Optional<PenaltyPunishment> findPenaltyPunishmentIdByExternalIdAndOrganId(String externalId, Long organId);
+
+
 }

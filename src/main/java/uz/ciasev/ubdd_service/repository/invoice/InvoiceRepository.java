@@ -85,4 +85,19 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
             "join core_v0.resolution r on r.id =d.resolution_id " +
             "where r.adm_case_id=:admCaseId limit 1",nativeQuery = true)
     Optional<Invoice> findInvoiceByAdmCase(Long admCaseId);
+
+    @Query(value = "select  i.*  " +
+            "from protocol p  " +
+            "join violator_detail vd on vd.id = p.violator_detail_id  " +
+            "join violator v on v.id = vd.violator_id  " +
+            "join adm_case ac on ac.id = v.adm_case_id  " +
+            "join resolution r on r.adm_case_id = ac.id   " +
+            "join decision d on d.resolution_id = r.id   " +
+            "join punishment pun on pun.decision_id = d.id  " +
+            "join penalty_punishment pp on pp.punishment_id = pun.id " +
+            "join invoice i on i.penalty_punishment_id = pp.id " +
+            "where p.external_id = :externalId " +
+            "and p.organ_id = :organId  " +
+            "and i.is_active = true ",nativeQuery = true)
+    Optional<Invoice> findInvoiceByExternalIdAndOrganId(String externalId, Long organId);
 }

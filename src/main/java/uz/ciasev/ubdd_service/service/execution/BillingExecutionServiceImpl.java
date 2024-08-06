@@ -3,6 +3,7 @@ package uz.ciasev.ubdd_service.service.execution;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uz.ciasev.ubdd_service.entity.user.User;
 import uz.ciasev.ubdd_service.mvd_core.api.billing.dto.BillingPaymentDTO;
 import uz.ciasev.ubdd_service.entity.invoice.Invoice;
 import uz.ciasev.ubdd_service.entity.invoice.InvoiceOwnerTypeAlias;
@@ -57,13 +58,13 @@ public class BillingExecutionServiceImpl implements BillingExecutionService {
 
     @Override
     @Transactional(timeout = 60)
-    public void handlePayment(BillingPaymentDTO paymentDTO) {
+    public void handlePayment(User user, BillingPaymentDTO paymentDTO) {
 
         if (paymentService.isProcessed(paymentDTO)) {
             return;
         }
 
-        Invoice invoice = invoiceService.findById(paymentDTO.getAdmCaseId());
+        Invoice invoice = invoiceService.findInvoiceByExternalIdAndOrganId(paymentDTO.getExternalId(), user.getOrganId());
 
         Payment savedPayment = paymentService.save(invoice, paymentDTO);
 

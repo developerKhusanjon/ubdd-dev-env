@@ -5,14 +5,17 @@ import org.springframework.stereotype.Service;
 import uz.ciasev.ubdd_service.dto.internal.response.adm.InvoiceResponseDTO;
 import uz.ciasev.ubdd_service.dto.ubdd.UbddInvoiceRequest;
 import uz.ciasev.ubdd_service.entity.invoice.Invoice;
+import uz.ciasev.ubdd_service.entity.protocol.Protocol;
 import uz.ciasev.ubdd_service.entity.resolution.decision.Decision;
 import uz.ciasev.ubdd_service.entity.resolution.punishment.PenaltyPunishment;
+import uz.ciasev.ubdd_service.entity.user.User;
 import uz.ciasev.ubdd_service.exception.implementation.LogicalException;
 import uz.ciasev.ubdd_service.exception.notfound.EntityByIdNotFound;
 import uz.ciasev.ubdd_service.exception.notfound.EntityByParamsNotFound;
 import uz.ciasev.ubdd_service.repository.invoice.InvoiceRepository;
 import uz.ciasev.ubdd_service.repository.resolution.punishment.PenaltyPunishmentRepository;
 import uz.ciasev.ubdd_service.service.generator.InvoiceNumberGeneratorService;
+import uz.ciasev.ubdd_service.service.protocol.ProtocolService;
 import uz.ciasev.ubdd_service.utils.PageUtils;
 
 import java.util.Optional;
@@ -25,21 +28,22 @@ import static uz.ciasev.ubdd_service.entity.invoice.InvoiceOwnerTypeAlias.PENALT
 public class InvoiceServiceImpl implements InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
+    private final ProtocolService protocolService;
     private final PenaltyPunishmentRepository penaltyPunishmentRepository;
     private final InvoiceNumberGeneratorService invoiceNumberGeneratorService;
 
     @Override
-    public Invoice create(UbddInvoiceRequest request) {
+    public Invoice create(User user, UbddInvoiceRequest request) {
+
+
         Invoice invoice = request.toEntity();
 
-        if (request.getPenaltyPunishmentId() != null) {
-            PenaltyPunishment penalty = penaltyPunishmentRepository
-                    .findById(request.getPenaltyPunishmentId())
-                    .orElseThrow(
-                            () -> new EntityByIdNotFound(PenaltyPunishment.class, request.getPenaltyPunishmentId())
-                    );
-            invoice.setPenaltyPunishment(penalty);
-        }
+        PenaltyPunishment penaltyPunishment = penaltyPunishmentRepository
+                .findPenaltyPunishmentIdByExternalIdAndOrganId(
+                        request.getExternalId() + "", user.getOrganId()
+                ).orElseThrow(() -> new EntityByParamsNotFound(PenaltyPunishment.class, "externalId", request.getExternalId(), "organId", user.getOrganId()));
+
+        invoice.setPenaltyPunishment(penaltyPunishment);
 
         invoice.setInvoiceInternalNumber(invoiceNumberGeneratorService.generateNumber());
 
@@ -103,5 +107,11 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoiceRepository.findInvoiceByAdmCase(id).orElseThrow(
                 () -> new EntityByParamsNotFound(Invoice.class, "admCaseId", id)
         );
+    }
+
+    @Override
+    public Invoice findInvoiceByExternalIdAndOrganId(Long externalId, Long organId) {
+        return invoiceRepository.findInvoiceByExternalIdAndOrganId(externalId + "", organId)
+                .orElseThrow(() -> new EntityByParamsNotFound(Invoice.class, "externalId", externalId, "organId", organId));
     }
 }
