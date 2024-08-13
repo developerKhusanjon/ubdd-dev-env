@@ -14,6 +14,7 @@ public abstract class AbstractEmiDict extends AbstractDict {
         this.id = id;
     }
 
+    @Setter
     @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

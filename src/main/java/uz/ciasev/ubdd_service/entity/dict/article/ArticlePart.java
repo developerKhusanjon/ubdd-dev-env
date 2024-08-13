@@ -25,7 +25,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "d_article_part")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 @EntityListeners(AuditingEntityListener.class)
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 @JsonDeserialize(using = ArticlePartCacheDeserializer.class)

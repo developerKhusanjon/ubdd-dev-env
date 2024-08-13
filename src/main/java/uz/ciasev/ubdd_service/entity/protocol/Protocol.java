@@ -28,7 +28,7 @@ import java.util.Optional;
 
 @Entity
 @Table(name = "protocol")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public class Protocol implements Serializable, AdmEntity, AdmProtocol {
