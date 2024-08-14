@@ -31,8 +31,6 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@ValidProtocol
-@ConsistRegionDistrict(message = ErrorCode.PROTOCOL_REGION_AND_DISTRICT_NOT_CONSIST)
 public class ProtocolRequestDTO extends QualificationRequestDTO implements RegionDistrictRequest, ProtocolDates, AdmProtocol {
 
     private Long inspectorRegionId;
@@ -57,16 +55,13 @@ public class ProtocolRequestDTO extends QualificationRequestDTO implements Regio
     private LocalDateTime registrationTime;
 
     @NotNull(message = ErrorCode.REGION_REQUIRED)
-    @ActiveOnly(message = ErrorCode.REGION_DEACTIVATED)
     @JsonProperty(value = "regionId")
     private Region region;
 
     @NotNull(message = ErrorCode.DISTRICT_REQUIRED)
-    @ActiveOnly(message = ErrorCode.DISTRICT_DEACTIVATED)
     @JsonProperty(value = "districtId")
     private District district;
 
-    @ActiveOnly(message = ErrorCode.MTP_DEACTIVATED)
     @JsonProperty(value = "mtpId")
     private Mtp mtp;
 
@@ -97,10 +92,8 @@ public class ProtocolRequestDTO extends QualificationRequestDTO implements Regio
 
     private Double longitude;
 
-    @ValidFileUri(message = ErrorCode.AUDIO_URI_INVALID)
     private String audioUri;
 
-    @ValidFileUri(message = ErrorCode.VIDEO_URI_INVALID)
     private String videoUri;
 
     @Valid
@@ -111,7 +104,6 @@ public class ProtocolRequestDTO extends QualificationRequestDTO implements Regio
     @NotNull(message = ErrorCode.EXTERNAL_ID_REQUIRED)
     private String externalId;
 
-    @ActiveOnly(message = ErrorCode.UBDD_GROUP_DEACTIVATED)
     @JsonProperty(value = "ubddGroupId")
     private UBDDGroup ubddGroup;
 

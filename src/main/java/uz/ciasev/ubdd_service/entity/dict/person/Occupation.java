@@ -18,6 +18,8 @@ import javax.persistence.Table;
 @JsonDeserialize(using = OccupationCacheDeserializer.class)
 public class Occupation extends CourtAbstractDictEntity{
 
+
+
     @Getter
     private Boolean isWorker;
 
@@ -44,4 +46,6 @@ public class Occupation extends CourtAbstractDictEntity{
     public Boolean isNotWorker() {
         return !getIsWorker();
     }
+
+
 }

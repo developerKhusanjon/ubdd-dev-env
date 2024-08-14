@@ -12,6 +12,7 @@ import uz.ciasev.ubdd_service.dto.internal.request.resolution.ResolutionRequestD
 import uz.ciasev.ubdd_service.entity.dict.Department;
 import uz.ciasev.ubdd_service.entity.dict.District;
 import uz.ciasev.ubdd_service.entity.dict.Region;
+import uz.ciasev.ubdd_service.entity.dict.article.Article;
 import uz.ciasev.ubdd_service.entity.dict.article.ArticlePart;
 import uz.ciasev.ubdd_service.entity.dict.article.ArticleViolationType;
 import uz.ciasev.ubdd_service.entity.dict.resolution.DecisionType;
@@ -42,11 +43,12 @@ public class SingleResolutionRequestDTO implements DecisionRequestDTO, Resolutio
 
     private Boolean isJuridic;
 
-    @ActiveOnly(message = ErrorCode.ARTICLE_PART_DEACTIVATED)
+    @JsonProperty(value = "articleId")
+    private Article article;
+
     @JsonProperty(value = "articlePartId")
     private ArticlePart articlePart;
 
-    @ActiveOnly(message = ErrorCode.ARTICLE_VIOLATION_TYPE_DEACTIVATED)
     @JsonProperty(value = "articleViolationTypeId")
     private ArticleViolationType articleViolationType;
 
@@ -111,7 +113,7 @@ public class SingleResolutionRequestDTO implements DecisionRequestDTO, Resolutio
 
         if (articlePart != null) {
             decision.setIsJuridic(this.getIsJuridic());
-            decision.setArticle(this.articlePart.getArticle());
+            decision.setArticle(this.article);
             decision.setArticlePart(this.articlePart);
             decision.setArticleViolationType(this.articleViolationType);
         }

@@ -15,6 +15,7 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import uz.ciasev.ubdd_service.mvd_core.api.ExternalAddressService;
+import uz.ciasev.ubdd_service.mvd_core.api.ExternalApiAddress;
 import uz.ciasev.ubdd_service.mvd_core.api.f1.F1InvalidResponseException;
 import uz.ciasev.ubdd_service.mvd_core.api.f1.F1ServerApplicationException;
 import uz.ciasev.ubdd_service.mvd_core.api.f1.dto.*;
@@ -31,6 +32,7 @@ import uz.ciasev.ubdd_service.service.dict.DictionaryService;
 import uz.ciasev.ubdd_service.service.dict.person.GenderDictionaryService;
 import uz.ciasev.ubdd_service.service.dict.person.NationalityDictionaryService;
 
+import java.math.BigInteger;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -70,7 +72,39 @@ public class F1ServiceImpl implements F1Service {
     @Override
     public F1Document findByPinpp(String pinpp) {
 
-        GcpPersonInfo personInfo = findGcpInfoByPinpp(pinpp);
+        GcpPersonInfo personInfo;// = findGcpInfoByPinpp(pinpp);
+
+        personInfo = new GcpPersonInfo();
+
+        personInfo.setPinpp("pinpp");
+        personInfo.setFirstNameKir("firstNameKir");
+        personInfo.setSecondNameKir("secondNameKir");
+        personInfo.setLastNameKir("lastNameKir");
+        personInfo.setFirstNameLat("firstNameLat");
+        personInfo.setSecondNameLat("secondNameLat");
+        personInfo.setLastNameLat("lastNameLat");
+        personInfo.setBirthDate(LocalDate.now().minusYears(20));
+        personInfo.setGenderId(1L);
+        personInfo.setNationalityId(1L);
+        personInfo.setBirthAddress(
+                new ExternalApiAddress(1L, 10L, 200L, "addrees")
+        );
+        personInfo.setGivenAddress(
+                new ExternalApiAddress(1L, 10L, 200L, "addrees")
+        );
+
+        personInfo.setResidentAddress(
+                new ExternalApiAddress(1L, 10L, 200L, "addrees")
+        );
+
+        personInfo.setPersonDocumentTypeId(1L);
+        personInfo.setSeries("AA");
+        personInfo.setNumber("1234567");
+        personInfo.setGivenDate(LocalDate.now());
+        personInfo.setExpireDate(LocalDate.now().plusYears(5));
+        personInfo.setPhotoId(BigInteger.valueOf(1234567));
+        personInfo.setPhotoType("photoType");
+
 
         if (personInfo == null) {
             throw new NotFoundException(ErrorCode.GCP_PERSON_INFO_NOT_FOUND_BY_PINPP);

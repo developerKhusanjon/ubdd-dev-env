@@ -13,14 +13,10 @@ import uz.ciasev.ubdd_service.entity.dict.article.ArticleViolationType;
 import uz.ciasev.ubdd_service.entity.protocol.Protocol;
 import uz.ciasev.ubdd_service.exception.ErrorCode;
 import uz.ciasev.ubdd_service.service.protocol.ProtocolCreateRequest;
-import uz.ciasev.ubdd_service.utils.validator.ActiveOnly;
-import uz.ciasev.ubdd_service.utils.validator.ConsistArticle;
-import uz.ciasev.ubdd_service.utils.validator.ValidQualification;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.List;
 
 @Data
@@ -44,7 +40,6 @@ public class QualificationRequestDTO implements ArticleRequest  {
     @JsonProperty(value = "articlePartId")
     private ArticlePart articlePart;
 
-    @ActiveOnly(message = ErrorCode.ARTICLE_VIOLATION_TYPE_DEACTIVATED)
     @JsonProperty(value = "articleViolationTypeId")
     private ArticleViolationType articleViolationType;
 

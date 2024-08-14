@@ -2,6 +2,7 @@ package uz.ciasev.ubdd_service.entity.dict;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import uz.ciasev.ubdd_service.entity.dict.requests.ManualIdDictCreateDTOI;
 import uz.ciasev.ubdd_service.entity.dict.requests.ManualIdDictUpdateDTOI;
 
@@ -12,6 +13,7 @@ import javax.persistence.MappedSuperclass;
 @NoArgsConstructor
 public abstract class AbstractManualIdDictEntity extends AbstractDict {
 
+    @Setter
     @Getter
     @Id
     protected Long id;
