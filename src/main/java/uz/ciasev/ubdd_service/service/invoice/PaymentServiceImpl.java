@@ -70,16 +70,6 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public boolean isProcessed(BillingPaymentDTO paymentDTO) {
-        return paymentRepository.existsByBid(paymentDTO.getBid());
-    }
-
-    @Override
-    public Optional<Payment> getProcessed(BillingPaymentDTO paymentDTO) {
-        return paymentRepository.findByBid(paymentDTO.getBid());
-    }
-
-    @Override
     public Optional<Payment> getLastPaymentForInvoices(Collection<Long> invoicesId) {
         return paymentRepository
                 .findTopByInvoiceIdInOrderByPaymentTimeDesc(invoicesId);

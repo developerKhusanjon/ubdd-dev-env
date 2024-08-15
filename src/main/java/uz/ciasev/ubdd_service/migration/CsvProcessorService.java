@@ -301,31 +301,18 @@ public class CsvProcessorService {
         paymentDTO.setPaidAt(strToLocalDateTime(protocolData.getPayments_paidAt()));
 
         BillingPayerInfoDTO payerInfoDTO = new BillingPayerInfoDTO();
-        payerInfoDTO.setFromBankCode(protocolData.getPayments_payerInfo_fromBankCode());
-        payerInfoDTO.setFromBankAccount(protocolData.getPayments_payerInfo_fromBankAccount());
-        payerInfoDTO.setFromBankName(protocolData.getPayments_payerInfo_fromBankName());
-        payerInfoDTO.setFromInn(protocolData.getPayments_payerInfo_fromInn());
+        payerInfoDTO.setFromBankCode("0000");
+        payerInfoDTO.setFromBankAccount("0000");
+        payerInfoDTO.setFromBankName("Bank nomi ko'rsatilmagan");
+        payerInfoDTO.setFromInn("0000");
         paymentDTO.setPayerInfo(payerInfoDTO);
 
         BillingPayeeInfoDTO payeeInfoDTO = new BillingPayeeInfoDTO();
-        payeeInfoDTO.setToBankCode(protocolData.getPayments_payeeInfo_toBankCode());
-        payeeInfoDTO.setToBankAccount(protocolData.getPayments_payeeInfo_toBankAccount());
-        payeeInfoDTO.setToBankName(protocolData.getPayments_payeeInfo_toBankName());
-        payeeInfoDTO.setToInn(protocolData.getPayments_payeeInfo_toInn());
+        payeeInfoDTO.setToBankCode("0000");
+        payeeInfoDTO.setToBankAccount("0000");
+        payeeInfoDTO.setToBankName("Bank nomi ko'rsatilmagan");
+        payeeInfoDTO.setToInn("0000");
         paymentDTO.setPayeeInfo(payeeInfoDTO);
-
-        Set<ConstraintViolation<BillingPaymentDTO>> violations = protocolValidator.validate(paymentDTO);
-
-        if (!violations.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            for (ConstraintViolation<BillingPaymentDTO> violation : violations) {
-                sb.append(violation.getMessage());
-                sb.append(", ");
-            }
-            String pro = paymentDTO.getExternalId() + " CREATION PAYMENT FAILED WITH: ";
-            return Pair.of(pro, sb.toString());
-        }
-
 
         try {
             billingExecutionService.handlePayment(user, paymentDTO);

@@ -19,10 +19,6 @@ public interface PaymentService {
 
     Optional<Payment> findById(Long paymentId);
 
-    boolean isProcessed(BillingPaymentDTO paymentDTO);
-
-    Optional<Payment> getProcessed(BillingPaymentDTO paymentDTO);
-
     Optional<Payment> getLastPaymentForInvoices(Collection<Long> invoicesId);
 
     List<PaymentDataProjection> findPaymentByInvoices(Collection<Long> invoicesId);
