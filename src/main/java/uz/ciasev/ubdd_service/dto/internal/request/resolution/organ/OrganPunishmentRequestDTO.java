@@ -17,7 +17,6 @@ import java.time.LocalDate;
 public class OrganPunishmentRequestDTO implements PunishmentRequestDTO {
 
     @NotNull(message = ErrorCode.PUNISHMENT_TYPE_ID_REQUIRED)
-    @ActiveOnly(message = ErrorCode.PUNISHMENT_TYPE_DEACTIVATED)
     @JsonProperty(value = "punishmentTypeId")
     private PunishmentType punishmentType;
 
@@ -36,9 +35,15 @@ public class OrganPunishmentRequestDTO implements PunishmentRequestDTO {
     @Min(value = 0, message = ErrorCode.HOURS_LESS_THEN_0)
     private Integer hours;
 
+    @NotNull(message = "IS_DISCOUNT_50_REQUIRED")
+    private Boolean isDiscount50;
+
     private LocalDate discount50ForDate;
 
     private Long discount50Amount;
+
+    @NotNull(message = "IS_DISCOUNT_70_REQUIRED")
+    private Boolean isDiscount70;
 
     private LocalDate discount70ForDate;
 
@@ -52,25 +57,35 @@ public class OrganPunishmentRequestDTO implements PunishmentRequestDTO {
             case PENALTY: {
                 PenaltyPunishment punishmentDetail = new PenaltyPunishment();
                 punishmentDetail.setPunishment(punishment);
-                punishmentDetail.setAmount(this.amount * 100);
-                punishmentDetail.setDiscount50Amount(this.discount50Amount * 100);
-                punishmentDetail.setDiscount50ForDate(this.discount50ForDate);
-                punishmentDetail.setDiscount70Amount(this.discount70Amount * 100);
-                punishmentDetail.setDiscount70ForDate(this.discount70ForDate);
+
+                punishmentDetail.setAmount(this.amount == null ? 0 : this.amount * 100);
+
+                punishmentDetail.setIsDiscount50(this.isDiscount50);
+                if (this.isDiscount50) {
+                    punishmentDetail.setDiscount50Amount(this.discount50Amount == null ? null : this.discount50Amount * 100);
+                    punishmentDetail.setDiscount50ForDate(this.discount50ForDate);
+                }
+
+                punishmentDetail.setIsDiscount70(this.isDiscount70);
+                if (this.isDiscount70) {
+                    punishmentDetail.setDiscount70Amount(this.discount70Amount == null ? null : this.discount70Amount * 100);
+                    punishmentDetail.setDiscount70ForDate(this.discount70ForDate);
+                }
+
                 punishment.setPenalty(punishmentDetail);
                 break;
             }
             case WITHDRAWAL: {
                 WithdrawalPunishment punishmentDetail = new WithdrawalPunishment();
                 punishmentDetail.setPunishment(punishment);
-                punishmentDetail.setAmount(this.amount * 100);
+                punishmentDetail.setAmount(this.amount == null ? null : this.amount * 100);
                 punishment.setWithdrawal(punishmentDetail);
                 break;
             }
             case CONFISCATION: {
                 ConfiscationPunishment punishmentDetail = new ConfiscationPunishment();
                 punishmentDetail.setPunishment(punishment);
-                punishmentDetail.setAmount(this.amount * 100);
+                punishmentDetail.setAmount(this.amount == null ? null : this.amount * 100);
                 punishment.setConfiscation(punishmentDetail);
                 break;
             }

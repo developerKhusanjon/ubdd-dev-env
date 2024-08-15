@@ -185,18 +185,6 @@ public class CsvProcessorService {
 
         protocolRequestDTO.setViolator(buildViolatorCreateRequestDTO(protocolData));
 
-//        Set<ConstraintViolation<ProtocolRequestDTO>> violations = protocolValidator.validate(protocolRequestDTO);
-//
-//        if (!violations.isEmpty()) {
-//            StringBuilder sb = new StringBuilder();
-//            for (ConstraintViolation<ProtocolRequestDTO> violation : violations) {
-//                sb.append(violation.getMessage());
-//                sb.append(", ");
-//            }
-//            String pro = protocolRequestDTO.getExternalId() + " CREATION PROTOCOL FAILED WITH: ";
-//            return Pair.of(pro, sb.toString());
-//        }
-
         try {
             protocolDTOService.buildDetailForCreateProtocol(user, () -> protocolCreateService.createElectronProtocol(user, protocolRequestDTO));
         } catch (Exception e) {
@@ -228,6 +216,16 @@ public class CsvProcessorService {
         OrganPunishmentRequestDTO mainPunishment = new OrganPunishmentRequestDTO();
         mainPunishment.setPunishmentType(buildPunishmentTypeOrNull(protocolData.getResolution_mainPunishment_punishmentTypeId()));
         mainPunishment.setAmount(protocolData.getResolution_mainPunishment_amount() == null ? null : Long.parseLong(protocolData.getResolution_mainPunishment_amount()));
+
+        mainPunishment.setIsDiscount70(protocolData.getInovice_isDiscount70() == null ? null : Boolean.parseBoolean(protocolData.getInovice_isDiscount70()));
+        mainPunishment.setIsDiscount50(protocolData.getInovice_isDiscount50() == null ? null : Boolean.parseBoolean(protocolData.getInovice_isDiscount50()));
+
+        mainPunishment.setDiscount70ForDate(strToLocalDate(protocolData.getInovice_discount70ForDate()));
+        mainPunishment.setDiscount50ForDate(strToLocalDate(protocolData.getInovice_discount50ForDate()));
+
+        mainPunishment.setDiscount70Amount(protocolData.getInovice_discount70Amount() == null ? null : (long) Double.parseDouble(protocolData.getInovice_discount70Amount()));
+        mainPunishment.setDiscount50Amount(protocolData.getInovice_discount50Amount() == null ? null : (long) Double.parseDouble(protocolData.getInovice_discount50Amount()));
+
 
         resolutionRequestDTO.setMainPunishment(mainPunishment);
 
@@ -279,19 +277,6 @@ public class CsvProcessorService {
         invoiceRequest.setPayerName(protocolData.getInovice_payerName());
         invoiceRequest.setPayerAddress(protocolData.getInovice_payerAddress());
         invoiceRequest.setPayerBirthdate(strToLocalDate(protocolData.getInovice_payerBirthdate()));
-
-        Set<ConstraintViolation<UbddInvoiceRequest>> violations = protocolValidator.validate(invoiceRequest);
-
-        if (!violations.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            for (ConstraintViolation<UbddInvoiceRequest> violation : violations) {
-                sb.append(violation.getMessage());
-                sb.append(", ");
-            }
-            String pro = invoiceRequest.getExternalId() + " CREATION INVOICE FAILED WITH: ";
-            return Pair.of(pro, sb.toString());
-        }
-
 
         try {
             invoiceService.create(user, invoiceRequest);
