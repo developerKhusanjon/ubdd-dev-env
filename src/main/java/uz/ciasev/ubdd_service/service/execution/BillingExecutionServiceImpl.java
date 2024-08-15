@@ -18,6 +18,7 @@ import uz.ciasev.ubdd_service.entity.resolution.punishment.PenaltyPunishment;
 import uz.ciasev.ubdd_service.entity.resolution.punishment.Punishment;
 import uz.ciasev.ubdd_service.entity.violator.Violator;
 import uz.ciasev.ubdd_service.exception.implementation.NotImplementedException;
+import uz.ciasev.ubdd_service.repository.invoice.PaymentRepository;
 import uz.ciasev.ubdd_service.repository.resolution.punishment.PenaltyPunishmentRepository;
 import uz.ciasev.ubdd_service.service.publicapi.eventdata.PublicApiWebhookEventPopulationService;
 import uz.ciasev.ubdd_service.service.court.CourtPaymentService;
@@ -50,6 +51,8 @@ public class BillingExecutionServiceImpl implements BillingExecutionService {
     protected final CourtPaymentService courtService;
     protected final PublicApiWebhookEventPopulationService publicApiWebhookEventPopulationService;
     protected final BillingEntityService billingEntityService;
+    protected final PaymentRepository paymentRepository;
+
 
     {
         executionMap.put(InvoiceOwnerTypeAlias.PENALTY, this::executionPenalty);
@@ -61,7 +64,11 @@ public class BillingExecutionServiceImpl implements BillingExecutionService {
     @Transactional(timeout = 60)
     public void handlePayment(User user, BillingPaymentDTO paymentDTO) {
 
-        if (paymentService.isProcessed(paymentDTO)) {
+        if (paymentDTO.getId() == null) {
+            throw new RuntimeException("Payment id is null");
+        }
+
+        if (paymentRepository.findByNumber(String.valueOf(paymentDTO.getId())).isPresent()) {
             return;
         }
 

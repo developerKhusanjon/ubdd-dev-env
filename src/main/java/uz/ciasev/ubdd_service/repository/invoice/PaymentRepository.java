@@ -47,4 +47,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<PaymentDataProjection> findPaymentDataProjectionByInvoices(Collection<Long> invoicesId);
 
     Optional<Payment> findByBid(String bid);
+
+    Optional<Payment> findByNumber(String number);
 }
