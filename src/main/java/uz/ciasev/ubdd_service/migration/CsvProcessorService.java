@@ -93,15 +93,13 @@ public class CsvProcessorService {
                     .withSeparator(',')
                     .build();
 
-            int i = 0;
             for (ProtocolData row : csvToBean) {
-                i++;
                 try {
                     saveToDatabase(row);
                 } catch (Exception e) {
                     collectToListAndSaveSomeFile(e.getMessage() + "\n\n");
                 }
-                if (i > 10) break;
+                break;
             }
 
         } catch (Exception e) {
@@ -133,16 +131,16 @@ public class CsvProcessorService {
     private void saveToDatabase(ProtocolData protocolData) {
         User user = userRepository.findByUsernameIgnoreCase("ubdd-service").orElseThrow();
 
-        Pair<String, String> protocolResult = saveProtocol(user, protocolData);
-        if (!protocolResult.getFirst().equals("SUCCESS")) {
-            throw new RuntimeException(protocolResult.getFirst() + " -> " + protocolResult.getSecond());
+//        Pair<String, String> protocolResult = saveProtocol(user, protocolData);
+//        if (!protocolResult.getFirst().equals("SUCCESS")) {
+//            throw new RuntimeException(protocolResult.getFirst() + " -> " + protocolResult.getSecond());
+//        }
+
+        Pair<String, String> resolutionResult = saveResolution(user, protocolData);
+        if (!resolutionResult.getFirst().equals("SUCCESS")) {
+            throw new RuntimeException(resolutionResult.getFirst() + " -> " + resolutionResult.getSecond());
         }
 
-//        Pair<String, String> resolutionResult = saveResolution(user, protocolData);
-//        if (!resolutionResult.getFirst().equals("SUCCESS")) {
-//            throw new RuntimeException(resolutionResult.getFirst() + " -> " + resolutionResult.getSecond());
-//        }
-//
 //        Pair<String, String> invoiceResult = saveInvoice(user, protocolData);
 //        if (!invoiceResult.getFirst().equals("SUCCESS")) {
 //            throw new RuntimeException(invoiceResult.getFirst() + " -> " + invoiceResult.getSecond());
@@ -228,19 +226,6 @@ public class CsvProcessorService {
 
 
         resolutionRequestDTO.setMainPunishment(mainPunishment);
-
-
-        Set<ConstraintViolation<SingleResolutionRequestDTO>> violations = protocolValidator.validate(resolutionRequestDTO);
-
-        if (!violations.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            for (ConstraintViolation<SingleResolutionRequestDTO> violation : violations) {
-                sb.append(violation.getMessage());
-                sb.append(", ");
-            }
-            String pro = resolutionRequestDTO.getExternalId() + " CREATION RESOLUTION FAILED WITH: ";
-            return Pair.of(pro, sb.toString());
-        }
 
 
         try {

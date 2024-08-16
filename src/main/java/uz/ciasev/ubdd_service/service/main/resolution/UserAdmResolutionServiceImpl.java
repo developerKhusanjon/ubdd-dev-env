@@ -87,39 +87,26 @@ public class UserAdmResolutionServiceImpl implements UserAdmResolutionService {
             }
         }
 
-        calculatingService.checkCanResolveAdmCase(user, admCase);
-
         return createSingle(user, admCase, requestDTO);
     }
 
     private CreatedSingleResolutionDTO createSingle(User user, AdmCase admCase, SingleResolutionRequestDTO requestDTO) {
 
-        resolutionValidationService.validateConsider(user, admCase, requestDTO);
-
         Violator violator = violatorService.findSingleByAdmCaseId(admCase.getId());
         requestDTO.setViolatorId(violator.getId());
 
-        resolutionValidationService.validateDecisionByProtocol(violator, requestDTO);
-
         Place resolutionPlace = calculateResolutionPlace(user, requestDTO);
-
-        PenaltyPunishment.DiscountVersion discount = discountService.calculateDiscount(requestDTO);
 
         ResolutionCreateRequest resolution = helpService.buildResolution(requestDTO);
         Decision decision = helpService.buildDecision(violator, requestDTO, null /*penaltyBankAccountSettingsSupplier*/);
-
-        decision.getPenalty().ifPresent(p -> p.setDiscount(discount));
 
         admCase.setConsiderUser(user);
         admCase.setConsiderInfo(user.getInfo());
 
         CreatedSingleResolutionDTO data = helpService.resolve(admCase, user, resolutionPlace, resolutionNumberGeneratorService, decisionNumberGeneratorService, resolution, decision);
 
-        Decision savedDecision = data.getCreatedDecision().getDecision();
-
-        repeatabilityService.create(user, savedDecision, requestDTO.getRepeatabilityProtocolsId());
-
         notificatorService.fireEvent(AdmEventType.ORGAN_RESOLUTION_CREATE, data);
+
         return data;
     }
 

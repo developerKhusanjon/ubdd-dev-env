@@ -80,7 +80,6 @@ public class ResolutionValidationServiceImpl implements ResolutionValidationServ
     @Override
     public void validateDecisionByProtocol(Violator violator, DecisionRequestDTO decision) {
         Protocol protocol = protocolService.findSingleMainByAdmCaseId(violator.getAdmCaseId());
-        LocalDate toDate = protocol.getViolationTime().toLocalDate();
 
         ArticlePart articlePart = decision.getArticlePart();
         PunishmentRequestDTO mainPunishment = decision.getMainPunishment();

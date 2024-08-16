@@ -114,10 +114,6 @@ public class ExecutionCallbackServiceImpl implements ExecutionCallbackService {
     }
 
     private AdmStatusAlias calculateStatus(List<AdmStatusAlias> statuses) {
-        // если масив пустой и заходит в первое условие, и вычисляеться исполнено
-        // это актуально для:
-        //  - перкрашение без компенсаций, каторое автоматом считаеться исполненым
-        //  - решение о возбуждение уголовного дела, каторое автоматом считаеться исполненым
         if (statuses.stream().allMatch(AdmStatusAlias.EXECUTED::equals)) {
             return AdmStatusAlias.EXECUTED;
         } else if (statuses.stream().allMatch(AdmStatusAlias.DECISION_MADE::equals)) {
