@@ -219,11 +219,6 @@ public interface DecisionRepository extends DecisionCustomRepository, JpaReposit
             "   SELECT p.statusId " +
             "    FROM Punishment p " +
             "    WHERE p.decision = :decision " +
-            " )" +
-            " OR s.id IN ( " +
-            "   SELECT c.statusId " +
-            "    FROM Compensation c " +
-            "    WHERE c.decision = :decision AND c.victimType.alias = 'GOVERNMENT' " +
             " )")
     List<AdmStatusAlias> getPartsStatusAliasesByDecision(Decision decision);
 

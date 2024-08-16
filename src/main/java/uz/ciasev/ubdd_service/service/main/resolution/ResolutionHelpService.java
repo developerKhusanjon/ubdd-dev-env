@@ -179,14 +179,10 @@ public class ResolutionHelpService {
             return new CreatedDecisionDTO(savedDecision, null);
         }).collect(Collectors.toList());
 
-        List<EvidenceDecision> evidenceDecisions = evidenceDecisionRequests.stream()
-                .map(evidenceDecisionRequest -> evidenceDecisionService.create(savedResolution, evidenceDecisionRequest))
-                .collect(Collectors.toList());
-
         CreatedResolutionDTO data = new CreatedResolutionDTO(
                 savedResolution,
                 savedDecisions,
-                evidenceDecisions
+                List.of()
         );
 
         executionService.autoExecute(savedResolution);
