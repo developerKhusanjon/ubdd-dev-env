@@ -76,7 +76,6 @@ public class DecisionDTOServiceImpl implements DecisionDTOService {
         CreatedDecisionDTO data = supplier.get();
 
         DecisionListResponseDTO dto = convertToListDTO(data.getDecision());
-        dto.setGovCompensation(data.getGovCompensation().map(compensationDTOService::convertToDTO).orElse(null));
 
         return dto;
     }

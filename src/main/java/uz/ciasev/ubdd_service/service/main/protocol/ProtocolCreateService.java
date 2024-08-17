@@ -12,6 +12,4 @@ public interface ProtocolCreateService {
 
     Protocol createElectronProtocol(@Inspector(message = ErrorCode.CREATED_USER_HAS_NO_ORGAN) User user, ProtocolRequestDTO protocolDTO);
 
-    Protocol editElectronProtocol(@Inspector(message = ErrorCode.CREATED_USER_HAS_NO_ORGAN) User user, ProtocolRequestDTO protocolDTO);
-
 }

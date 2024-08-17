@@ -38,7 +38,12 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setNumber(String.valueOf(paymentDTO.getId()));
         payment.setPaymentTime(paymentDTO.getPaidAt());
 
-        payment.setBid(paymentDTO.getBid());
+        if (paymentDTO.getBid() == null) {
+            payment.setBid("MAB_FAKE_BID_" + System.currentTimeMillis());
+        } else {
+            payment.setBid(paymentDTO.getBid());
+        }
+
         payment.setBlankDate(paymentDTO.getPaidAt().toLocalDate());
         payment.setBlankNumber(paymentDTO.getDocNumber());
 

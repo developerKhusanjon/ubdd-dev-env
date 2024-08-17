@@ -67,7 +67,6 @@ public class ProtocolBaseCreateServiceImpl implements ProtocolBaseCreateService 
     public Protocol createProtocol(@Inspector User user,
                                    ProtocolRequestDTO protocolDTO,
                                    Supplier<AdmCase> admCaseSupplier,
-                                   Consumer<Person> personValidator,
                                    Function<ViolatorDetail, String> fabulaBuilder) {
 
 

@@ -45,30 +45,7 @@ public class ProtocolCreateServiceCore implements ProtocolCreateService {
         return baseCreateService.createProtocol(
                 user,
                 protocolDTO,
-                () -> admCaseService.createEmptyAdmCase(user),
-                person -> protocolUniquenessValidationService.validate(user, person, protocolDTO)
-        );
-    }
-
-
-    @Override
-    @Transactional
-    @DigitalSignatureCheck(event = SignatureEvent.PROTOCOL_CREATION)
-    @ViolatorUpdateDueToProtocolCreation
-    public Protocol editElectronProtocol(User user, ProtocolRequestDTO protocolDTO) {
-
-        protocolCreateAdditionalValidationService.validateExternalId(protocolDTO);
-
-        Protocol protocolByExternalId = findByExternalId(user, protocolDTO);
-        if (protocolByExternalId != null) {
-            return protocolByExternalId;
-        }
-
-        return baseCreateService.createProtocol(
-                user,
-                protocolDTO,
-                () -> admCaseService.createEmptyAdmCase(user),
-                person -> protocolUniquenessValidationService.validate(user, person, protocolDTO)
+                () -> admCaseService.createEmptyAdmCase(user, user.getOrgan(), null, protocolDTO.getRegion(), protocolDTO.getDistrict())
         );
     }
 

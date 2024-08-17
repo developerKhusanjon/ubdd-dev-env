@@ -35,19 +35,6 @@ public class AdmCaseServiceImpl implements AdmCaseService {
 
     @Override
     @Transactional
-    public AdmCase createEmptyAdmCase(Inspector user) {
-        return createEmptyAdmCase(user, user);
-    }
-
-    @Override
-    @Transactional
-    public AdmCase createEmptyAdmCase(Inspector user, Place place) {
-        return createEmptyAdmCase(user, place.getOrgan(), place.getDepartment(), place.getRegion(), place.getDistrict());
-    }
-
-
-    @Override
-    @Transactional
     public AdmCase createEmptyAdmCase(Inspector user, Organ organ, Department department, Region region, District district) {
 
         LocalDate openedDate = LocalDate.now();

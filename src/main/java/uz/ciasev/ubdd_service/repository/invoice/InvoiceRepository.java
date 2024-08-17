@@ -87,15 +87,15 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     Optional<Invoice> findInvoiceByAdmCase(Long admCaseId);
 
     @Query(value = "select  i.*  " +
-            "from protocol p  " +
-            "join violator_detail vd on vd.id = p.violator_detail_id  " +
-            "join violator v on v.id = vd.violator_id  " +
-            "join adm_case ac on ac.id = v.adm_case_id  " +
-            "join resolution r on r.adm_case_id = ac.id   " +
-            "join decision d on d.resolution_id = r.id   " +
-            "join punishment pun on pun.decision_id = d.id  " +
-            "join penalty_punishment pp on pp.punishment_id = pun.id " +
-            "join invoice i on i.penalty_punishment_id = pp.id " +
+            "from core_v0.protocol p  " +
+            "join core_v0.violator_detail vd on vd.id = p.violator_detail_id  " +
+            "join core_v0.violator v on v.id = vd.violator_id  " +
+            "join core_v0.adm_case ac on ac.id = v.adm_case_id  " +
+            "join core_v0.resolution r on r.adm_case_id = ac.id   " +
+            "join core_v0.decision d on d.resolution_id = r.id   " +
+            "join core_v0.punishment pun on pun.decision_id = d.id  " +
+            "join core_v0.penalty_punishment pp on pp.punishment_id = pun.id " +
+            "join core_v0.invoice i on i.penalty_punishment_id = pp.id " +
             "where p.external_id = :externalId " +
             "and p.organ_id = :organId  " +
             "and i.is_active = true ",nativeQuery = true)
