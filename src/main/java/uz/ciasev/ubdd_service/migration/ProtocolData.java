@@ -113,6 +113,9 @@ public class ProtocolData {
     @CsvCustomBindByName(column = "resolution_externalId", converter = NullValueConverter.class)
     private String resolution_externalId;
 
+    @CsvCustomBindByName(column = "resolution_considerUserInfo", converter = NullValueConverter.class)
+    private String resolution_considerUserInfo;
+
     @CsvCustomBindByName(column = "resolution_resolutionTime", converter = NullValueConverter.class)
     private String resolution_resolutionTime;
 
@@ -941,6 +944,14 @@ public class ProtocolData {
         this.payments_payeeInfo_toInn = payments_payeeInfo_toInn;
     }
 
+    public String getResolution_considerUserInfo() {
+        return resolution_considerUserInfo;
+    }
+
+    public void setResolution_considerUserInfo(String resolution_considerUserInfo) {
+        this.resolution_considerUserInfo = resolution_considerUserInfo;
+    }
+
     @Override
     public String toString() {
         return "ProtocolData{" +
@@ -980,6 +991,7 @@ public class ProtocolData {
                 ", protocol_violator_violatorDetail_additionally='" + protocol_violator_violatorDetail_additionally + '\'' +
                 ", protocol_violator_violatorDetail_signature='" + protocol_violator_violatorDetail_signature + '\'' +
                 ", resolution_externalId='" + resolution_externalId + '\'' +
+                ", resolution_considerUserInfo='" + resolution_considerUserInfo + '\'' +
                 ", resolution_resolutionTime='" + resolution_resolutionTime + '\'' +
                 ", resolution_isArticle33='" + resolution_isArticle33 + '\'' +
                 ", resolution_isArticle34='" + resolution_isArticle34 + '\'' +
