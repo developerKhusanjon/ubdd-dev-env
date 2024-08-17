@@ -1,9 +1,7 @@
 package uz.ciasev.ubdd_service.service.admcase;
 
-import org.springframework.transaction.annotation.Transactional;
 import uz.ciasev.ubdd_service.entity.Inspector;
 import uz.ciasev.ubdd_service.entity.protocol.Juridic;
-import uz.ciasev.ubdd_service.entity.Place;
 import uz.ciasev.ubdd_service.entity.admcase.AdmCase;
 import uz.ciasev.ubdd_service.entity.dict.Department;
 import uz.ciasev.ubdd_service.entity.dict.District;
@@ -18,12 +16,6 @@ public interface AdmCaseService {
 
     AdmCase getByProtocolId(Long id);
 
-    AdmCase createEmptyAdmCase(Inspector user);
-
-    @Transactional
-    AdmCase createEmptyAdmCase(Inspector user, Place place);
-
-    @Transactional
     AdmCase createEmptyAdmCase(Inspector user, Organ organ, Department department, Region region, District district);
 
     AdmCase createCourtCopyAdmCase(AdmCase admCase, Long claimId);

@@ -16,19 +16,16 @@ public interface ProtocolBaseCreateService {
     Protocol createProtocol(User user,
                             ProtocolRequestDTO protocolDTO,
                             Supplier<AdmCase> admCaseSupplier,
-                            Consumer<Person> personValidator,
                             Function<ViolatorDetail, String> fabulaBuilder);
 
 
     default Protocol createProtocol(User user,
                             ProtocolRequestDTO protocolDTO,
-                            Supplier<AdmCase> admCaseSupplier,
-                            Consumer<Person> personValidator) {
+                            Supplier<AdmCase> admCaseSupplier) {
         return createProtocol(
                 user,
                 protocolDTO,
                 admCaseSupplier,
-                personValidator,
                 violatorDetail -> protocolDTO.getFabula()
         );
     }

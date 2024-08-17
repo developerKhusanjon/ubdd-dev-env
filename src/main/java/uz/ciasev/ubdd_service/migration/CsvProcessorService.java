@@ -131,25 +131,25 @@ public class CsvProcessorService {
     private void saveToDatabase(ProtocolData protocolData) {
         User user = userRepository.findByUsernameIgnoreCase("ubdd-service").orElseThrow();
 
-//        Pair<String, String> protocolResult = saveProtocol(user, protocolData);
-//        if (!protocolResult.getFirst().equals("SUCCESS")) {
-//            throw new RuntimeException(protocolResult.getFirst() + " -> " + protocolResult.getSecond());
-//        }
+        Pair<String, String> protocolResult = saveProtocol(user, protocolData);
+        if (!protocolResult.getFirst().equals("SUCCESS")) {
+            throw new RuntimeException(protocolResult.getFirst() + " -> " + protocolResult.getSecond());
+        }
 
         Pair<String, String> resolutionResult = saveResolution(user, protocolData);
         if (!resolutionResult.getFirst().equals("SUCCESS")) {
             throw new RuntimeException(resolutionResult.getFirst() + " -> " + resolutionResult.getSecond());
         }
 
-//        Pair<String, String> invoiceResult = saveInvoice(user, protocolData);
-//        if (!invoiceResult.getFirst().equals("SUCCESS")) {
-//            throw new RuntimeException(invoiceResult.getFirst() + " -> " + invoiceResult.getSecond());
-//        }
-//
-//        Pair<String, String> paymentResult = savePayment(user, protocolData);
-//        if (!paymentResult.getFirst().equals("SUCCESS")) {
-//            throw new RuntimeException(paymentResult.getFirst() + " -> " + paymentResult.getSecond());
-//        }
+        Pair<String, String> invoiceResult = saveInvoice(user, protocolData);
+        if (!invoiceResult.getFirst().equals("SUCCESS")) {
+            throw new RuntimeException(invoiceResult.getFirst() + " -> " + invoiceResult.getSecond());
+        }
+
+        Pair<String, String> paymentResult = savePayment(user, protocolData);
+        if (!paymentResult.getFirst().equals("SUCCESS")) {
+            throw new RuntimeException(paymentResult.getFirst() + " -> " + paymentResult.getSecond());
+        }
     }
 
     private Pair<String, String> saveProtocol(User user, ProtocolData protocolData) {

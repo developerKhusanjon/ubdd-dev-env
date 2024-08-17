@@ -17,6 +17,7 @@ import uz.ciasev.ubdd_service.repository.resolution.punishment.PenaltyPunishment
 import uz.ciasev.ubdd_service.service.generator.InvoiceNumberGeneratorService;
 import uz.ciasev.ubdd_service.service.protocol.ProtocolService;
 import uz.ciasev.ubdd_service.utils.PageUtils;
+import uz.ciasev.ubdd_service.utils.types.MultiLanguage;
 
 import java.util.Optional;
 
@@ -37,6 +38,12 @@ public class InvoiceServiceImpl implements InvoiceService {
 
 
         Invoice invoice = request.toEntity();
+        invoice.setOrganName(user.getOrgan().getName().get(MultiLanguage.Language.LAT));
+        invoice.setBankInn("0000");
+        invoice.setBankName("0000");
+        invoice.setBankName("Bank nomi ko'rsatilmagan");
+        invoice.setBankCode("0000");
+        invoice.setBankAccount("0000");
 
         PenaltyPunishment penaltyPunishment = penaltyPunishmentRepository
                 .findPenaltyPunishmentIdByExternalIdAndOrganId(

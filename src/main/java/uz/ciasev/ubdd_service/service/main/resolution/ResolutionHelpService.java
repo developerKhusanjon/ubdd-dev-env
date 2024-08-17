@@ -147,7 +147,7 @@ public class ResolutionHelpService {
                 resolutionNumberGeneratorService,
                 decisionNumberGeneratorService,
                 resolution,
-                List.of(Pair.of(decision, null)),
+                List.of(Pair.of(decision, List.of())),
                 List.of()
         );
 
