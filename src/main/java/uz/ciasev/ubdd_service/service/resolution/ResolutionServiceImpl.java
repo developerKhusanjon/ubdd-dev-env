@@ -48,7 +48,6 @@ public class ResolutionServiceImpl implements ResolutionService {
 
         resolution.setAdmCase(admCase);
 
-        resolution.setConsiderInfo(inspector.getInfo());
         resolution.setUser(inspector.getUser());
 
         resolution.setRegion(considerPlace.getRegion());

@@ -31,4 +31,6 @@ public class ResolutionCreateRequest {
     private Long claimId;
     private Long fileId;
     private String courtDecisionUri;
+
+    private String considerUserInfo;
 }

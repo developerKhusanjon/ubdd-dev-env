@@ -166,7 +166,7 @@ public class Resolution implements AdmEntity, Place, Serializable {
         this.series = request.getSeries();
         this.number = request.getNumber();
         this.user = request.getUser();
-        this.considerInfo = request.getConsiderInfo();
+        this.considerInfo = request.getConsiderUserInfo();
         this.considerSignature = request.getConsiderSignature();
         this.organ = request.getOrgan();
         this.department = request.getDepartment();

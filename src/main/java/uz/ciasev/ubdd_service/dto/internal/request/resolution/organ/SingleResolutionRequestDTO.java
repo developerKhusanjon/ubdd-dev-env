@@ -41,6 +41,9 @@ public class SingleResolutionRequestDTO implements DecisionRequestDTO, Resolutio
     @NotNull(message = ErrorCode.EXTERNAL_ID_REQUIRED)
     private Long externalId;
 
+    @NotNull(message = "CONSIDER_USER_INFO_REQUIRED")
+    private String considerUserInfo;
+
     private Boolean isJuridic;
 
     @JsonProperty(value = "articleId")
@@ -139,6 +142,7 @@ public class SingleResolutionRequestDTO implements DecisionRequestDTO, Resolutio
 
         resolution.setConsiderSignature(this.signature);
         resolution.setResolutionTime(this.resolutionTime);
+        resolution.setConsiderUserInfo(this.considerUserInfo);
 
         return resolution;
     }

@@ -197,6 +197,7 @@ public class CsvProcessorService {
 
         SingleResolutionRequestDTO resolutionRequestDTO = new SingleResolutionRequestDTO();
         resolutionRequestDTO.setExternalId(Long.parseLong(protocolData.getResolution_externalId()));
+        resolutionRequestDTO.setConsiderUserInfo(protocolData.getResolution_considerUserInfo());
         resolutionRequestDTO.setResolutionTime(strToLocalDateTime(protocolData.getResolution_resolutionTime()));
         resolutionRequestDTO.setIsArticle33(protocolData.getResolution_isArticle33() == null ? null : Boolean.parseBoolean(protocolData.getResolution_isArticle33()));
         resolutionRequestDTO.setIsArticle34(protocolData.getResolution_isArticle34() == null ? null : Boolean.parseBoolean(protocolData.getResolution_isArticle34()));
